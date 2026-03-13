@@ -46,9 +46,9 @@ const Profile = () => {
         {/* Avatar & Name */}
         <div className="text-center mb-2">
           <div className="mx-auto h-20 w-20 rounded-full bg-accent flex items-center justify-center mb-2">
-            <span className="font-serif text-2xl font-bold text-accent-foreground">ד</span>
+            <span className="font-serif text-2xl font-bold text-accent-foreground">{initial}</span>
           </div>
-          <h2 className="font-serif text-xl font-bold">דניאל</h2>
+          <h2 className="font-serif text-xl font-bold">{displayName}</h2>
         </div>
 
         {/* Streak Banner */}
