@@ -1,9 +1,15 @@
 import { userStats, mockRecentSessions } from "@/lib/mockData";
-import { Flame, BookOpen, Clock, Calendar, Settings } from "lucide-react";
+import { Flame, BookOpen, Clock, Calendar, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "קורא";
+  const initial = displayName.charAt(0).toUpperCase();
 
   // Generate heatmap data for last 30 days
   const today = new Date();

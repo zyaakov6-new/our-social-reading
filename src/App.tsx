@@ -1,21 +1,18 @@
-import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
-import Onboarding from "./pages/Onboarding";
+import Auth from "./pages/Auth";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 
 const queryClient = new QueryClient();
-const ONBOARDING_STATUS_EVENT = "onboarding-status-changed";
-
-const isOnboarded = () => localStorage.getItem("onboarding_complete") === "true";
 
 const AppLayout = () => (
   <>
@@ -32,42 +29,43 @@ const AppLayout = () => (
   </>
 );
 
-const App = () => {
-  const [onboarded, setOnboarded] = useState(isOnboarded);
+const AppRoutes = () => {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const syncOnboardingStatus = () => setOnboarded(isOnboarded());
-
-    window.addEventListener("storage", syncOnboardingStatus);
-    window.addEventListener(ONBOARDING_STATUS_EVENT, syncOnboardingStatus);
-
-    return () => {
-      window.removeEventListener("storage", syncOnboardingStatus);
-      window.removeEventListener(ONBOARDING_STATUS_EVENT, syncOnboardingStatus);
-    };
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-10 h-10 rounded-full reading-gradient animate-pulse" />
+      </div>
+    );
+  }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route
-              path="/onboarding"
-              element={onboarded ? <Navigate to="/" replace /> : <Onboarding />}
-            />
-            <Route
-              path="/*"
-              element={onboarded ? <AppLayout /> : <Navigate to="/onboarding" replace />}
-            />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <Routes>
+      <Route
+        path="/auth"
+        element={user ? <Navigate to="/" replace /> : <Auth />}
+      />
+      <Route
+        path="/*"
+        element={user ? <AppLayout /> : <Navigate to="/auth" replace />}
+      />
+    </Routes>
   );
 };
 
-export default App;
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
+export default App;
