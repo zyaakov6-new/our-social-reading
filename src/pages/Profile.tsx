@@ -121,6 +121,16 @@ const Profile = () => {
             ))}
           </div>
         </div>
+
+        {/* Logout */}
+        <Button
+          variant="ghost"
+          onClick={signOut}
+          className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <LogOut size={16} />
+          התנתקות
+        </Button>
       </div>
     </div>
   );
