@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { Play, Pause, Square, BookOpen, Clock, FileText } from "lucide-react";
-import { mockBooks } from "@/lib/mockData";
+import { Play, Pause, Square, BookOpen, Clock, FileText, X } from "lucide-react";
+import { useBooks } from "@/hooks/useBooks";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type TimerState = 'idle' | 'select' | 'running' | 'paused' | 'done';
 
@@ -12,8 +14,10 @@ const ReadingFAB = () => {
   const [manualMode, setManualMode] = useState(false);
   const [manualMinutes, setManualMinutes] = useState('');
   const [manualPages, setManualPages] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const currentBooks = mockBooks.filter(b => b.status === 'reading');
+  const { books } = useBooks();
+  const currentBooks = books.filter(b => b.status === 'reading');
   const selectedBook = currentBooks.find(b => b.id === selectedBookId);
 
   useEffect(() => {
@@ -30,8 +34,56 @@ const ReadingFAB = () => {
     return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
   }, []);
 
-  const handleFinish = () => {
-    setState('done');
+  const handleFinish = async () => {
+    if (!selectedBookId) return;
+
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const minutesRead = manualMode
+        ? parseInt(manualMinutes || '0', 10)
+        : Math.floor(seconds / 60);
+
+      const pagesRead = manualMode
+        ? parseInt(manualPages || '0', 10)
+        : 0;
+
+      if (minutesRead === 0 && pagesRead === 0) {
+        toast.error("יש להזין לפחות דקות או עמודים");
+        setSaving(false);
+        return;
+      }
+
+      const { error } = await supabase.from("reading_sessions").insert({
+        user_id: user.id,
+        book_id: selectedBookId,
+        minutes_read: minutesRead,
+        pages_read: pagesRead,
+        session_date: new Date().toISOString().split('T')[0],
+      });
+
+      if (error) throw error;
+
+      if (pagesRead > 0 && selectedBook) {
+        const newCurrentPage = Math.min(
+          selectedBook.currentPage + pagesRead,
+          selectedBook.totalPages
+        );
+
+        await supabase
+          .from("books")
+          .update({ current_page: newCurrentPage })
+          .eq("id", selectedBookId);
+      }
+
+      setState('done');
+    } catch (error: any) {
+      toast.error(error.message || "שגיאה בשמירת הפעילות");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleClose = () => {
@@ -45,7 +97,6 @@ const ReadingFAB = () => {
 
   return (
     <>
-      {/* FAB */}
       {state === 'idle' && (
         <motion.button
           initial={{ scale: 0 }}
@@ -57,7 +108,6 @@ const ReadingFAB = () => {
         </motion.button>
       )}
 
-      {/* Modal Overlay */}
       <AnimatePresence>
         {state !== 'idle' && (
           <motion.div
@@ -72,9 +122,15 @@ const ReadingFAB = () => {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-8"
+              className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-8 relative"
             >
-              {/* Select Book */}
+              <button
+                onClick={handleClose}
+                className="absolute top-4 left-4 h-8 w-8 rounded-full bg-muted hover:bg-accent flex items-center justify-center transition-colors"
+              >
+                <X size={18} />
+              </button>
+
               {state === 'select' && (
                 <div>
                   <h2 className="font-serif text-xl font-bold mb-4 text-center">התחל קריאה</h2>
@@ -82,37 +138,46 @@ const ReadingFAB = () => {
                   {!manualMode ? (
                     <>
                       <p className="text-sm text-muted-foreground mb-3 text-center">בחר ספר מהרשימה שלך</p>
-                      <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
-                        {currentBooks.map(book => (
-                          <button
-                            key={book.id}
-                            onClick={() => setSelectedBookId(book.id)}
-                            className={`w-full flex items-center gap-3 rounded-xl p-3 transition-all ${
-                              selectedBookId === book.id
-                                ? 'bg-primary/10 ring-2 ring-primary'
-                                : 'bg-muted hover:bg-accent'
-                            }`}
-                          >
-                            <BookOpen size={18} className="text-primary flex-shrink-0" />
-                            <div className="text-right flex-1">
-                              <p className="font-serif font-semibold text-sm">{book.title}</p>
-                              <p className="text-xs text-muted-foreground">{book.author}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+                      {currentBooks.length === 0 ? (
+                        <div className="text-center py-6">
+                          <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
+                          <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
+                            {currentBooks.map(book => (
+                              <button
+                                key={book.id}
+                                onClick={() => setSelectedBookId(book.id)}
+                                className={`w-full flex items-center gap-3 rounded-xl p-3 transition-all ${
+                                  selectedBookId === book.id
+                                    ? 'bg-primary/10 ring-2 ring-primary'
+                                    : 'bg-muted hover:bg-accent'
+                                }`}
+                              >
+                                <BookOpen size={18} className="text-primary flex-shrink-0" />
+                                <div className="text-right flex-1">
+                                  <p className="font-serif font-semibold text-sm">{book.title}</p>
+                                  <p className="text-xs text-muted-foreground">{book.author}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
 
-                      <button
-                        onClick={() => {
-                          if (selectedBookId) {
-                            setState('running');
-                          }
-                        }}
-                        disabled={!selectedBookId}
-                        className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold text-lg disabled:opacity-40 transition-opacity"
-                      >
-                        ▶ התחל טיימר
-                      </button>
+                          <button
+                            onClick={() => {
+                              if (selectedBookId) {
+                                setState('running');
+                              }
+                            }}
+                            disabled={!selectedBookId}
+                            className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold text-lg disabled:opacity-40 transition-opacity"
+                          >
+                            התחל טיימר
+                          </button>
+                        </>
+                      )}
 
                       <button
                         onClick={() => setManualMode(true)}
@@ -124,59 +189,64 @@ const ReadingFAB = () => {
                   ) : (
                     <>
                       <p className="text-sm text-muted-foreground mb-3 text-center">הזנה ידנית</p>
-                      <div className="space-y-2 mb-3">
-                        {currentBooks.map(book => (
+                      {currentBooks.length === 0 ? (
+                        <div className="text-center py-6">
+                          <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
+                          <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="space-y-2 mb-3">
+                            {currentBooks.map(book => (
+                              <button
+                                key={book.id}
+                                onClick={() => setSelectedBookId(book.id)}
+                                className={`w-full flex items-center gap-3 rounded-xl p-3 transition-all ${
+                                  selectedBookId === book.id
+                                    ? 'bg-primary/10 ring-2 ring-primary'
+                                    : 'bg-muted hover:bg-accent'
+                                }`}
+                              >
+                                <BookOpen size={18} className="text-primary flex-shrink-0" />
+                                <span className="font-serif font-semibold text-sm">{book.title}</span>
+                              </button>
+                            ))}
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 mb-4">
+                            <div>
+                              <label className="text-xs text-muted-foreground mb-1 block">
+                                <Clock size={12} className="inline ml-1" />דקות
+                              </label>
+                              <input
+                                type="number"
+                                value={manualMinutes}
+                                onChange={e => setManualMinutes(e.target.value)}
+                                placeholder="30"
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-muted-foreground mb-1 block">
+                                <FileText size={12} className="inline ml-1" />עמודים
+                              </label>
+                              <input
+                                type="number"
+                                value={manualPages}
+                                onChange={e => setManualPages(e.target.value)}
+                                placeholder="20"
+                                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                              />
+                            </div>
+                          </div>
                           <button
-                            key={book.id}
-                            onClick={() => setSelectedBookId(book.id)}
-                            className={`w-full flex items-center gap-3 rounded-xl p-3 transition-all ${
-                              selectedBookId === book.id
-                                ? 'bg-primary/10 ring-2 ring-primary'
-                                : 'bg-muted hover:bg-accent'
-                            }`}
+                            onClick={handleFinish}
+                            disabled={!selectedBookId || (!manualMinutes && !manualPages) || saving}
+                            className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold disabled:opacity-40"
                           >
-                            <BookOpen size={18} className="text-primary flex-shrink-0" />
-                            <span className="font-serif font-semibold text-sm">{book.title}</span>
+                            {saving ? "שומר..." : "שמור"}
                           </button>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3 mb-4">
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">
-                            <Clock size={12} className="inline ml-1" />דקות
-                          </label>
-                          <input
-                            type="number"
-                            value={manualMinutes}
-                            onChange={e => setManualMinutes(e.target.value)}
-                            placeholder="30"
-                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-xs text-muted-foreground mb-1 block">
-                            <FileText size={12} className="inline ml-1" />עמודים
-                          </label>
-                          <input
-                            type="number"
-                            value={manualPages}
-                            onChange={e => setManualPages(e.target.value)}
-                            placeholder="20"
-                            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
-                          />
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (selectedBookId && (manualMinutes || manualPages)) {
-                            setState('done');
-                          }
-                        }}
-                        disabled={!selectedBookId || (!manualMinutes && !manualPages)}
-                        className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold disabled:opacity-40"
-                      >
-                        שמור
-                      </button>
+                        </>
+                      )}
                       <button
                         onClick={() => setManualMode(false)}
                         className="w-full mt-2 py-2 text-sm text-muted-foreground"
@@ -188,7 +258,6 @@ const ReadingFAB = () => {
                 </div>
               )}
 
-              {/* Timer Running / Paused */}
               {(state === 'running' || state === 'paused') && selectedBook && (
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground mb-1">קורא עכשיו</p>
@@ -224,7 +293,8 @@ const ReadingFAB = () => {
                     </button>
                     <button
                       onClick={handleFinish}
-                      className="h-14 w-14 rounded-full bg-secondary flex items-center justify-center"
+                      disabled={saving}
+                      className="h-14 w-14 rounded-full bg-secondary flex items-center justify-center disabled:opacity-40"
                     >
                       <Square size={20} className="text-secondary-foreground" fill="currentColor" />
                     </button>
@@ -232,7 +302,6 @@ const ReadingFAB = () => {
                 </div>
               )}
 
-              {/* Done */}
               {state === 'done' && (
                 <div className="text-center">
                   <motion.div

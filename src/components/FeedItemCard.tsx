@@ -1,7 +1,7 @@
 import { Heart, MessageCircle } from "lucide-react";
-import { FeedItem as FeedItemType } from "@/lib/mockData";
+import { ReadingSession } from "@/hooks/useReadingSessions";
 
-const FeedItemCard = ({ item }: { item: FeedItemType }) => {
+const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   return (
     <div className="rounded-xl bg-card p-4 card-shadow">
       <div className="flex items-start gap-3">
@@ -15,6 +15,12 @@ const FeedItemCard = ({ item }: { item: FeedItemType }) => {
             <span className="font-semibold">{item.userName}</span>
             {" "}קרא/ה{" "}
             <span className="font-semibold text-primary">{item.minutesRead} דקות</span>
+            {item.pagesRead > 0 && (
+              <>
+                {" • "}
+                <span className="font-semibold text-primary">{item.pagesRead} עמודים</span>
+              </>
+            )}
             {" "}של{" "}
             <span className="font-serif font-semibold">"{item.bookTitle}"</span>
           </p>
