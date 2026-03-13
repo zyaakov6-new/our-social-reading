@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { mockChallenges } from "@/lib/mockData";
 import { useBooks } from "@/hooks/useBooks";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -19,7 +19,6 @@ const pathToTab: Record<string, Tab> = {
 
 const Home = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
   const { books, refetch: refetchBooks, deleteBook } = useBooks();
   const { sessions } = useReadingSessions();
@@ -39,33 +38,23 @@ const Home = () => {
   const finishedBooks = books.filter(b => b.status === 'finished');
   const wantBooks = books.filter(b => b.status === 'want');
 
-  const handleTabChange = (tab: typeof tabs[0]) => {
-    setActiveTab(tab.key);
-    navigate(tab.path);
-  };
-
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-28">
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/50 px-4 pt-6 pb-3">
-        <h1 className="font-serif text-2xl font-bold mb-4">ספר ביחד</h1>
-        <div className="flex gap-1 bg-muted rounded-xl p-1">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => handleTabChange(tab)}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-all ${
-                  activeTab === tab.key
-                    ? 'bg-card text-foreground card-shadow'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <Icon size={16} />
-                {tab.label}
-              </button>
-            );
-          })}
+        <div className="flex items-baseline justify-between">
+          <div>
+            <h1 className="font-serif text-3xl font-extrabold">ספר ביחד</h1>
+            <p className="text-xs text-muted-foreground mt-1">
+              בונים הרגל קריאה קטן, יום אחרי יום
+            </p>
+          </div>
+          <div className="hidden sm:flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className={activeTab === 'feed' ? "font-semibold text-foreground" : ""}>הפיד</span>
+            <span>•</span>
+            <span className={activeTab === 'challenges' ? "font-semibold text-foreground" : ""}>אתגרים</span>
+            <span>•</span>
+            <span className={activeTab === 'books' ? "font-semibold text-foreground" : ""}>ספרים</span>
+          </div>
         </div>
       </div>
 
@@ -73,10 +62,29 @@ const Home = () => {
         {activeTab === 'feed' && (
           <div className="space-y-3">
             {sessions.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">עדיין אין פעילות קריאה</p>
-                <p className="text-sm text-muted-foreground mt-1">התחל לקרוא כדי לראות את הפיד שלך</p>
-              </div>
+              <>
+                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
+                  <p className="text-xs font-semibold text-secondary">קרא עכשיו</p>
+                  <p className="text-sm font-hebrew-serif font-bold">התחל את סשן הקריאה הראשון שלך היום</p>
+                  <p className="text-xs text-muted-foreground">
+                    לחץ על כפתור ▶ במרכז כדי למדוד זמן קריאה.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
+                  <p className="text-xs font-semibold text-primary">הצעה לאתגר</p>
+                  <p className="text-sm font-hebrew-serif font-bold">20 דקות קריאה ביום לשבוע</p>
+                  <p className="text-xs text-muted-foreground">
+                    אתגר קטן שיעזור לך לבנות רצף ראשון רגוע.
+                  </p>
+                </div>
+                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground">טיפ קריאה</p>
+                  <p className="text-sm font-hebrew-serif font-bold">5 דקות הן התחלה מצוינת</p>
+                  <p className="text-xs text-muted-foreground">
+                    גם קטע קצר לפני השינה נחשב — העקביות היא מה שבונה את ההרגל.
+                  </p>
+                </div>
+              </>
             ) : (
               sessions.map(session => (
                 <FeedItemCard key={session.id} item={session} />
@@ -88,7 +96,7 @@ const Home = () => {
         {activeTab === 'challenges' && (
           <div className="space-y-3">
             <button className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors">
-              + אתגר חדש
+              + הזמן חבר לאתגר ראשון
             </button>
             {mockChallenges.map(c => (
               <ChallengeCard key={c.id} challenge={c} />
@@ -101,9 +109,9 @@ const Home = () => {
             <AddBookDialog onBookAdded={refetchBooks} />
 
             {books.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">עדיין אין ספרים</p>
-                <p className="text-sm text-muted-foreground mt-1">הוסף ספר כדי להתחיל לעקוב אחרי הקריאה</p>
+              <div className="text-center py-12 space-y-2">
+                <p className="text-sm font-semibold text-foreground">אין עדיין ספרים ברשימה</p>
+                <p className="text-sm text-muted-foreground">הוסף את הספר הראשון שתרצה לקרוא</p>
               </div>
             ) : (
               <>

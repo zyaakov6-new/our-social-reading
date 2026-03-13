@@ -4,10 +4,12 @@ import { useBooks } from "@/hooks/useBooks";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 type TimerState = 'idle' | 'select' | 'running' | 'paused' | 'done';
 
 const ReadingFAB = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState<TimerState>('idle');
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const [seconds, setSeconds] = useState(0);
@@ -102,9 +104,10 @@ const ReadingFAB = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           onClick={() => setState('select')}
-          className="fixed bottom-20 left-4 z-50 h-14 w-14 rounded-full reading-gradient flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+          className="fixed bottom-6 left-1/2 z-50 h-16 w-16 -translate-x-1/2 rounded-full reading-gradient flex items-center justify-center shadow-xl hover:shadow-2xl transition-all border-4 border-card"
+          aria-label="התחל סשן קריאה"
         >
-          <Play size={24} className="text-primary-foreground mr-[-2px]" fill="currentColor" />
+          <Play size={30} className="text-primary-foreground mr-[-1px]" fill="currentColor" />
         </motion.button>
       )}
 
@@ -190,9 +193,20 @@ const ReadingFAB = () => {
                     <>
                       <p className="text-sm text-muted-foreground mb-3 text-center">הזנה ידנית</p>
                       {currentBooks.length === 0 ? (
-                        <div className="text-center py-6">
-                          <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
-                          <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                        <div className="text-center py-6 space-y-3">
+                          <div>
+                            <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
+                            <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              handleClose();
+                              navigate("/books");
+                            }}
+                            className="inline-flex items-center justify-center rounded-full border border-primary/40 px-4 py-1.5 text-xs font-medium text-primary hover:bg-primary/5 transition-colors"
+                          >
+                            הוסף ספר ידנית
+                          </button>
                         </div>
                       ) : (
                         <>
@@ -252,6 +266,13 @@ const ReadingFAB = () => {
                         className="w-full mt-2 py-2 text-sm text-muted-foreground"
                       >
                         חזרה לטיימר
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        className="w-full mt-1 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        סגור בלי לשמור
                       </button>
                     </>
                   )}
