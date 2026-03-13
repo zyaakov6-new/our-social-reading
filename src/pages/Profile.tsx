@@ -1,9 +1,15 @@
 import { userStats, mockRecentSessions } from "@/lib/mockData";
-import { Flame, BookOpen, Clock, Calendar, Settings } from "lucide-react";
+import { Flame, BookOpen, Clock, Calendar, Settings, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "קורא";
+  const initial = displayName.charAt(0).toUpperCase();
 
   // Generate heatmap data for last 30 days
   const today = new Date();
@@ -40,9 +46,9 @@ const Profile = () => {
         {/* Avatar & Name */}
         <div className="text-center mb-2">
           <div className="mx-auto h-20 w-20 rounded-full bg-accent flex items-center justify-center mb-2">
-            <span className="font-serif text-2xl font-bold text-accent-foreground">ד</span>
+            <span className="font-serif text-2xl font-bold text-accent-foreground">{initial}</span>
           </div>
-          <h2 className="font-serif text-xl font-bold">דניאל</h2>
+          <h2 className="font-serif text-xl font-bold">{displayName}</h2>
         </div>
 
         {/* Streak Banner */}
@@ -115,6 +121,16 @@ const Profile = () => {
             ))}
           </div>
         </div>
+
+        {/* Logout */}
+        <Button
+          variant="ghost"
+          onClick={signOut}
+          className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+        >
+          <LogOut size={16} />
+          התנתקות
+        </Button>
       </div>
     </div>
   );
