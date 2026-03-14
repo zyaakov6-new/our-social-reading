@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-type TimerState = 'idle' | 'select' | 'running' | 'paused' | 'done';
+type TimerState = 'idle' | 'select' | 'running' | 'paused' | 'confirm' | 'done';
 
 const ReadingFAB = () => {
   const navigate = useNavigate();
@@ -15,11 +15,11 @@ const ReadingFAB = () => {
   const [seconds, setSeconds] = useState(0);
   const [manualMode, setManualMode] = useState(false);
   const [manualMinutes, setManualMinutes] = useState('');
-  const [manualPages, setManualPages] = useState('');
+  const [currentPageInput, setCurrentPageInput] = useState('');
   const [saving, setSaving] = useState(false);
 
   const { books } = useBooks();
-  const currentBooks = books.filter(b => b.status === 'reading');
+  const currentBooks = books;
   const selectedBook = currentBooks.find(b => b.id === selectedBookId);
 
   useEffect(() => {
@@ -46,34 +46,34 @@ const ReadingFAB = () => {
 
       const minutesRead = manualMode
         ? parseInt(manualMinutes || '0', 10)
-        : Math.floor(seconds / 60);
+        : Math.max(1, Math.floor(seconds / 60)); // at least 1 min so short sessions still save
 
-      const pagesRead = manualMode
-        ? parseInt(manualPages || '0', 10)
+      // currentPageInput = absolute page the user is on now (both confirm and manual modes)
+      const newCurrentPage = parseInt(currentPageInput || '0', 10);
+      const pagesRead = (newCurrentPage > 0 && selectedBook)
+        ? Math.max(0, newCurrentPage - selectedBook.currentPage)
         : 0;
 
-      if (minutesRead === 0 && pagesRead === 0) {
-        toast.error("יש להזין לפחות דקות או עמודים");
+      if (minutesRead === 0 && pagesRead === 0 && newCurrentPage === 0) {
+        toast.error("יש להזין לפחות דקות או עמוד נוכחי");
         setSaving(false);
         return;
       }
+
+      const today = new Date();
+      const sessionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
       const { error } = await supabase.from("reading_sessions").insert({
         user_id: user.id,
         book_id: selectedBookId,
         minutes_read: minutesRead,
         pages_read: pagesRead,
-        session_date: new Date().toISOString().split('T')[0],
+        session_date: sessionDate,
       });
 
       if (error) throw error;
 
-      if (pagesRead > 0 && selectedBook) {
-        const newCurrentPage = Math.min(
-          selectedBook.currentPage + pagesRead,
-          selectedBook.totalPages
-        );
-
+      if (newCurrentPage > 0) {
         await supabase
           .from("books")
           .update({ current_page: newCurrentPage })
@@ -94,21 +94,32 @@ const ReadingFAB = () => {
     setSelectedBookId('');
     setManualMode(false);
     setManualMinutes('');
-    setManualPages('');
+    setCurrentPageInput('');
   };
 
   return (
     <>
       {state === 'idle' && (
-        <motion.button
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          onClick={() => setState('select')}
-          className="fixed bottom-6 left-1/2 z-50 h-16 w-16 -translate-x-1/2 rounded-full reading-gradient flex items-center justify-center shadow-xl hover:shadow-2xl transition-all border-4 border-card"
-          aria-label="התחל סשן קריאה"
+          className="fixed bottom-4 left-0 right-0 z-50 pointer-events-none"
         >
-          <Play size={30} className="text-primary-foreground mr-[-1px]" fill="currentColor" />
-        </motion.button>
+          <div className="mx-auto max-w-md flex justify-center">
+            <div className="h-16 w-16 rounded-full bg-card shadow-[0_-4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center pointer-events-auto">
+              <button
+                type="button"
+                onClick={() => setState('select')}
+                className="h-12 w-12 rounded-full reading-gradient flex items-center justify-center shadow-md hover:shadow-lg transition-shadow"
+                aria-label="התחל סשן קריאה"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 150" width="26" height="26" fill="currentColor" className="text-primary-foreground">
+                  <path d="M170,10 L130,10 C115,10 100,18 90,30 C80,18 65,10 50,10 L10,10 C5,10 2,13 2,18 L2,128 C2,133 5,136 10,136 L55,136 C67,136 78,141 86,150 L90,154 L94,150 C102,141 113,136 125,136 L170,136 C175,136 178,133 178,128 L178,18 C178,13 175,10 170,10 Z M82,130 C74,124 64,120 55,120 L18,120 L18,26 L50,26 C62,26 74,31 82,40 L82,130 Z M162,120 L125,120 C116,120 106,124 98,130 L98,40 C106,31 118,26 130,26 L162,26 L162,120 Z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </motion.div>
       )}
 
       <AnimatePresence>
@@ -143,8 +154,8 @@ const ReadingFAB = () => {
                       <p className="text-sm text-muted-foreground mb-3 text-center">בחר ספר מהרשימה שלך</p>
                       {currentBooks.length === 0 ? (
                         <div className="text-center py-6">
-                          <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
-                          <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                          <p className="text-muted-foreground text-sm">אין ספרים ברשימה</p>
+                          <p className="text-xs text-muted-foreground mt-1">הוסף ספר ברשימת הספרים כדי להתחיל</p>
                         </div>
                       ) : (
                         <>
@@ -195,8 +206,8 @@ const ReadingFAB = () => {
                       {currentBooks.length === 0 ? (
                         <div className="text-center py-6 space-y-3">
                           <div>
-                            <p className="text-muted-foreground text-sm">אין ספרים בקריאה</p>
-                            <p className="text-xs text-muted-foreground mt-1">הוסף ספר כדי להתחיל</p>
+                            <p className="text-muted-foreground text-sm">אין ספרים ברשימה</p>
+                            <p className="text-xs text-muted-foreground mt-1">הוסף ספר ברשימת הספרים כדי להתחיל</p>
                           </div>
                           <button
                             onClick={() => {
@@ -241,20 +252,22 @@ const ReadingFAB = () => {
                             </div>
                             <div>
                               <label className="text-xs text-muted-foreground mb-1 block">
-                                <FileText size={12} className="inline ml-1" />עמודים
+                                <FileText size={12} className="inline ml-1" />
+                                עמוד נוכחי
+                                {(() => { const b = currentBooks.find(b => b.id === selectedBookId); return b?.totalPages ? ` / ${b.totalPages}` : ''; })()}
                               </label>
                               <input
                                 type="number"
-                                value={manualPages}
-                                onChange={e => setManualPages(e.target.value)}
-                                placeholder="20"
+                                value={currentPageInput}
+                                onChange={e => setCurrentPageInput(e.target.value)}
+                                placeholder={(() => { const b = currentBooks.find(b => b.id === selectedBookId); return b?.currentPage ? String(b.currentPage) : '0'; })()}
                                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
                               />
                             </div>
                           </div>
                           <button
                             onClick={handleFinish}
-                            disabled={!selectedBookId || (!manualMinutes && !manualPages) || saving}
+                            disabled={!selectedBookId || (!manualMinutes && !currentPageInput) || saving}
                             className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold disabled:opacity-40"
                           >
                             {saving ? "שומר..." : "שמור"}
@@ -313,13 +326,69 @@ const ReadingFAB = () => {
                       {state === 'running' ? <Pause size={24} /> : <Play size={24} />}
                     </button>
                     <button
-                      onClick={handleFinish}
+                      onClick={() => { setState('confirm'); }}
                       disabled={saving}
                       className="h-14 w-14 rounded-full bg-secondary flex items-center justify-center disabled:opacity-40"
                     >
                       <Square size={20} className="text-secondary-foreground" fill="currentColor" />
                     </button>
                   </div>
+                </div>
+              )}
+
+              {state === 'confirm' && (
+                <div>
+                  <h2 className="font-serif text-xl font-bold mb-1 text-center">סיימת לקרוא!</h2>
+                  <p className="text-center text-muted-foreground text-sm mb-5">
+                    קראת {formatTime(seconds)} • {selectedBook?.title}
+                  </p>
+                  <div className="space-y-3 mb-5">
+                    <div>
+                      <label className="text-xs text-muted-foreground mb-1 block">
+                        <FileText size={12} className="inline ml-1" />
+                        עמוד נוכחי
+                        {selectedBook?.totalPages ? ` / ${selectedBook.totalPages}` : ''}
+                        {selectedBook?.currentPage ? ` (היה: ${selectedBook.currentPage})` : ''}
+                      </label>
+                      <input
+                        type="number"
+                        value={currentPageInput}
+                        onChange={e => setCurrentPageInput(e.target.value)}
+                        placeholder={selectedBook?.currentPage ? String(selectedBook.currentPage) : "0"}
+                        min="0"
+                        max={selectedBook?.totalPages || undefined}
+                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-right"
+                        autoFocus
+                      />
+                      {/* Progress bar */}
+                      {selectedBook?.totalPages && currentPageInput && (
+                        <div className="mt-2 space-y-0.5">
+                          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                            <div
+                              className="h-full rounded-full reading-gradient transition-all"
+                              style={{ width: `${Math.min(100, Math.round(parseInt(currentPageInput) / selectedBook.totalPages * 100))}%` }}
+                            />
+                          </div>
+                          <p className="text-xs text-muted-foreground text-left">
+                            {Math.min(100, Math.round(parseInt(currentPageInput) / selectedBook.totalPages * 100))}% מהספר
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleFinish}
+                    disabled={saving}
+                    className="w-full py-3 rounded-xl reading-gradient text-primary-foreground font-semibold disabled:opacity-40"
+                  >
+                    {saving ? "שומר..." : "שמור קריאה"}
+                  </button>
+                  <button
+                    onClick={() => setState('running')}
+                    className="w-full mt-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    חזור לטיימר
+                  </button>
                 </div>
               )}
 
@@ -336,8 +405,8 @@ const ReadingFAB = () => {
                   <h2 className="font-serif text-xl font-bold mb-2">כל הכבוד!</h2>
                   <p className="text-muted-foreground mb-6">
                     {manualMode
-                      ? `קראת ${manualMinutes || 0} דקות • ${manualPages || 0} עמודים`
-                      : `קראת ${Math.floor(seconds / 60)} דקות`
+                      ? `קראת ${manualMinutes || 0} דקות${currentPageInput ? ` • עמוד ${currentPageInput}` : ''}`
+                      : `קראת ${Math.floor(seconds / 60)} דקות${currentPageInput ? ` • עמוד ${currentPageInput}` : ''}`
                     }
                   </p>
 

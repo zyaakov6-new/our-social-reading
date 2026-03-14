@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Flame, BookOpen, Clock, Calendar, Settings, LogOut, Pencil } from "lucide-react";
+import FriendsSection from "@/components/FriendsSection";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -54,12 +55,15 @@ const Profile = () => {
     const monthMinutes = monthSessions.reduce((sum, s) => sum + s.minutesRead, 0);
     const allTimeMinutes = sessions.reduce((sum, s) => sum + s.minutesRead, 0);
 
-    const sessionDates = sessions.map(s => s.sessionDate.split('T')[0]);
+    const toLocalDate = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const sessionDates = sessions.map(s => s.sessionDate.substring(0, 10));
     const uniqueDates = [...new Set(sessionDates)].sort().reverse();
 
     let streak = 0;
-    const today = now.toISOString().split('T')[0];
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const today = toLocalDate(now);
+    const yesterday = toLocalDate(new Date(now.getTime() - 24 * 60 * 60 * 1000));
 
     if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
       for (let i = 0; i < uniqueDates.length; i++) {
@@ -121,9 +125,9 @@ const Profile = () => {
   const heatmapDays = Array.from({ length: 35 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - (34 - i));
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-    const daySessions = sessions.filter(s => s.sessionDate.startsWith(dateStr));
+    const daySessions = sessions.filter(s => s.sessionDate.substring(0, 10) === dateStr);
     const totalMinutes = daySessions.reduce((sum, s) => sum + s.minutesRead, 0);
 
     let intensity = 0;
@@ -288,6 +292,8 @@ const Profile = () => {
             </div>
           )}
         </div>
+
+        <FriendsSection />
 
         <Button
           variant="ghost"

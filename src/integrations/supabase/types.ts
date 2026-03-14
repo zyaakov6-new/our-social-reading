@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      books: {
+        Row: {
+          id: string
+          user_id: string
+          title: string
+          author: string
+          total_pages: number
+          current_page: number
+          status: string
+          cover_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          author: string
+          total_pages?: number
+          current_page?: number
+          status?: string
+          cover_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          author?: string
+          total_pages?: number
+          current_page?: number
+          status?: string
+          cover_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          id: string
+          user_id: string
+          book_id: string
+          minutes_read: number
+          pages_read: number
+          session_date: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          book_id: string
+          minutes_read: number
+          pages_read?: number
+          session_date?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          book_id?: string
+          minutes_read?: number
+          pages_read?: number
+          session_date?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          id: string
+          requester_id: string
+          addressee_id: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          requester_id: string
+          addressee_id: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          requester_id?: string
+          addressee_id?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

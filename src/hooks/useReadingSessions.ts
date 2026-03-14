@@ -10,6 +10,9 @@ export interface ReadingSession {
   avatarUrl?: string;
   minutesRead: number;
   pagesRead: number;
+  /** ISO date string (YYYY-MM-DD) used for streaks/heatmap */
+  sessionDate: string;
+  /** Human-friendly relative time (e.g. "לפני 3 דקות") */
   timestamp: string;
   likes: number;
   comments: number;
@@ -74,6 +77,7 @@ export const useReadingSessions = () => {
           userName,
           minutesRead: session.minutes_read,
           pagesRead: session.pages_read,
+          sessionDate: session.session_date || session.created_at,
           timestamp,
           likes: 0,
           comments: 0,
