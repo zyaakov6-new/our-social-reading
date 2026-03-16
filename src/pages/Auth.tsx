@@ -59,9 +59,6 @@ const Auth = () => {
                   />
                 </div>
                 <h1 className="font-display text-5xl tracking-[0.22em] text-foreground">AMUD</h1>
-                <p className="font-quote text-sm text-muted-foreground" style={{ fontSize: '0.85rem' }}>
-                  עמוד
-                </p>
               </div>
               <span className="amud-pillar h-36" />
             </div>
