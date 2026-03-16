@@ -39,27 +39,25 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   }, [showComments]);
 
   const fetchLikes = async () => {
-    try {
-      const [{ data: likes }, { data: { user } }] = await Promise.all([
-        supabase.from("session_likes").select("user_id").eq("session_id", item.id),
-        supabase.auth.getUser(),
-      ]);
-      if (likes) {
-        setLikeCount(likes.length);
-        setLiked(likes.some((l: any) => l.user_id === user?.id));
-      }
-    } catch {}
+    const [{ data: likes, error: likesErr }, { data: { user } }] = await Promise.all([
+      supabase.from("session_likes").select("user_id").eq("session_id", item.id),
+      supabase.auth.getUser(),
+    ]);
+    if (likesErr) { console.warn("fetchLikes:", likesErr.message); return; }
+    if (likes) {
+      setLikeCount(likes.length);
+      setLiked(likes.some((l: any) => l.user_id === user?.id));
+    }
   };
 
   const fetchComments = async () => {
-    try {
-      const { data } = await supabase
-        .from("session_comments")
-        .select("id, user_id, display_name, content, created_at")
-        .eq("session_id", item.id)
-        .order("created_at", { ascending: true });
-      if (data) setComments(data as Comment[]);
-    } catch {}
+    const { data, error } = await supabase
+      .from("session_comments")
+      .select("id, user_id, display_name, content, created_at")
+      .eq("session_id", item.id)
+      .order("created_at", { ascending: true });
+    if (error) { console.warn("fetchComments:", error.message); return; }
+    if (data) setComments(data as Comment[]);
   };
 
   const toggleLike = async () => {
@@ -90,13 +88,16 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
     if (!currentUserId) { toast.error("יש להתחבר כדי להגיב"); return; }
     setSubmitting(true);
     try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("user_id", currentUserId)
-        .maybeSingle();
-
-      const displayName = (profile as any)?.display_name || "קורא";
+      // Get display name: prefer profiles table, fall back to auth metadata
+      const [{ data: profile }, { data: { user: authUser } }] = await Promise.all([
+        supabase.from("profiles").select("display_name").eq("user_id", currentUserId).maybeSingle(),
+        supabase.auth.getUser(),
+      ]);
+      const displayName =
+        (profile as any)?.display_name ||
+        authUser?.user_metadata?.full_name ||
+        authUser?.email?.split("@")[0] ||
+        "קורא";
       const { data, error } = await supabase
         .from("session_comments")
         .insert({ session_id: item.id, user_id: currentUserId, display_name: displayName, content: commentText.trim() })

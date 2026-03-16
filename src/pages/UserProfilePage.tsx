@@ -55,14 +55,39 @@ const UserProfilePage = () => {
       .select("user_id, display_name, avatar_url, is_public")
       .eq("user_id", userId)
       .maybeSingle();
-    if (data) {
+
+    if (data && (data as any).display_name) {
       setProfile({
         userId: (data as any).user_id,
-        displayName: (data as any).display_name || "קורא",
+        displayName: (data as any).display_name,
         avatarUrl: (data as any).avatar_url,
         isPublic: (data as any).is_public !== false,
       });
+      return;
     }
+
+    // No profile row — build a minimal one from session_comments (display_name stored there)
+    // or from auth metadata if this is the current user
+    let displayName = "קורא";
+    if (me?.id === userId) {
+      displayName =
+        me.user_metadata?.full_name ||
+        me.email?.split("@")[0] ||
+        "קורא";
+    } else {
+      // Try to find their name from a comment they left
+      const { data: commentRow } = await supabase
+        .from("session_comments")
+        .select("display_name")
+        .eq("user_id", userId)
+        .limit(1)
+        .maybeSingle();
+      if (commentRow && (commentRow as any).display_name) {
+        displayName = (commentRow as any).display_name;
+      }
+    }
+
+    setProfile({ userId: userId!, displayName, isPublic: true });
   };
 
   const fetchSessions = async () => {
