@@ -159,27 +159,40 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen pb-28">
-      <div className="px-4 pt-6 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => setSettingsOpen(true)}
-          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-accent transition-colors"
-        >
-          <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
-        </button>
-        <h1 className="font-serif text-3xl font-bold">הפרופיל שלי</h1>
+      <div
+        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
+          borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
+        }}
+      >
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="h-9 w-9 rounded-full bg-muted/80 flex items-center justify-center hover:bg-accent transition-colors"
+          >
+            <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
+          </button>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none text-left">{displayName}</h1>
+              <p className="font-quote text-[11px] text-muted-foreground mt-1 text-left">הפרופיל שלי</p>
+            </div>
+            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
+          </div>
+        </div>
       </div>
 
       <div className="px-4 max-w-md mx-auto space-y-4">
-        <div className="text-center mb-3">
+        <div className="flex justify-center mb-3">
           <div
-            className="mx-auto h-20 w-20 rounded-full p-[3px] mb-2"
+            className="h-20 w-20 rounded-full p-[3px]"
             style={{ background: 'linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(28 71% 57%) 100%)' }}
           >
             <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
               <span className="font-serif text-3xl font-bold text-foreground">{initial}</span>
             </div>
           </div>
-          <h2 className="font-serif text-3xl font-black tracking-tight">{displayName}</h2>
         </div>
 
         <div

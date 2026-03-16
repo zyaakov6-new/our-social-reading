@@ -76,9 +76,15 @@ const Leaderboard = () => {
           minutesMap[s.user_id] = (minutesMap[s.user_id] || 0) + (s.minutes_read || 0);
         });
 
+        // For the current user, fall back to auth metadata if no profile row exists
+        const myFallbackName =
+          user.user_metadata?.full_name ||
+          user.email?.split("@")[0] ||
+          "קורא";
+
         const result: LeaderboardEntry[] = allIds.map(id => ({
           userId: id,
-          displayName: profileMap[id] || "קורא",
+          displayName: profileMap[id] || (id === user.id ? myFallbackName : "קורא"),
           weekMinutes: minutesMap[id] || 0,
           isMe: id === user.id,
         }));
