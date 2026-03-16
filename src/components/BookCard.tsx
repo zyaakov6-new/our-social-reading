@@ -52,7 +52,10 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
   if (compact) {
     return (
       <>
-        <div className="flex items-center gap-3 rounded-xl bg-card p-3 card-shadow relative group">
+        <div
+          className="flex items-center gap-3 rounded-xl bg-card p-3 card-shadow relative group transition-shadow hover:card-shadow-hover"
+          style={{ borderRight: '2px solid hsl(126 15% 28% / 0.45)' }}
+        >
           {/* Cover / fallback */}
           <div className={`h-16 w-11 flex-shrink-0 rounded-md overflow-hidden ${!book.coverUrl ? `bg-gradient-to-br ${colorClass} flex items-center justify-center` : ''}`}>
             {book.coverUrl ? (
@@ -79,7 +82,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             {book.status === 'reading' && (
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                  <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
                     <div
                       className="h-full rounded-full reading-gradient transition-all"
                       style={{ width: `${progress}%` }}
@@ -180,7 +183,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
     <>
       <div className="w-28 flex-shrink-0 relative group">
         {/* Cover / fallback */}
-        <div className={`h-40 w-full rounded-lg overflow-hidden card-shadow mb-2 ${!book.coverUrl ? `bg-gradient-to-br ${colorClass} flex items-center justify-center` : ''}`}>
+        <div className={`h-40 w-full rounded-lg overflow-hidden card-shadow mb-2 transition-shadow group-hover:card-shadow-hover ${!book.coverUrl ? `bg-gradient-to-br ${colorClass} flex items-center justify-center` : ''}`}>
           {book.coverUrl ? (
             <img
               src={book.coverUrl}

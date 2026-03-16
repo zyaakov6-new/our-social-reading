@@ -150,10 +150,10 @@ const Profile = () => {
 
   const intensityColors = [
     'bg-muted',
-    'bg-emerald-100',
-    'bg-emerald-200',
-    'bg-emerald-400',
-    'bg-emerald-600',
+    'bg-primary/15',
+    'bg-primary/35',
+    'bg-primary/58',
+    'bg-primary/85',
   ];
 
   return (
@@ -170,30 +170,44 @@ const Profile = () => {
 
       <div className="px-4 max-w-md mx-auto space-y-4">
         <div className="text-center mb-3">
-          <div className="mx-auto h-20 w-20 rounded-full bg-accent flex items-center justify-center mb-2">
-            <span className="font-serif text-2xl font-bold text-accent-foreground">{initial}</span>
+          <div
+            className="mx-auto h-20 w-20 rounded-full p-[3px] mb-2"
+            style={{ background: 'linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(28 71% 57%) 100%)' }}
+          >
+            <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
+              <span className="font-serif text-2xl font-bold text-foreground">{initial}</span>
+            </div>
           </div>
           <h2 className="font-serif text-2xl font-extrabold">{displayName}</h2>
         </div>
 
-        <div className="rounded-xl streak-gradient p-4 text-center">
-          {stats.currentStreak === 0 ? (
-            <>
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Flame size={22} className="text-secondary-foreground" />
-                <span className="text-lg font-semibold text-secondary-foreground">עדיין אין רצף</span>
-              </div>
-              <p className="text-sm text-secondary-foreground/90">התחל לקרוא היום כדי לבנות רצף ראשון 🔥</p>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center justify-center gap-2 mb-1">
-                <Flame size={22} className="text-secondary-foreground" />
-                <span className="text-2xl font-bold text-secondary-foreground">{stats.currentStreak}</span>
-              </div>
-              <p className="text-sm text-secondary-foreground/90">ימים ברציפות</p>
-            </>
-          )}
+        <div
+          className="rounded-xl streak-gradient p-5 text-center relative overflow-hidden"
+          style={{ boxShadow: '0 4px 20px -4px hsl(28 71% 57% / 0.35)' }}
+        >
+          {/* Faint oversized flame in background */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.08] pointer-events-none">
+            <Flame size={110} className="text-white" />
+          </div>
+          <div className="relative z-10">
+            {stats.currentStreak === 0 ? (
+              <>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Flame size={22} className="text-secondary-foreground" />
+                  <span className="text-lg font-semibold text-secondary-foreground">עדיין אין רצף</span>
+                </div>
+                <p className="text-sm text-secondary-foreground/90">התחל לקרוא היום כדי לבנות רצף ראשון 🔥</p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Flame size={24} className="text-secondary-foreground" />
+                  <span className="text-4xl font-extrabold text-secondary-foreground leading-none">{stats.currentStreak}</span>
+                </div>
+                <p className="text-sm text-secondary-foreground/90">ימים ברציפות</p>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -212,7 +226,7 @@ const Profile = () => {
             )}
           </div>
           <div className="rounded-xl bg-card p-4 card-shadow text-center">
-            <Clock size={20} className="text-primary mx-auto mb-1" />
+            <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
             {stats.monthMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">החודש עוד לפניך</p>
@@ -226,7 +240,7 @@ const Profile = () => {
             )}
           </div>
           <div className="rounded-xl bg-card p-4 card-shadow text-center col-span-2">
-            <Clock size={20} className="text-secondary mx-auto mb-1" />
+            <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
             {stats.allTimeMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">הכול מחכה לקריאה הראשונה</p>
@@ -253,7 +267,7 @@ const Profile = () => {
             {heatmapDays.map((day, i) => (
               <div
                 key={i}
-                className={`aspect-square rounded-sm ${intensityColors[day.intensity]}`}
+                className={`aspect-square rounded ${intensityColors[day.intensity]} transition-colors`}
                 title={`${day.date.toLocaleDateString('he-IL')}`}
               />
             ))}

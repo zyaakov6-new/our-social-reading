@@ -16,6 +16,17 @@ interface PostSummary {
   commentCount: number;
 }
 
+const AVATAR_COLORS: Record<string, string> = {
+  א: 'hsl(126 15% 28%)', ב: 'hsl(188 100% 27%)', ג: 'hsl(28 71% 57%)',
+  ד: 'hsl(126 18% 38%)', ה: 'hsl(188 80% 32%)', ו: 'hsl(22 65% 50%)',
+  ז: 'hsl(126 12% 45%)', ח: 'hsl(188 60% 35%)', ט: 'hsl(28 55% 48%)',
+  י: 'hsl(126 20% 32%)', כ: 'hsl(188 90% 24%)', ל: 'hsl(28 65% 52%)',
+  מ: 'hsl(126 15% 28%)', נ: 'hsl(188 100% 27%)', ס: 'hsl(28 71% 57%)',
+  ע: 'hsl(126 18% 38%)', פ: 'hsl(188 80% 32%)', צ: 'hsl(22 65% 50%)',
+  ק: 'hsl(126 12% 45%)', ר: 'hsl(188 60% 35%)', ש: 'hsl(28 55% 48%)',
+  ת: 'hsl(126 20% 32%)',
+};
+
 const PostsFeed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostSummary[]>([]);
@@ -64,9 +75,9 @@ const PostsFeed = () => {
       <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-5 pt-5 pb-4">
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-3">
-            <span className="amud-pillar h-9" />
+            <span className="amud-pillar h-11" />
             <div>
-              <h1 className="font-display text-3xl tracking-[0.18em] leading-none">AMUD</h1>
+              <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
               <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
                 פורום הקוראים
               </p>
@@ -112,11 +123,15 @@ const PostsFeed = () => {
             <button
               key={post.id}
               onClick={() => navigate(`/post/${post.id}`)}
-              className="w-full bg-card border border-border/50 rounded-xl p-4 text-right hover:border-primary/30 transition-colors"
+              className="w-full bg-card border border-border/50 rounded-xl p-4 text-right hover:border-primary/30 hover:bg-accent/20 transition-all duration-200 card-shadow animate-fade-slide-up"
+              style={{ borderRight: '2px solid hsl(126 15% 28% / 0.45)' }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-7 w-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
-                  <span className="text-[11px] font-semibold text-accent-foreground">
+                <div
+                  className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
+                >
+                  <span className="text-[11px] font-semibold text-primary-foreground">
                     {post.displayName.charAt(0)}
                   </span>
                 </div>

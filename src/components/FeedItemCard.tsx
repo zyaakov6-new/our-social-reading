@@ -126,14 +126,34 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
     }
   };
 
+  // Deterministic avatar color from first character
+  const AVATAR_COLORS: Record<string, string> = {
+    א: 'hsl(126 15% 28%)', ב: 'hsl(188 100% 27%)', ג: 'hsl(28 71% 57%)',
+    ד: 'hsl(126 18% 38%)', ה: 'hsl(188 80% 32%)', ו: 'hsl(22 65% 50%)',
+    ז: 'hsl(126 12% 45%)', ח: 'hsl(188 60% 35%)', ט: 'hsl(28 55% 48%)',
+    י: 'hsl(126 20% 32%)', כ: 'hsl(188 90% 24%)', ל: 'hsl(28 65% 52%)',
+    מ: 'hsl(126 15% 28%)', נ: 'hsl(188 100% 27%)', ס: 'hsl(28 71% 57%)',
+    ע: 'hsl(126 18% 38%)', פ: 'hsl(188 80% 32%)', צ: 'hsl(22 65% 50%)',
+    ק: 'hsl(126 12% 45%)', ר: 'hsl(188 60% 35%)', ש: 'hsl(28 55% 48%)',
+    ת: 'hsl(126 20% 32%)',
+  };
+  const firstChar = item.userName.charAt(0);
+  const avatarBg = AVATAR_COLORS[firstChar] ?? 'hsl(126 15% 28%)';
+
   return (
-    <div className="bg-card border border-border/50 rounded-xl overflow-hidden">
+    <div
+      className="bg-card border border-border/50 rounded-xl overflow-hidden card-shadow animate-fade-slide-up"
+      style={{ borderRight: '2px solid hsl(126 15% 28% / 0.55)' }}
+    >
       {/* Activity */}
       <div className="p-4">
         <div className="flex items-start gap-3">
-          <div className="h-9 w-9 flex-shrink-0 rounded-full bg-accent flex items-center justify-center">
-            <span className="font-semibold text-sm text-accent-foreground">
-              {item.userName.charAt(0)}
+          <div
+            className="h-9 w-9 flex-shrink-0 rounded-full flex items-center justify-center"
+            style={{ background: avatarBg }}
+          >
+            <span className="font-semibold text-sm text-primary-foreground">
+              {firstChar}
             </span>
           </div>
           <div className="flex-1 min-w-0">
@@ -145,7 +165,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
                 <span className="text-muted-foreground"> · {item.pagesRead} עמ׳</span>
               )}
               {" "}של{" "}
-              <span className="font-semibold">"{item.bookTitle}"</span>
+              <span className="font-semibold text-foreground">«{item.bookTitle}»</span>
             </p>
             <span className="text-xs text-muted-foreground mt-0.5 block">{item.timestamp}</span>
           </div>
@@ -201,9 +221,10 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
                     <div key={c.id} className="flex items-start gap-2.5">
                       <button
                         onClick={() => navigate(`/user/${c.user_id}`)}
-                        className="h-6 w-6 flex-shrink-0 rounded-full bg-accent flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="h-6 w-6 flex-shrink-0 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
+                        style={{ background: AVATAR_COLORS[c.display_name.charAt(0)] ?? 'hsl(126 15% 28%)' }}
                       >
-                        <span className="text-[10px] font-semibold text-accent-foreground">
+                        <span className="text-[10px] font-semibold text-primary-foreground">
                           {c.display_name.charAt(0)}
                         </span>
                       </button>
