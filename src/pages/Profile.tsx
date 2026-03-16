@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Flame, Clock, Calendar, Settings, Pencil } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
+import Leaderboard from "@/components/Leaderboard";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -309,6 +310,7 @@ const Profile = () => {
           )}
         </div>
 
+        <Leaderboard />
         <FriendsSection />
       </div>
 

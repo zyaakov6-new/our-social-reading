@@ -1,15 +1,74 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { mockChallenges } from "@/lib/mockData";
 import { useBooks } from "@/hooks/useBooks";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
+import { useChallenges } from "@/hooks/useChallenges";
 import FeedItemCard from "@/components/FeedItemCard";
 import ChallengeCard from "@/components/ChallengeCard";
 import BookCard from "@/components/BookCard";
 import AddBookDialog from "@/components/AddBookDialog";
+import CreateChallengeDialog from "@/components/CreateChallengeDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Trophy } from "lucide-react";
 
 type Tab = 'feed' | 'challenges' | 'books';
+
+const ChallengesTab = () => {
+  const { challenges, loading } = useChallenges();
+  const [createOpen, setCreateOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="space-y-3">
+        {[1, 2].map(i => (
+          <div key={i} className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
+            <Skeleton className="h-4 w-3/4 rounded" />
+            <Skeleton className="h-2.5 w-full rounded-full" />
+            <Skeleton className="h-3 w-1/2 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <button
+        onClick={() => setCreateOpen(true)}
+        className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors"
+      >
+        + צור אתגר חדש
+      </button>
+
+      {challenges.length === 0 ? (
+        <div className="rounded-xl bg-card p-6 card-shadow text-center space-y-2">
+          <Trophy size={28} className="mx-auto text-muted-foreground/50" />
+          <p className="text-sm font-semibold">אין עדיין אתגרים</p>
+          <p className="text-xs text-muted-foreground">צור אתגר חדש כדי להתחרות עם חברים</p>
+        </div>
+      ) : (
+        challenges.map(c => (
+          <ChallengeCard
+            key={c.id}
+            challenge={{
+              id: c.id,
+              name: c.name,
+              goalType: c.goalType,
+              goalValue: c.goalValue,
+              currentProgress: c.myProgress,
+              startDate: c.startDate,
+              endDate: c.endDate,
+              participants: c.participants.map((p, i) => ({ name: p.displayName, progress: p.progress, rank: i + 1 })),
+              myRank: c.participants.length,
+            }}
+          />
+        ))
+      )}
+
+      <CreateChallengeDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={() => {}} />
+    </div>
+  );
+};
 
 const pathToTab: Record<string, Tab> = {
   '/': 'feed',
@@ -122,14 +181,7 @@ const Home = () => {
         )}
 
         {activeTab === 'challenges' && (
-          <div className="space-y-3">
-            <button className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors">
-              + הזמן חבר לאתגר ראשון
-            </button>
-            {mockChallenges.map(c => (
-              <ChallengeCard key={c.id} challenge={c} />
-            ))}
-          </div>
+          <ChallengesTab />
         )}
 
         {activeTab === 'books' && (

@@ -12,6 +12,7 @@ import PostThread from "./pages/PostThread";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 
@@ -28,6 +29,7 @@ const AppLayout = () => (
       <Route path="/posts" element={<PostsFeed />} />
       <Route path="/post/:postId" element={<PostThread />} />
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
+      <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
     <ReadingFAB />
@@ -46,6 +48,11 @@ const AppRoutes = () => {
     );
   }
 
+  const needsOnboarding =
+    !!user &&
+    !localStorage.getItem("onboarding_complete") &&
+    !user.user_metadata?.full_name;
+
   return (
     <Routes>
       <Route
@@ -53,8 +60,20 @@ const AppRoutes = () => {
         element={user ? <Navigate to="/" replace /> : <Auth />}
       />
       <Route
+        path="/onboarding"
+        element={user ? <Onboarding /> : <Navigate to="/auth" replace />}
+      />
+      <Route
         path="/*"
-        element={user ? <AppLayout /> : <Navigate to="/auth" replace />}
+        element={
+          !user ? (
+            <Navigate to="/auth" replace />
+          ) : needsOnboarding ? (
+            <Navigate to="/onboarding" replace />
+          ) : (
+            <AppLayout />
+          )
+        }
       />
     </Routes>
   );
