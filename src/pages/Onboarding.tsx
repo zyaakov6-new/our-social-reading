@@ -107,7 +107,7 @@ const BooksIllustration = ({ className }: IllustrationProps) => (
 const welcomeScreens = [
   {
     icon: CozyBookIllustration,
-    title: "ספר ביחד",
+    title: "AMUD",
     subtitle: "קוראים בקצב שלכם",
     description: "עוקבים אחרי הקריאה ביום־יום, בונים רצף יציב, ונהנים מזמן ספרים אמיתי.",
     emoji: "📚",

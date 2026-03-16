@@ -44,15 +44,10 @@ const Auth = () => {
       <div className="w-full max-w-sm space-y-8">
         {/* Logo area */}
         <div className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 rounded-full reading-gradient flex items-center justify-center">
-            <svg viewBox="0 0 64 64" className="w-9 h-9 text-primary-foreground" fill="none" aria-hidden="true">
-              <path d="M14 16.5c0-2.5 2-4.5 4.5-4.5H32v36H18.5a4.5 4.5 0 01-4.5-4.5v-27z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M50 16.5c0-2.5-2-4.5-4.5-4.5H32v36h13.5a4.5 4.5 0 004.5-4.5v-27z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M22 23h6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              <path d="M36 23h6" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-            </svg>
+          <div className="mx-auto w-24 h-24">
+            <img src="/logo.png" alt="AMUD" className="w-full h-full object-contain rounded-2xl" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground font-hebrew-serif">ספר ביחד</h1>
+          <h1 className="text-3xl font-bold text-foreground font-hebrew-serif tracking-widest">AMUD</h1>
           <p className="text-muted-foreground">
             {isSignUp ? "הצטרפו לקהילת הקוראים" : "שמחים לראות אתכם שוב ☕"}
           </p>
