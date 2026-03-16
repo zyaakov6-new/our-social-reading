@@ -41,11 +41,17 @@ const Home = () => {
   return (
     <div className="min-h-screen pb-28">
       {/* ── App header: Pillar mark + wordmark ──────────────────── */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-5 pt-5 pb-4">
+      <div
+        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
+          borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
+        }}
+      >
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-3">
-            {/* The Amud pillar line */}
-            <span className="amud-pillar h-11" />
+            {/* Thicker brand pillar */}
+            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
               <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
               <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
