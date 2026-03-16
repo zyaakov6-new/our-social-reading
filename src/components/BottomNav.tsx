@@ -1,10 +1,11 @@
-import { BookOpen, Home, User, MessageSquare, Trophy } from "lucide-react";
+import { BookOpen, Home, User, MessageSquare, Trophy, Users } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-// 5 tabs: 2 left + FAB spacer + 3 right
+// 6 tabs: 3 left + FAB spacer + 3 right — perfectly symmetric, FAB stays centered
 const leftTabs = [
   { path: "/", label: "בית", icon: Home },
   { path: "/posts", label: "פורום", icon: MessageSquare },
+  { path: "/friends", label: "חברים", icon: Users },
 ];
 
 const rightTabs = [

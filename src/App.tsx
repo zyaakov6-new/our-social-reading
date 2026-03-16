@@ -13,6 +13,7 @@ import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
+import Friends from "./pages/Friends";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 
@@ -29,6 +30,7 @@ const AppLayout = () => (
       <Route path="/posts" element={<PostsFeed />} />
       <Route path="/post/:postId" element={<PostThread />} />
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
+      <Route path="/friends" element={<Friends />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
