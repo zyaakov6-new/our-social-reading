@@ -4,52 +4,62 @@
 
 @layer base {
   :root {
-    --background: 40 33% 96%;
-    --foreground: 0 0% 17%;
+    /* ── AMUD Master Palette ──────────────────────────────────────────────
+     *  #3C513E  Deep Cypress Green  →  hsl(126 15% 28%)   Primary
+     *  #E1DBCB  Jerusalem Vellum    →  hsl(44  27% 84%)   Background
+     *  #007788  Mediterranean Teal  →  hsl(188 100% 27%)  Secondary / community
+     *  #E08E45  Terra Cotta Orange  →  hsl(28  71% 57%)   CTA / achievement
+     *  #212529  Obsidian            →  hsl(210 11% 14%)   Foreground / text
+     * ──────────────────────────────────────────────────────────────────── */
 
-    --card: 40 30% 97%;
-    --card-foreground: 0 0% 17%;
+    --background: 44 27% 84%;          /* Jerusalem Vellum — page */
+    --foreground: 210 11% 14%;         /* Obsidian — primary text */
 
-    --popover: 40 33% 96%;
-    --popover-foreground: 0 0% 17%;
+    --card: 44 22% 90%;                /* Slightly lighter vellum for cards */
+    --card-foreground: 210 11% 14%;
 
-    --primary: 100 55% 20%;
-    --primary-foreground: 40 33% 96%;
+    --popover: 44 22% 90%;
+    --popover-foreground: 210 11% 14%;
 
-    --secondary: 14 55% 51%;
-    --secondary-foreground: 40 33% 96%;
+    --primary: 126 15% 28%;            /* Deep Cypress Green */
+    --primary-foreground: 44 30% 93%;  /* Warm light on green buttons */
 
-    --muted: 37 25% 90%;
-    --muted-foreground: 0 0% 40%;
+    --secondary: 188 100% 27%;         /* Mediterranean Teal */
+    --secondary-foreground: 44 30% 93%;
 
-    --accent: 37 30% 88%;
-    --accent-foreground: 0 0% 17%;
+    --muted: 44 15% 78%;               /* Deeper vellum for muted areas */
+    --muted-foreground: 210 8% 42%;    /* Mid-obsidian for secondary text */
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
+    --accent: 44 18% 86%;              /* Subtle vellum tint for hover states */
+    --accent-foreground: 210 11% 14%;
 
-    --border: 37 20% 86%;
-    --input: 37 20% 86%;
-    --ring: 100 55% 20%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 44 30% 93%;
+
+    --border: 44 12% 74%;
+    --input: 44 15% 88%;
+    --ring: 126 15% 28%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --streak: 14 55% 51%;
-    --streak-foreground: 40 33% 96%;
-    --success: 100 55% 20%;
-    --timer-bg: 100 55% 20%;
-    --timer-fg: 40 33% 96%;
-    --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    /* ── Custom semantic tokens ───────────────────────────────────────── */
+    --cta: 28 71% 57%;                 /* Terra Cotta — CTA & achievements */
+    --cta-foreground: 210 11% 14%;
+    --streak: 28 71% 57%;              /* Terra Cotta — streaks & rewards */
+    --streak-foreground: 44 30% 93%;
+    --success: 126 15% 28%;
+    --timer-bg: 126 15% 28%;
+    --timer-fg: 44 30% 93%;
+    --paper-texture: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 44 22% 90%;
+    --sidebar-foreground: 210 11% 14%;
+    --sidebar-primary: 126 15% 28%;
+    --sidebar-primary-foreground: 44 30% 93%;
+    --sidebar-accent: 44 18% 86%;
+    --sidebar-accent-foreground: 210 11% 14%;
+    --sidebar-border: 44 12% 74%;
+    --sidebar-ring: 126 15% 28%;
   }
 }
 
@@ -149,12 +159,19 @@
     font-family: 'Heebo', sans-serif;
   }
 
+  /* Cypress Green → darker Cypress (primary CTA gradient) */
   .reading-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(100 45% 30%) 100%);
+    background: linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(126 18% 20%) 100%);
   }
 
+  /* Terra Cotta → deeper amber (achievement/streak gradient) */
   .streak-gradient {
-    background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(20 60% 55%) 100%);
+    background: linear-gradient(135deg, hsl(28 71% 57%) 0%, hsl(22 65% 46%) 100%);
+  }
+
+  /* Mediterranean Teal → deeper teal (community/progress gradient) */
+  .community-gradient {
+    background: linear-gradient(135deg, hsl(188 100% 27%) 0%, hsl(188 80% 20%) 100%);
   }
 
   .card-shadow {
