@@ -1,0 +1,32 @@
+import FriendsSection from "@/components/FriendsSection";
+import Leaderboard from "@/components/Leaderboard";
+
+const Friends = () => {
+  return (
+    <div className="min-h-screen pb-28">
+      {/* Header — matches the app-wide sticky header pattern */}
+      <div
+        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
+          borderBottom: '2px solid hsl(188 100% 27% / 0.22)',
+        }}
+      >
+        <div className="flex items-center gap-3 max-w-md mx-auto">
+          <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(188 100% 27%)', borderRadius: '2px', flexShrink: 0 }} />
+          <div>
+            <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">FRIENDS</h1>
+            <p className="font-quote text-[11px] text-muted-foreground mt-1">חברים וקהילה</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 py-4 max-w-md mx-auto space-y-4">
+        <Leaderboard />
+        <FriendsSection />
+      </div>
+    </div>
+  );
+};
+
+export default Friends;
