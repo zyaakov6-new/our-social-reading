@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
+import UserProfilePage from "./pages/UserProfilePage";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -21,6 +22,7 @@ const AppLayout = () => (
       <Route path="/books" element={<Home />} />
       <Route path="/challenges" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/user/:userId" element={<UserProfilePage />} />
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

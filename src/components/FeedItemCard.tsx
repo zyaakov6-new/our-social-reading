@@ -3,6 +3,7 @@ import { Heart, MessageCircle, Send } from "lucide-react";
 import { ReadingSession } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface Comment {
   id: string;
@@ -13,6 +14,7 @@ interface Comment {
 }
 
 const FeedItemCard = ({ item }: { item: ReadingSession }) => {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
@@ -169,13 +171,22 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             <div className="px-4 pt-3 pb-2 space-y-2.5">
               {comments.map(c => (
                 <div key={c.id} className="flex items-start gap-2.5">
-                  <div className="h-6 w-6 flex-shrink-0 rounded-full bg-accent flex items-center justify-center">
+                  <button
+                    onClick={() => navigate(`/user/${c.user_id}`)}
+                    className="h-6 w-6 flex-shrink-0 rounded-full bg-accent flex items-center justify-center hover:opacity-80 transition-opacity"
+                  >
                     <span className="text-[10px] font-semibold text-accent-foreground">
                       {c.display_name.charAt(0)}
                     </span>
-                  </div>
+                  </button>
                   <div className="flex-1 min-w-0 text-right">
-                    <span className="font-semibold text-xs">{c.display_name} </span>
+                    <button
+                      onClick={() => navigate(`/user/${c.user_id}`)}
+                      className="font-semibold text-xs hover:text-primary transition-colors"
+                    >
+                      {c.display_name}
+                    </button>
+                    {" "}
                     <span className="text-xs text-foreground/80">{c.content}</span>
                   </div>
                 </div>
