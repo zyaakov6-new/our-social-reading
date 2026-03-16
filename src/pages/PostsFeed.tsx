@@ -72,10 +72,16 @@ const PostsFeed = () => {
   return (
     <div className="min-h-screen pb-28">
       {/* Header */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-5 pt-5 pb-4">
+      <div
+        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
+          borderBottom: '2px solid hsl(188 100% 27% / 0.22)',
+        }}
+      >
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-3">
-            <span className="amud-pillar h-11" />
+            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(188 100% 27%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
               <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
               <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
@@ -123,34 +129,47 @@ const PostsFeed = () => {
             <button
               key={post.id}
               onClick={() => navigate(`/post/${post.id}`)}
-              className="w-full bg-card border border-border/50 rounded-xl p-4 text-right hover:border-primary/30 hover:bg-accent/20 transition-all duration-200 card-shadow animate-fade-slide-up"
-              style={{ borderRight: '2px solid hsl(126 15% 28% / 0.45)' }}
+              className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 transition-all duration-200 card-shadow animate-fade-slide-up overflow-hidden"
+              style={{ border: '1px solid hsl(44 15% 80%)' }}
             >
-              <div className="flex items-center gap-2 mb-2">
+              {/* Teal header band for forum posts */}
+              <div className="flex items-center gap-2 px-4 py-2.5"
+                style={{ background: 'hsl(188 100% 27% / 0.07)', borderBottom: '1px solid hsl(188 100% 27% / 0.12)' }}>
                 <div
                   className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
                 >
-                  <span className="text-[11px] font-semibold text-primary-foreground">
+                  <span className="text-[11px] font-bold text-primary-foreground">
                     {post.displayName.charAt(0)}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">{post.displayName}</span>
+                <span className="text-xs font-semibold text-foreground">{post.displayName}</span>
                 <span className="text-xs text-muted-foreground mr-auto">
                   {new Date(post.createdAt).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}
                 </span>
               </div>
-              <p className="font-semibold text-sm mb-1.5">{post.title}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
-              <div className="flex items-center gap-3 pt-2.5 mt-2.5 border-t border-border/40">
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Heart size={13} strokeWidth={1.5} />
-                  {post.likeCount > 0 && post.likeCount}
-                </span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MessageCircle size={13} strokeWidth={1.5} />
-                  {post.commentCount > 0 && post.commentCount}
-                </span>
+
+              {/* Post body */}
+              <div className="px-4 py-3">
+                <p className="font-bold text-base mb-1.5 leading-snug">{post.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
+              </div>
+
+              {/* Engagement footer */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border/40">
+                {post.likeCount > 0 && (
+                  <span className="badge-green" style={{ background: 'hsl(0 60% 55% / 0.10)', color: 'hsl(0 60% 40%)', borderColor: 'hsl(0 60% 55% / 0.18)' }}>
+                    <Heart size={11} strokeWidth={2} /> {post.likeCount}
+                  </span>
+                )}
+                {post.commentCount > 0 && (
+                  <span className="badge-teal">
+                    <MessageCircle size={11} strokeWidth={2} /> {post.commentCount}
+                  </span>
+                )}
+                {post.likeCount === 0 && post.commentCount === 0 && (
+                  <span className="text-xs text-muted-foreground">היה ראשון להגיב</span>
+                )}
               </div>
             </button>
           ))

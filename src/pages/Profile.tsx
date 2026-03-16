@@ -211,35 +211,35 @@ const Profile = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-card p-4 card-shadow text-center">
+          <div className="rounded-xl p-4 card-shadow text-center stat-green">
             <Clock size={20} className="text-primary mx-auto mb-1" />
             {stats.weekMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">עוד לא קראת השבוע</p>
-                <p className="text-xs text-muted-foreground mt-1">סשן קצר היום יספיק כדי להתחיל 🌱</p>
+                <p className="text-xs text-muted-foreground mt-1">סשן קצר היום יספיק 🌱</p>
               </>
             ) : (
               <>
-                <p className="text-2xl font-bold">{stats.weekMinutes}</p>
-                <p className="text-xs text-muted-foreground">דקות השבוע</p>
+                <p className="text-3xl font-extrabold text-primary">{stats.weekMinutes}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">דקות השבוע</p>
               </>
             )}
           </div>
-          <div className="rounded-xl bg-card p-4 card-shadow text-center">
+          <div className="rounded-xl p-4 card-shadow text-center stat-teal">
             <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
             {stats.monthMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">החודש עוד לפניך</p>
-                <p className="text-xs text-muted-foreground mt-1">בחר ספר אחד והתחל מהיום</p>
+                <p className="text-xs text-muted-foreground mt-1">בחר ספר והתחל 📚</p>
               </>
             ) : (
               <>
-                <p className="text-2xl font-bold">{stats.monthMinutes}</p>
-                <p className="text-xs text-muted-foreground">דקות החודש</p>
+                <p className="text-3xl font-extrabold" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">דקות החודש</p>
               </>
             )}
           </div>
-          <div className="rounded-xl bg-card p-4 card-shadow text-center col-span-2">
+          <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
             <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
             {stats.allTimeMinutes === 0 ? (
               <>
@@ -248,8 +248,8 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <p className="text-2xl font-bold">{stats.allTimeMinutes}</p>
-                <p className="text-xs text-muted-foreground">סה״כ דקות קריאה</p>
+                <p className="text-3xl font-extrabold" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">סה״כ דקות קריאה</p>
               </>
             )}
           </div>

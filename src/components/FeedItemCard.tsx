@@ -141,38 +141,41 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const avatarBg = AVATAR_COLORS[firstChar] ?? 'hsl(126 15% 28%)';
 
   return (
-    <div
-      className="bg-card border border-border/50 rounded-xl overflow-hidden card-shadow animate-fade-slide-up"
-      style={{ borderRight: '2px solid hsl(126 15% 28% / 0.55)' }}
-    >
-      {/* Activity */}
+    <div className="bg-card rounded-2xl overflow-hidden card-shadow animate-fade-slide-up"
+      style={{ border: '1px solid hsl(44 15% 80%)' }}>
+
+      {/* ── Book title header band ── */}
+      <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
+        <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
+        <span className="font-serif font-semibold text-sm text-primary truncate text-right">
+          «{item.bookTitle}»
+        </span>
+      </div>
+
+      {/* ── Activity body ── */}
       <div className="p-4">
-        <div className="flex items-start gap-3">
+        <div className="flex items-center gap-3">
           <div
-            className="h-9 w-9 flex-shrink-0 rounded-full flex items-center justify-center"
-            style={{ background: avatarBg }}
+            className="h-11 w-11 flex-shrink-0 rounded-full flex items-center justify-center"
+            style={{ background: avatarBg, boxShadow: `0 0 0 3px hsl(44 27% 84%), 0 0 0 4px ${avatarBg}40` }}
           >
-            <span className="font-semibold text-sm text-primary-foreground">
-              {firstChar}
-            </span>
+            <span className="font-bold text-base text-primary-foreground">{firstChar}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm leading-relaxed">
-              <span className="font-semibold">{item.userName}</span>
-              {" "}קרא/ה{" "}
-              <span className="font-semibold text-primary">{item.minutesRead} דקות</span>
-              {item.pagesRead > 0 && (
-                <span className="text-muted-foreground"> · {item.pagesRead} עמ׳</span>
+            <p className="font-bold text-sm text-foreground text-right">{item.userName}</p>
+            <div className="flex items-center gap-1.5 mt-1.5 justify-end flex-wrap">
+              {item.minutesRead > 0 && (
+                <span className="badge-green">⏱ {item.minutesRead} דק׳</span>
               )}
-              {" "}של{" "}
-              <span className="font-semibold text-foreground">«{item.bookTitle}»</span>
-            </p>
-            <span className="text-xs text-muted-foreground mt-0.5 block">{item.timestamp}</span>
+              {item.pagesRead > 0 && (
+                <span className="badge-teal">📖 {item.pagesRead} עמ׳</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Action bar */}
+      {/* ── Action bar ── */}
       <div className="flex items-center gap-1 px-4 pb-3 border-t border-border/40 pt-2.5">
         {!countsReady ? (
           // Skeleton pills while counts load
