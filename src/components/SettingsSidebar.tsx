@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, User, Target, Shield, Info, LogOut, X, ArrowRight } from "lucide-react";
+import { ChevronLeft, User, Target, Shield, Info, LogOut, ArrowRight } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -291,14 +291,11 @@ const SettingsSidebar = ({ open, onOpenChange }: Props) => {
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent side="right" className="w-full max-w-sm p-0 bg-background" dir="rtl">
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <SheetHeader className="px-5 py-4 border-b border-border/50 flex-row items-center justify-between space-y-0">
-            <SheetTitle className="font-semibold text-base">
+          {/* Header — SheetContent already renders a close (X) button, no need for a second one */}
+          <SheetHeader className="px-5 py-4 border-b border-border/50">
+            <SheetTitle className="font-semibold text-base text-right">
               {page === "main" ? "הגדרות" : ""}
             </SheetTitle>
-            <button onClick={handleClose} className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
-              <X size={18} strokeWidth={1.5} />
-            </button>
           </SheetHeader>
 
           {/* Content */}
