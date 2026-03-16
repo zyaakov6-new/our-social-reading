@@ -47,7 +47,7 @@ const Auth = () => {
           <div className="mx-auto w-24 h-24">
             <img src="/logo.png" alt="AMUD" className="w-full h-full object-contain rounded-2xl" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground font-hebrew-serif tracking-widest">AMUD</h1>
+          <h1 className="font-display text-4xl tracking-widest text-foreground">AMUD</h1>
           <p className="text-muted-foreground">
             {isSignUp ? "הצטרפו לקהילת הקוראים" : "שמחים לראות אתכם שוב ☕"}
           </p>

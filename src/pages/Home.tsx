@@ -48,7 +48,7 @@ const Home = () => {
       <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/50 px-4 pt-6 pb-3">
         <div className="flex items-baseline justify-between">
           <div>
-            <h1 className="font-serif text-3xl font-extrabold tracking-widest">AMUD</h1>
+            <h1 className="font-display text-4xl tracking-widest">AMUD</h1>
             <p className="text-xs text-muted-foreground mt-1">
               בונים הרגל קריאה קטן, יום אחרי יום
             </p>

@@ -14,9 +14,20 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Assistant', 'sans-serif'],
-        serif: ['Frank Ruhl Libre', 'serif'],
-        'english-serif': ['Crimson Pro', 'serif'],
+        sans: ['Heebo', 'sans-serif'],
+        serif: ['Tinos', 'serif'],
+      },
+      letterSpacing: {
+        'display': '-0.03em',
+        'heading': '-0.015em',
+        'ui': '0em',
+        'caption': '0.01em',
+      },
+      lineHeight: {
+        'display': '1.1',
+        'heading': '1.3',
+        'ui': '1.45',
+        'literary': '1.65',
       },
       colors: {
         border: "hsl(var(--border))",
