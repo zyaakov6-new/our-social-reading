@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Book } from "@/hooks/useBooks";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, ChevronDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,15 +16,23 @@ import {
 import { toast } from "sonner";
 import LogReadingDialog from "./LogReadingDialog";
 
+const STATUS_OPTIONS: { value: 'reading' | 'finished' | 'want'; label: string }[] = [
+  { value: 'reading', label: 'קורא עכשיו' },
+  { value: 'want', label: 'רוצה לקרוא' },
+  { value: 'finished', label: 'סיימתי' },
+];
+
 interface BookCardProps {
   book: Book;
   compact?: boolean;
   onDelete?: (bookId: string) => void;
   onLogSaved?: () => void;
+  onStatusChange?: (bookId: string, status: 'reading' | 'finished' | 'want') => void;
 }
 
-const BookCard = ({ book, compact, onDelete, onLogSaved }: BookCardProps) => {
+const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookCardProps) => {
   const [logOpen, setLogOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
   const progress = book.totalPages > 0 ? Math.round((book.currentPage / book.totalPages) * 100) : 0;
 
   const handleDelete = () => {
@@ -100,6 +109,35 @@ const BookCard = ({ book, compact, onDelete, onLogSaved }: BookCardProps) => {
           >
             <PlusCircle size={16} className="text-primary" />
           </button>
+
+          {/* Status change popover */}
+          {onStatusChange && (
+            <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-accent transition-colors flex-shrink-0"
+                  title="שנה סטטוס"
+                >
+                  <ChevronDown size={14} className="text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-44 p-1" align="end" dir="rtl">
+                {STATUS_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { onStatusChange(book.id, opt.value); setStatusOpen(false); }}
+                    className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-colors ${
+                      book.status === opt.value
+                        ? 'bg-primary/10 text-primary font-semibold'
+                        : 'hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
 
           {/* Delete button — hover only */}
           {onDelete && (
@@ -195,7 +233,33 @@ const BookCard = ({ book, compact, onDelete, onLogSaved }: BookCardProps) => {
           </AlertDialog>
         )}
 
-        <h4 className="font-serif font-bold text-xs truncate">{book.title}</h4>
+        <div className="flex items-center justify-between gap-1">
+          <h4 className="font-serif font-bold text-xs truncate flex-1">{book.title}</h4>
+          {onStatusChange && (
+            <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+              <PopoverTrigger asChild>
+                <button className="h-5 w-5 flex items-center justify-center rounded hover:bg-muted transition-colors flex-shrink-0">
+                  <ChevronDown size={12} className="text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-44 p-1" align="end" dir="rtl">
+                {STATUS_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { onStatusChange(book.id, opt.value); setStatusOpen(false); }}
+                    className={`w-full text-right px-3 py-2 text-sm rounded-lg transition-colors ${
+                      book.status === opt.value
+                        ? 'bg-primary/10 text-primary font-semibold'
+                        : 'hover:bg-muted text-foreground'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
         <p className="text-[11px] text-muted-foreground truncate">{book.author}</p>
         {book.currentPage > 0 && (
           <p className="text-[10px] text-muted-foreground mt-0.5">

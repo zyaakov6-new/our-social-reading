@@ -73,11 +73,12 @@ const ReadingFAB = () => {
 
       if (error) throw error;
 
-      if (newCurrentPage > 0) {
-        await supabase
-          .from("books")
-          .update({ current_page: newCurrentPage })
-          .eq("id", selectedBookId);
+      // Update current page and auto-promote 'want' → 'reading'
+      const bookUpdates: Record<string, unknown> = {};
+      if (newCurrentPage > 0) bookUpdates.current_page = newCurrentPage;
+      if (selectedBook?.status === 'want') bookUpdates.status = 'reading';
+      if (Object.keys(bookUpdates).length > 0) {
+        await supabase.from("books").update(bookUpdates).eq("id", selectedBookId);
       }
 
       setState('done');
@@ -175,6 +176,11 @@ const ReadingFAB = () => {
                                   <p className="font-serif font-semibold text-sm">{book.title}</p>
                                   <p className="text-xs text-muted-foreground">{book.author}</p>
                                 </div>
+                                {book.status === 'want' && (
+                                  <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
+                                    רוצה לקרוא
+                                  </span>
+                                )}
                               </button>
                             ))}
                           </div>
@@ -233,7 +239,12 @@ const ReadingFAB = () => {
                                 }`}
                               >
                                 <BookOpen size={18} className="text-primary flex-shrink-0" />
-                                <span className="font-serif font-semibold text-sm">{book.title}</span>
+                                <span className="font-serif font-semibold text-sm flex-1 text-right">{book.title}</span>
+                                {book.status === 'want' && (
+                                  <span className="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded flex-shrink-0">
+                                    רוצה לקרוא
+                                  </span>
+                                )}
                               </button>
                             ))}
                           </div>

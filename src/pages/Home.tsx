@@ -7,7 +7,6 @@ import FeedItemCard from "@/components/FeedItemCard";
 import ChallengeCard from "@/components/ChallengeCard";
 import BookCard from "@/components/BookCard";
 import AddBookDialog from "@/components/AddBookDialog";
-import { BookOpen, Users, Trophy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Tab = 'feed' | 'challenges' | 'books';
@@ -21,7 +20,7 @@ const pathToTab: Record<string, Tab> = {
 const Home = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
-  const { books, refetch: refetchBooks, deleteBook } = useBooks();
+  const { books, refetch: refetchBooks, deleteBook, updateStatus } = useBooks();
   const { sessions, loading: sessionsLoading, refetch: refetchSessions } = useReadingSessions();
 
   const handleLogSaved = () => {
@@ -34,11 +33,6 @@ const Home = () => {
     if (tab) setActiveTab(tab);
   }, [location.pathname]);
 
-  const tabs: { key: Tab; label: string; icon: React.ElementType; path: string }[] = [
-    { key: 'feed', label: 'הפיד שלי', icon: Users, path: '/' },
-    { key: 'challenges', label: 'אתגרים', icon: Trophy, path: '/challenges' },
-    { key: 'books', label: 'הספרים שלי', icon: BookOpen, path: '/books' },
-  ];
 
   const readingBooks = books.filter(b => b.status === 'reading');
   const finishedBooks = books.filter(b => b.status === 'finished');
@@ -148,7 +142,7 @@ const Home = () => {
                     <h3 className="section-heading mb-4">קורא עכשיו</h3>
                     <div className="space-y-2">
                       {readingBooks.map(book => (
-                        <BookCard key={book.id} book={book} compact onDelete={deleteBook} onLogSaved={handleLogSaved} />
+                        <BookCard key={book.id} book={book} compact onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
                       ))}
                     </div>
                   </section>
@@ -159,7 +153,7 @@ const Home = () => {
                     <h3 className="section-heading mb-4">סיימתי</h3>
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {finishedBooks.map(book => (
-                        <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} />
+                        <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
                       ))}
                     </div>
                   </section>
@@ -170,7 +164,7 @@ const Home = () => {
                     <h3 className="section-heading mb-4">רוצה לקרוא</h3>
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {wantBooks.map(book => (
-                        <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} />
+                        <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
                       ))}
                     </div>
                   </section>

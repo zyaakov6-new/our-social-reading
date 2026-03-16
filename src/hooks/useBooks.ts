@@ -50,6 +50,21 @@ export const useBooks = () => {
     }
   };
 
+  const updateStatus = async (bookId: string, status: 'reading' | 'finished' | 'want') => {
+    try {
+      const { error } = await supabase
+        .from("books")
+        .update({ status })
+        .eq("id", bookId);
+      if (error) throw error;
+      setBooks(prev => prev.map(b => b.id === bookId ? { ...b, status } : b));
+      return true;
+    } catch (error) {
+      console.error("Error updating book status:", error);
+      return false;
+    }
+  };
+
   const deleteBook = async (bookId: string) => {
     try {
       const { error } = await supabase
@@ -71,5 +86,5 @@ export const useBooks = () => {
     fetchBooks();
   }, []);
 
-  return { books, loading, refetch: fetchBooks, deleteBook };
+  return { books, loading, refetch: fetchBooks, deleteBook, updateStatus };
 };

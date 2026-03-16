@@ -1,9 +1,9 @@
-import { BookOpen, Home, Trophy, User, MessageSquare } from "lucide-react";
+import { BookOpen, Home, User, MessageSquare } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// 4 tabs (2 left + FAB spacer + 2 right) keeps the FAB perfectly centered
 const tabs = [
   { path: "/", label: "בית", icon: Home },
-  { path: "/challenges", label: "אתגרים", icon: Trophy },
   { path: "/posts", label: "פורום", icon: MessageSquare },
   { path: "/books", label: "ספרים", icon: BookOpen },
   { path: "/profile", label: "פרופיל", icon: User },
