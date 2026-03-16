@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Flame, BookOpen, Clock, Calendar, Settings, LogOut, Pencil } from "lucide-react";
+import { Flame, Clock, Calendar, Settings, Pencil } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
+import SettingsSidebar from "@/components/SettingsSidebar";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -26,6 +27,7 @@ const Profile = () => {
     allTimeMinutes: 0,
   });
   const [editOpen, setEditOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [editMinutes, setEditMinutes] = useState("");
   const [editPages, setEditPages] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -158,10 +160,10 @@ const Profile = () => {
     <div className="min-h-screen pb-28">
       <div className="px-4 pt-6 pb-4 flex items-center justify-between">
         <button
-          onClick={() => navigate('/settings')}
-          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"
+          onClick={() => setSettingsOpen(true)}
+          className="h-9 w-9 rounded-full bg-muted flex items-center justify-center hover:bg-accent transition-colors"
         >
-          <Settings size={18} className="text-muted-foreground" />
+          <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
         </button>
         <h1 className="font-serif text-2xl font-bold">הפרופיל שלי</h1>
       </div>
@@ -294,16 +296,9 @@ const Profile = () => {
         </div>
 
         <FriendsSection />
-
-        <Button
-          variant="ghost"
-          onClick={signOut}
-          className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <LogOut size={16} />
-          התנתקות
-        </Button>
       </div>
+
+      <SettingsSidebar open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent dir="rtl">
