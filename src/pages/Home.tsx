@@ -45,9 +45,9 @@ const Home = () => {
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-3">
             {/* The Amud pillar line */}
-            <span className="amud-pillar h-9" />
+            <span className="amud-pillar h-11" />
             <div>
-              <h1 className="font-display text-3xl tracking-[0.18em] leading-none">AMUD</h1>
+              <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
               <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
                 בונים הרגל, עמוד אחרי עמוד
               </p>

@@ -14,8 +14,13 @@ const BottomNav = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/97 backdrop-blur-md"
-      style={{ borderTop: '1px solid hsl(44 12% 74%)' }}>
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-40 bg-card/97 backdrop-blur-md"
+      style={{
+        borderTop: '1px solid hsl(44 12% 74%)',
+        boxShadow: '0 -4px 20px -4px hsl(126 15% 15% / 0.12), 0 -1px 4px -1px hsl(210 11% 14% / 0.06)',
+      }}
+    >
       <div className="mx-auto flex max-w-md items-stretch justify-between">
         {tabs.slice(0, 2).map(tab => {
           const isActive = location.pathname === tab.path;
@@ -24,15 +29,19 @@ const BottomNav = () => {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-0.5 flex-1 pt-3 pb-4 text-xs transition-colors"
+              className="flex flex-col items-center justify-center flex-1 pt-2 pb-3 text-xs transition-colors"
               style={{ color: isActive ? 'hsl(126 15% 28%)' : 'hsl(210 8% 52%)' }}
             >
-              {/* Active indicator: thin top bar */}
-              {isActive && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-px bg-primary" />
-              )}
-              <Icon size={20} strokeWidth={1.5} />
-              <span className={isActive ? "font-semibold" : "font-normal"}>{tab.label}</span>
+              <span
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                  isActive
+                    ? 'bg-primary/10 border border-primary/15'
+                    : 'border border-transparent'
+                }`}
+              >
+                <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                <span className={isActive ? 'font-semibold' : 'font-normal'}>{tab.label}</span>
+              </span>
             </button>
           );
         })}
@@ -47,14 +56,19 @@ const BottomNav = () => {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className="relative flex flex-col items-center gap-0.5 flex-1 pt-3 pb-4 text-xs transition-colors"
+              className="flex flex-col items-center justify-center flex-1 pt-2 pb-3 text-xs transition-colors"
               style={{ color: isActive ? 'hsl(126 15% 28%)' : 'hsl(210 8% 52%)' }}
             >
-              {isActive && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-px bg-primary" />
-              )}
-              <Icon size={20} strokeWidth={1.5} />
-              <span className={isActive ? "font-semibold" : "font-normal"}>{tab.label}</span>
+              <span
+                className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                  isActive
+                    ? 'bg-primary/10 border border-primary/15'
+                    : 'border border-transparent'
+                }`}
+              >
+                <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+                <span className={isActive ? 'font-semibold' : 'font-normal'}>{tab.label}</span>
+              </span>
             </button>
           );
         })}
