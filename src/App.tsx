@@ -7,6 +7,8 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import UserProfilePage from "./pages/UserProfilePage";
+import PostsFeed from "./pages/PostsFeed";
+import PostThread from "./pages/PostThread";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -23,6 +25,8 @@ const AppLayout = () => (
       <Route path="/challenges" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/user/:userId" element={<UserProfilePage />} />
+      <Route path="/posts" element={<PostsFeed />} />
+      <Route path="/post/:postId" element={<PostThread />} />
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

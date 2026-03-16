@@ -1,9 +1,10 @@
-import { BookOpen, Home, Trophy, User } from "lucide-react";
+import { BookOpen, Home, Trophy, User, MessageSquare } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const tabs = [
   { path: "/", label: "בית", icon: Home },
   { path: "/challenges", label: "אתגרים", icon: Trophy },
+  { path: "/posts", label: "פורום", icon: MessageSquare },
   { path: "/books", label: "ספרים", icon: BookOpen },
   { path: "/profile", label: "פרופיל", icon: User },
 ];
