@@ -8,6 +8,7 @@ import ChallengeCard from "@/components/ChallengeCard";
 import BookCard from "@/components/BookCard";
 import AddBookDialog from "@/components/AddBookDialog";
 import { BookOpen, Users, Trophy } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Tab = 'feed' | 'challenges' | 'books';
 
@@ -21,7 +22,7 @@ const Home = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
   const { books, refetch: refetchBooks, deleteBook } = useBooks();
-  const { sessions, refetch: refetchSessions } = useReadingSessions();
+  const { sessions, loading: sessionsLoading, refetch: refetchSessions } = useReadingSessions();
 
   const handleLogSaved = () => {
     refetchBooks();
@@ -64,7 +65,25 @@ const Home = () => {
       <div className="px-4 py-4 max-w-md mx-auto">
         {activeTab === 'feed' && (
           <div className="space-y-3">
-            {sessions.length === 0 ? (
+            {sessionsLoading ? (
+              <>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <Skeleton className="h-3 w-1/3 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1 border-t border-border/40">
+                      <Skeleton className="h-7 w-12 rounded-lg" />
+                      <Skeleton className="h-7 w-12 rounded-lg" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            ) : sessions.length === 0 ? (
               <>
                 <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
                   <p className="text-xs font-semibold text-secondary">קרא עכשיו</p>
@@ -98,7 +117,7 @@ const Home = () => {
                   <p className="text-xs text-muted-foreground">הזמן חבר לקרוא איתך 📖</p>
                 </div>
               </>
-            )}
+            )/* end sessionsLoading ternary */}
           </div>
         )}
 

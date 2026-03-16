@@ -4,6 +4,7 @@ import { ReadingSession } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Comment {
   id: string;
@@ -17,38 +18,48 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
+  const [commentCount, setCommentCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  // null = still loading, number/bool = loaded
+  const [countsReady, setCountsReady] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // On mount: fetch likes + comment count + current user in parallel
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    let cancelled = false;
+    const init = async () => {
+      const [
+        { data: likes, error: likesErr },
+        { data: commentsData, error: commentsErr },
+        { data: { user } },
+      ] = await Promise.all([
+        supabase.from("session_likes").select("user_id").eq("session_id", item.id),
+        supabase.from("session_comments").select("id").eq("session_id", item.id),
+        supabase.auth.getUser(),
+      ]);
+      if (cancelled) return;
+      if (!likesErr && likes) {
+        setLikeCount(likes.length);
+        setLiked(likes.some((l: any) => l.user_id === user?.id));
+      }
+      if (!commentsErr && commentsData) setCommentCount(commentsData.length);
       if (user) setCurrentUserId(user.id);
-    });
-    fetchLikes();
+      setCountsReady(true);
+    };
+    init();
+    return () => { cancelled = true; };
   }, [item.id]);
 
+  // Load full comments only when thread is opened
   useEffect(() => {
-    if (showComments) {
-      fetchComments();
-      setTimeout(() => inputRef.current?.focus(), 150);
-    }
+    if (!showComments || commentsLoaded) return;
+    fetchComments();
   }, [showComments]);
-
-  const fetchLikes = async () => {
-    const [{ data: likes, error: likesErr }, { data: { user } }] = await Promise.all([
-      supabase.from("session_likes").select("user_id").eq("session_id", item.id),
-      supabase.auth.getUser(),
-    ]);
-    if (likesErr) { console.warn("fetchLikes:", likesErr.message); return; }
-    if (likes) {
-      setLikeCount(likes.length);
-      setLiked(likes.some((l: any) => l.user_id === user?.id));
-    }
-  };
 
   const fetchComments = async () => {
     const { data, error } = await supabase
@@ -57,7 +68,11 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       .eq("session_id", item.id)
       .order("created_at", { ascending: true });
     if (error) { console.warn("fetchComments:", error.message); return; }
-    if (data) setComments(data as Comment[]);
+    if (data) {
+      setComments(data as Comment[]);
+      setCommentCount(data.length);
+      setCommentsLoaded(true);
+    }
   };
 
   const toggleLike = async () => {
@@ -67,15 +82,9 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
     setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
     try {
       if (wasLiked) {
-        await supabase
-          .from("session_likes")
-          .delete()
-          .eq("session_id", item.id)
-          .eq("user_id", currentUserId);
+        await supabase.from("session_likes").delete().eq("session_id", item.id).eq("user_id", currentUserId);
       } else {
-        await supabase
-          .from("session_likes")
-          .insert({ session_id: item.id, user_id: currentUserId });
+        await supabase.from("session_likes").insert({ session_id: item.id, user_id: currentUserId });
       }
     } catch {
       setLiked(wasLiked);
@@ -88,7 +97,6 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
     if (!currentUserId) { toast.error("יש להתחבר כדי להגיב"); return; }
     setSubmitting(true);
     try {
-      // Get display name: prefer profiles table, fall back to auth metadata
       const [{ data: profile }, { data: { user: authUser } }] = await Promise.all([
         supabase.from("profiles").select("display_name").eq("user_id", currentUserId).maybeSingle(),
         supabase.auth.getUser(),
@@ -98,6 +106,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
         authUser?.user_metadata?.full_name ||
         authUser?.email?.split("@")[0] ||
         "קורא";
+
       const { data, error } = await supabase
         .from("session_comments")
         .insert({ session_id: item.id, user_id: currentUserId, display_name: displayName, content: commentText.trim() })
@@ -107,6 +116,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       if (error) throw error;
       if (data) {
         setComments(prev => [...prev, data as Comment]);
+        setCommentCount(prev => prev + 1);
         setCommentText("");
       }
     } catch (e: any) {
@@ -144,58 +154,77 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
 
       {/* Action bar */}
       <div className="flex items-center gap-1 px-4 pb-3 border-t border-border/40 pt-2.5">
-        <button
-          onClick={toggleLike}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors ${
-            liked ? "text-red-500 bg-red-50" : "text-muted-foreground hover:text-red-400 hover:bg-red-50/60"
-          }`}
-        >
-          <Heart size={15} strokeWidth={1.5} fill={liked ? "currentColor" : "none"} />
-          {likeCount > 0 && <span className="text-xs font-medium">{likeCount}</span>}
-        </button>
+        {!countsReady ? (
+          // Skeleton pills while counts load
+          <>
+            <Skeleton className="h-7 w-12 rounded-lg" />
+            <Skeleton className="h-7 w-12 rounded-lg" />
+          </>
+        ) : (
+          <>
+            <button
+              onClick={toggleLike}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors ${
+                liked ? "text-red-500 bg-red-50" : "text-muted-foreground hover:text-red-400 hover:bg-red-50/60"
+              }`}
+            >
+              <Heart size={15} strokeWidth={1.5} fill={liked ? "currentColor" : "none"} />
+              {likeCount > 0 && <span className="text-xs font-medium">{likeCount}</span>}
+            </button>
 
-        <button
-          onClick={() => setShowComments(v => !v)}
-          className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors ${
-            showComments ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
-          }`}
-        >
-          <MessageCircle size={15} strokeWidth={1.5} />
-          {comments.length > 0 && <span className="text-xs font-medium">{comments.length}</span>}
-        </button>
+            <button
+              onClick={() => setShowComments(v => !v)}
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors ${
+                showComments ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
+              }`}
+            >
+              <MessageCircle size={15} strokeWidth={1.5} />
+              {commentCount > 0 && <span className="text-xs font-medium">{commentCount}</span>}
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Comments */}
+      {/* Comments thread */}
       {showComments && (
         <div className="border-t border-border/40 bg-background/40">
-          {comments.length > 0 && (
-            <div className="px-4 pt-3 pb-2 space-y-2.5">
-              {comments.map(c => (
-                <div key={c.id} className="flex items-start gap-2.5">
-                  <button
-                    onClick={() => navigate(`/user/${c.user_id}`)}
-                    className="h-6 w-6 flex-shrink-0 rounded-full bg-accent flex items-center justify-center hover:opacity-80 transition-opacity"
-                  >
-                    <span className="text-[10px] font-semibold text-accent-foreground">
-                      {c.display_name.charAt(0)}
-                    </span>
-                  </button>
-                  <div className="flex-1 min-w-0 text-right">
-                    <button
-                      onClick={() => navigate(`/user/${c.user_id}`)}
-                      className="font-semibold text-xs hover:text-primary transition-colors"
-                    >
-                      {c.display_name}
-                    </button>
-                    {" "}
-                    <span className="text-xs text-foreground/80">{c.content}</span>
-                  </div>
-                </div>
-              ))}
+          {!commentsLoaded ? (
+            <div className="px-4 py-3 space-y-2">
+              <Skeleton className="h-5 w-3/4 rounded" />
+              <Skeleton className="h-5 w-1/2 rounded" />
             </div>
-          )}
-          {comments.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-3">היה ראשון להגיב</p>
+          ) : (
+            <>
+              {comments.length > 0 && (
+                <div className="px-4 pt-3 pb-2 space-y-2.5">
+                  {comments.map(c => (
+                    <div key={c.id} className="flex items-start gap-2.5">
+                      <button
+                        onClick={() => navigate(`/user/${c.user_id}`)}
+                        className="h-6 w-6 flex-shrink-0 rounded-full bg-accent flex items-center justify-center hover:opacity-80 transition-opacity"
+                      >
+                        <span className="text-[10px] font-semibold text-accent-foreground">
+                          {c.display_name.charAt(0)}
+                        </span>
+                      </button>
+                      <div className="flex-1 min-w-0 text-right">
+                        <button
+                          onClick={() => navigate(`/user/${c.user_id}`)}
+                          className="font-semibold text-xs hover:text-primary transition-colors"
+                        >
+                          {c.display_name}
+                        </button>
+                        {" "}
+                        <span className="text-xs text-foreground/80">{c.content}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {comments.length === 0 && (
+                <p className="text-xs text-muted-foreground text-center py-3">היה ראשון להגיב</p>
+              )}
+            </>
           )}
           <div className="flex items-center gap-2 px-3 pb-3 pt-1">
             <input
