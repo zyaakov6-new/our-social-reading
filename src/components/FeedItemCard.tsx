@@ -147,7 +147,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       {/* ── Book title header band ── */}
       <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
-        <span className="font-serif font-semibold text-sm text-primary truncate text-right">
+        <span className="font-serif font-semibold italic text-sm text-primary truncate text-right">
           «{item.bookTitle}»
         </span>
       </div>

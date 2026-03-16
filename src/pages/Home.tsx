@@ -53,8 +53,8 @@ const Home = () => {
             {/* Thicker brand pillar */}
             <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
-              <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
-              <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
+              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">AMUD</h1>
+              <p className="font-quote text-[11px] text-muted-foreground mt-1">
                 בונים הרגל, עמוד אחרי עמוד
               </p>
             </div>

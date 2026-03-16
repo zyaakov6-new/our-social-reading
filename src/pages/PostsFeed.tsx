@@ -83,8 +83,8 @@ const PostsFeed = () => {
           <div className="flex items-center gap-3">
             <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(188 100% 27%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
-              <h1 className="font-display text-4xl tracking-[0.18em] leading-none">AMUD</h1>
-              <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
+              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">AMUD</h1>
+              <p className="font-quote text-[11px] text-muted-foreground mt-1">
                 פורום הקוראים
               </p>
             </div>
@@ -151,7 +151,7 @@ const PostsFeed = () => {
 
               {/* Post body */}
               <div className="px-4 py-3">
-                <p className="font-bold text-base mb-1.5 leading-snug">{post.title}</p>
+                <p className="font-serif font-bold text-base mb-1.5 leading-snug">{post.title}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
               </div>
 
