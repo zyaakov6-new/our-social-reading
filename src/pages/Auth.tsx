@@ -50,7 +50,7 @@ const Auth = () => {
               <span className="amud-pillar h-36" />
               <div className="flex flex-col items-center gap-2">
                 {/* Logo image — placed by user as /public/logo.png */}
-                <div className="w-32 h-32">
+                <div className="w-44 h-44">
                   <img
                     src="/logo.png"
                     alt="AMUD"
@@ -58,7 +58,7 @@ const Auth = () => {
                     onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
-                <h1 className="font-display text-5xl tracking-[0.22em] text-foreground">AMUD</h1>
+                <h1 className="font-display text-3xl tracking-[0.22em] text-foreground">AMUD</h1>
               </div>
               <span className="amud-pillar h-36" />
             </div>
