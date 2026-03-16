@@ -47,10 +47,10 @@ const Auth = () => {
           <div className="flex flex-col items-center gap-6">
             {/* Logo flanked by vertical pillar lines */}
             <div className="flex items-center gap-5">
-              <span className="amud-pillar h-20" />
+              <span className="amud-pillar h-36" />
               <div className="flex flex-col items-center gap-2">
                 {/* Logo image — placed by user as /public/logo.png */}
-                <div className="w-16 h-16">
+                <div className="w-32 h-32">
                   <img
                     src="/logo.png"
                     alt="AMUD"
@@ -63,7 +63,7 @@ const Auth = () => {
                   עמוד
                 </p>
               </div>
-              <span className="amud-pillar h-20" />
+              <span className="amud-pillar h-36" />
             </div>
 
             <p className="font-ui text-sm text-muted-foreground text-center">
