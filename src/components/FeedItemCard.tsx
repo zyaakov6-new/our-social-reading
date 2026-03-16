@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Heart, MessageCircle, Send } from "lucide-react";
 import { ReadingSession } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Comment {
   id: string;
@@ -83,7 +84,8 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   };
 
   const submitComment = async () => {
-    if (!commentText.trim() || !currentUserId || submitting) return;
+    if (!commentText.trim() || submitting) return;
+    if (!currentUserId) { toast.error("יש להתחבר כדי להגיב"); return; }
     setSubmitting(true);
     try {
       const { data: profile } = await supabase
@@ -93,17 +95,20 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
         .maybeSingle();
 
       const displayName = (profile as any)?.display_name || "קורא";
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("session_comments")
         .insert({ session_id: item.id, user_id: currentUserId, display_name: displayName, content: commentText.trim() })
         .select()
         .single();
 
+      if (error) throw error;
       if (data) {
         setComments(prev => [...prev, data as Comment]);
         setCommentText("");
       }
-    } catch {} finally {
+    } catch (e: any) {
+      toast.error(e?.message || "שגיאה בשליחת התגובה");
+    } finally {
       setSubmitting(false);
     }
   };
