@@ -13,56 +13,50 @@ const BottomNav = () => {
   const navigate = useNavigate();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-md items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-6">
-          {tabs.slice(0, 2).map((tab) => {
-            const isActive = location.pathname === tab.path;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.path}
-                onClick={() => navigate(tab.path)}
-                className={`flex flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-xs transition-all ${
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Icon size={21} strokeWidth={isActive ? 2.3 : 1.7} />
-                <span className={`${isActive ? "font-semibold" : "font-medium"}`}>
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/97 backdrop-blur-md"
+      style={{ borderTop: '1px solid hsl(44 12% 74%)' }}>
+      <div className="mx-auto flex max-w-md items-stretch justify-between">
+        {tabs.slice(0, 2).map(tab => {
+          const isActive = location.pathname === tab.path;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className="relative flex flex-col items-center gap-0.5 flex-1 pt-3 pb-4 text-xs transition-colors"
+              style={{ color: isActive ? 'hsl(126 15% 28%)' : 'hsl(210 8% 52%)' }}
+            >
+              {/* Active indicator: thin top bar */}
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-px bg-primary" />
+              )}
+              <Icon size={20} strokeWidth={1.5} />
+              <span className={isActive ? "font-semibold" : "font-normal"}>{tab.label}</span>
+            </button>
+          );
+        })}
 
-        {/* Spacer under central play button so it doesn't overlap nav items */}
-        <div className="w-16" aria-hidden="true" />
+        {/* Spacer under central FAB */}
+        <div className="w-16 flex-shrink-0" aria-hidden="true" />
 
-        <div className="flex items-center gap-6">
-          {tabs.slice(2).map((tab) => {
-            const isActive = location.pathname === tab.path;
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.path}
-                onClick={() => navigate(tab.path)}
-                className={`flex flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-xs transition-all ${
-                  isActive
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Icon size={21} strokeWidth={isActive ? 2.3 : 1.7} />
-                <span className={`${isActive ? "font-semibold" : "font-medium"}`}>
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        {tabs.slice(2).map(tab => {
+          const isActive = location.pathname === tab.path;
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className="relative flex flex-col items-center gap-0.5 flex-1 pt-3 pb-4 text-xs transition-colors"
+              style={{ color: isActive ? 'hsl(126 15% 28%)' : 'hsl(210 8% 52%)' }}
+            >
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-px bg-primary" />
+              )}
+              <Icon size={20} strokeWidth={1.5} />
+              <span className={isActive ? "font-semibold" : "font-normal"}>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );

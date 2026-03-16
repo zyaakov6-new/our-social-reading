@@ -45,20 +45,18 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-28">
-      <div className="sticky top-0 z-30 bg-background/90 backdrop-blur-md border-b border-border/50 px-4 pt-6 pb-3">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <h1 className="font-display text-4xl tracking-widest">AMUD</h1>
-            <p className="text-xs text-muted-foreground mt-1">
-              בונים הרגל קריאה קטן, יום אחרי יום
-            </p>
-          </div>
-          <div className="hidden sm:flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span className={activeTab === 'feed' ? "font-semibold text-foreground" : ""}>הפיד</span>
-            <span>•</span>
-            <span className={activeTab === 'challenges' ? "font-semibold text-foreground" : ""}>אתגרים</span>
-            <span>•</span>
-            <span className={activeTab === 'books' ? "font-semibold text-foreground" : ""}>ספרים</span>
+      {/* ── App header: Pillar mark + wordmark ──────────────────── */}
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border/40 px-5 pt-5 pb-4">
+        <div className="flex items-center justify-between max-w-md mx-auto">
+          <div className="flex items-center gap-3">
+            {/* The Amud pillar line */}
+            <span className="amud-pillar h-9" />
+            <div>
+              <h1 className="font-display text-3xl tracking-[0.18em] leading-none">AMUD</h1>
+              <p className="font-quote text-[11px] text-muted-foreground mt-0.5" style={{ fontStyle: 'italic' }}>
+                בונים הרגל, עמוד אחרי עמוד
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -128,7 +126,7 @@ const Home = () => {
               <>
                 {readingBooks.length > 0 && (
                   <section>
-                    <h3 className="font-serif font-bold text-base mb-3">קורא עכשיו</h3>
+                    <h3 className="section-heading mb-4">קורא עכשיו</h3>
                     <div className="space-y-2">
                       {readingBooks.map(book => (
                         <BookCard key={book.id} book={book} compact onDelete={deleteBook} onLogSaved={handleLogSaved} />
@@ -139,7 +137,7 @@ const Home = () => {
 
                 {finishedBooks.length > 0 && (
                   <section>
-                    <h3 className="font-serif font-bold text-base mb-3">סיימתי</h3>
+                    <h3 className="section-heading mb-4">סיימתי</h3>
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {finishedBooks.map(book => (
                         <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} />
@@ -150,7 +148,7 @@ const Home = () => {
 
                 {wantBooks.length > 0 && (
                   <section>
-                    <h3 className="font-serif font-bold text-base mb-3">רוצה לקרוא</h3>
+                    <h3 className="section-heading mb-4">רוצה לקרוא</h3>
                     <div className="flex gap-3 overflow-x-auto pb-2">
                       {wantBooks.map(book => (
                         <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} />
