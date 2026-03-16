@@ -165,7 +165,7 @@ const Profile = () => {
         >
           <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
         </button>
-        <h1 className="font-serif text-2xl font-bold">הפרופיל שלי</h1>
+        <h1 className="font-serif text-3xl font-bold">הפרופיל שלי</h1>
       </div>
 
       <div className="px-4 max-w-md mx-auto space-y-4">
@@ -175,10 +175,10 @@ const Profile = () => {
             style={{ background: 'linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(28 71% 57%) 100%)' }}
           >
             <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
-              <span className="font-serif text-2xl font-bold text-foreground">{initial}</span>
+              <span className="font-serif text-3xl font-bold text-foreground">{initial}</span>
             </div>
           </div>
-          <h2 className="font-serif text-2xl font-extrabold">{displayName}</h2>
+          <h2 className="font-serif text-3xl font-black tracking-tight">{displayName}</h2>
         </div>
 
         <div
@@ -202,7 +202,7 @@ const Profile = () => {
               <>
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <Flame size={24} className="text-secondary-foreground" />
-                  <span className="text-4xl font-extrabold text-secondary-foreground leading-none">{stats.currentStreak}</span>
+                  <span className="text-4xl font-extrabold text-secondary-foreground leading-none font-numbers">{stats.currentStreak}</span>
                 </div>
                 <p className="text-sm text-secondary-foreground/90">ימים ברציפות</p>
               </>
@@ -220,7 +220,7 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <p className="text-3xl font-extrabold text-primary">{stats.weekMinutes}</p>
+                <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">דקות השבוע</p>
               </>
             )}
@@ -234,7 +234,7 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <p className="text-3xl font-extrabold" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
+                <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">דקות החודש</p>
               </>
             )}
@@ -248,7 +248,7 @@ const Profile = () => {
               </>
             ) : (
               <>
-                <p className="text-3xl font-extrabold" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
+                <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">סה״כ דקות קריאה</p>
               </>
             )}

@@ -15,7 +15,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Heebo', 'sans-serif'],
-        serif: ['Tinos', 'serif'],
+        serif: ['Frank Ruhl Libre', 'Tinos', 'serif'],
+        display: ['Playfair Display', 'Georgia', 'serif'],
       },
       letterSpacing: {
         'display': '-0.03em',

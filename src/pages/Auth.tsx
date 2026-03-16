@@ -58,7 +58,7 @@ const Auth = () => {
                     onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
-                <h1 className="font-display text-3xl tracking-[0.22em] text-foreground">AMUD</h1>
+                <h1 className="font-display text-4xl tracking-[0.16em] text-foreground">AMUD</h1>
               </div>
               <span className="amud-pillar h-36" />
             </div>
