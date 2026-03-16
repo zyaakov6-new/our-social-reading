@@ -166,19 +166,19 @@ const Profile = () => {
         }}
       >
         <div className="flex items-center justify-between max-w-md mx-auto">
+          <div className="flex items-center gap-3">
+            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
+            <div>
+              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">{displayName}</h1>
+              <p className="font-quote text-[11px] text-muted-foreground mt-1">הפרופיל שלי</p>
+            </div>
+          </div>
           <button
             onClick={() => setSettingsOpen(true)}
             className="h-9 w-9 rounded-full bg-muted/80 flex items-center justify-center hover:bg-accent transition-colors"
           >
             <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
           </button>
-          <div className="flex items-center gap-3">
-            <div>
-              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none text-left">{displayName}</h1>
-              <p className="font-quote text-[11px] text-muted-foreground mt-1 text-left">הפרופיל שלי</p>
-            </div>
-            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
-          </div>
         </div>
       </div>
 
