@@ -16,10 +16,11 @@ import {
 import { toast } from "sonner";
 import LogReadingDialog from "./LogReadingDialog";
 
-const STATUS_OPTIONS: { value: 'reading' | 'finished' | 'want'; label: string }[] = [
+const STATUS_OPTIONS: { value: 'reading' | 'finished' | 'want' | 'abandoned'; label: string }[] = [
   { value: 'reading', label: 'קורא עכשיו' },
   { value: 'want', label: 'רוצה לקרוא' },
   { value: 'finished', label: 'סיימתי' },
+  { value: 'abandoned', label: 'לא סיימתי' },
 ];
 
 interface BookCardProps {
@@ -27,7 +28,7 @@ interface BookCardProps {
   compact?: boolean;
   onDelete?: (bookId: string) => void;
   onLogSaved?: () => void;
-  onStatusChange?: (bookId: string, status: 'reading' | 'finished' | 'want') => void;
+  onStatusChange?: (bookId: string, status: 'reading' | 'finished' | 'want' | 'abandoned') => void;
 }
 
 const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookCardProps) => {

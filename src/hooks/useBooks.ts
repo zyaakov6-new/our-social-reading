@@ -7,7 +7,7 @@ export interface Book {
   author: string;
   totalPages: number;
   currentPage: number;
-  status: 'reading' | 'finished' | 'want';
+  status: 'reading' | 'finished' | 'want' | 'abandoned';
   coverUrl?: string;
   createdAt: string;
   updatedAt: string;
@@ -50,7 +50,7 @@ export const useBooks = () => {
     }
   };
 
-  const updateStatus = async (bookId: string, status: 'reading' | 'finished' | 'want') => {
+  const updateStatus = async (bookId: string, status: 'reading' | 'finished' | 'want' | 'abandoned') => {
     try {
       const { error } = await supabase
         .from("books")

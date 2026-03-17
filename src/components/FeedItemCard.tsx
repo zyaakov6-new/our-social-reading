@@ -1,10 +1,49 @@
 import { useEffect, useState, useRef } from "react";
-import { Heart, MessageCircle, Send, Trash2 } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2, BookOpen } from "lucide-react";
 import { ReadingSession } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+
+const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl }: { bookId: string; bookTitle: string; bookAuthor: string; coverUrl?: string }) => {
+  const [added, setAdded] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const addBook = async (status: 'want' | 'reading' | 'finished') => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    // Check if already in library
+    const { data: existing } = await supabase.from('books').select('id').eq('user_id', user.id).eq('title', bookTitle).maybeSingle();
+    if (existing) { toast.success('הספר כבר בספרייה שלך'); setOpen(false); return; }
+    const { error } = await supabase.from('books').insert({ user_id: user.id, title: bookTitle, author: bookAuthor || 'לא ידוע', status, cover_url: coverUrl || null });
+    if (!error) { toast.success('הספר נוסף לספרייה! 📚'); setAdded(true); }
+    setOpen(false);
+  };
+
+  if (added) return <span className="text-xs text-primary mr-auto font-medium">נוסף ✓</span>;
+
+  return (
+    <div className="mr-auto relative">
+      {!open ? (
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+        >
+          <BookOpen size={13} strokeWidth={1.5} />
+          <span>הוסף</span>
+        </button>
+      ) : (
+        <div className="flex items-center gap-1">
+          <button onClick={() => addBook('want')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">רוצה</button>
+          <button onClick={() => addBook('reading')} className="text-[11px] px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">קורא</button>
+          <button onClick={() => addBook('finished')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">סיימתי</button>
+          <button onClick={() => setOpen(false)} className="text-[11px] text-muted-foreground">✕</button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface Comment {
   id: string;
@@ -160,26 +199,24 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       {/* ── User + timestamp header band ── */}
       <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
-        <div className="flex items-center gap-1.5 min-w-0">
-          {item.isMe && (
-            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
-              style={{ background: 'hsl(126 15% 28% / 0.12)', color: 'hsl(126 15% 22%)' }}>
-              אני
-            </span>
-          )}
+        {item.isMe ? (
+          <span className="text-xs font-bold text-primary">אני</span>
+        ) : (
           <span className="text-xs font-semibold text-foreground truncate">{item.userName}</span>
-        </div>
+        )}
       </div>
 
       {/* ── Activity body ── */}
       <div className="p-4">
         <div className="flex items-center gap-3">
+          {/* User avatar */}
           <div
-            className="h-11 w-11 flex-shrink-0 rounded-full flex items-center justify-center"
-            style={{ background: avatarBg, boxShadow: `0 0 0 3px hsl(44 27% 84%), 0 0 0 4px ${avatarBg}40` }}
+            className="h-10 w-10 flex-shrink-0 rounded-full flex items-center justify-center"
+            style={{ background: avatarBg, boxShadow: `0 0 0 2px hsl(44 27% 84%), 0 0 0 3px ${avatarBg}40` }}
           >
-            <span className="font-bold text-base text-primary-foreground">{firstChar}</span>
+            <span className="font-bold text-sm text-primary-foreground">{firstChar}</span>
           </div>
+          {/* Book info */}
           <div className="flex-1 min-w-0">
             <p className="font-serif font-bold text-base text-foreground text-right leading-snug">{item.bookTitle}</p>
             <div className="flex items-center gap-1.5 mt-1.5 justify-end flex-wrap">
@@ -191,6 +228,21 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               )}
             </div>
           </div>
+          {/* Book cover thumbnail */}
+          {item.coverUrl ? (
+            <div className="h-14 w-10 flex-shrink-0 rounded overflow-hidden shadow-sm">
+              <img src={item.coverUrl} alt={item.bookTitle} className="h-full w-full object-cover" />
+            </div>
+          ) : (
+            <div
+              className="h-14 w-10 flex-shrink-0 rounded flex items-center justify-center shadow-sm"
+              style={{ background: 'hsl(126 15% 28% / 0.12)' }}
+            >
+              <span className="text-[8px] font-bold text-primary text-center leading-tight px-0.5 font-serif">
+                {item.bookTitle.slice(0, 10)}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -223,6 +275,9 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               <MessageCircle size={15} strokeWidth={1.5} />
               {commentCount > 0 && <span className="text-xs font-medium">{commentCount}</span>}
             </button>
+            {!item.isMe && (
+              <AddToLibraryButton bookId={item.bookId} bookTitle={item.bookTitle} bookAuthor={item.bookAuthor || ''} coverUrl={item.coverUrl} />
+            )}
           </>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { Home, Trophy, Menu, X, BookOpen, User, MessageSquare, Users, LogOut } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,7 +11,6 @@ const links = [
   { path: "/posts",      label: "פורום",  icon: MessageSquare,  desc: "שיחות ודיונים" },
   { path: "/friends",    label: "חברים",  icon: Users,          desc: "חברים ודירוג" },
   { path: "/books",      label: "ספרים",  icon: BookOpen,       desc: "ספריית הספרים" },
-  { path: "/profile",    label: "פרופיל", icon: User,           desc: "הפרופיל שלי" },
 ];
 
 const HamburgerMenu = () => {
@@ -113,22 +112,23 @@ const HamburgerMenu = () => {
                 boxShadow: "4px 0 24px hsl(126 15% 10% / 0.14)",
               }}
             >
-              {/* Header — user card */}
-              <div
-                className="flex items-center gap-3 px-5 pt-12 pb-5"
+              {/* Header — user card (clickable → profile) */}
+              <button
+                onClick={() => navTo("/profile")}
+                className="flex items-center gap-3 px-5 pt-12 pb-5 w-full text-right hover:bg-black/5 transition-colors"
                 style={{ borderBottom: "1px solid hsl(44 12% 76%)" }}
               >
                 <div
-                  className="h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg text-white shadow-md"
+                  className="h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg text-white shadow-md overflow-hidden"
                   style={{ background: "hsl(126 15% 28%)" }}
                 >
                   {initial}
                 </div>
                 <div className="text-right flex-1 min-w-0">
                   <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{user?.email}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">הצג פרופיל ←</p>
                 </div>
-              </div>
+              </button>
 
               {/* Nav links */}
               <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">

@@ -8,6 +8,7 @@ import ChallengeCard from "@/components/ChallengeCard";
 import BookCard from "@/components/BookCard";
 import AddBookDialog from "@/components/AddBookDialog";
 import CreateChallengeDialog from "@/components/CreateChallengeDialog";
+import Leaderboard from "@/components/Leaderboard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy } from "lucide-react";
 
@@ -41,10 +42,26 @@ const ChallengesTab = () => {
       </button>
 
       {challenges.length === 0 ? (
-        <div className="rounded-xl bg-card p-6 card-shadow text-center space-y-2">
-          <Trophy size={28} className="mx-auto text-muted-foreground/50" />
-          <p className="text-sm font-semibold">אין עדיין אתגרים</p>
-          <p className="text-xs text-muted-foreground">צור אתגר חדש כדי להתחרות עם חברים</p>
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground text-center py-1">הצעות לאתגרים מהירים:</p>
+          {[
+            { name: "קורא השבוע 🏆", desc: "140 דקות קריאה ב-7 ימים", goalType: "minutes" as const, goalValue: 140, days: 7 },
+            { name: "ספר בחודש 📚", desc: "סיים ספר אחד תוך 30 יום", goalType: "books" as const, goalValue: 1, days: 30 },
+            { name: "קורא החודש 🥇", desc: "600 דקות קריאה ב-30 יום", goalType: "minutes" as const, goalValue: 600, days: 30 },
+          ].map((template, i) => (
+            <button
+              key={i}
+              onClick={() => setCreateOpen(true)}
+              className="w-full rounded-xl bg-card p-4 card-shadow text-right flex items-center gap-3 hover:bg-accent/30 transition-colors"
+              style={{ border: '1px solid hsl(44 15% 80%)' }}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold">{template.name}</p>
+                <p className="text-xs text-muted-foreground">{template.desc}</p>
+              </div>
+              <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg flex-shrink-0">צור</span>
+            </button>
+          ))}
         </div>
       ) : (
         challenges.map(c => (
@@ -100,30 +117,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-28">
-      {/* ── App header: Pillar mark + wordmark ──────────────────── */}
-      <div
-        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-5 pb-4"
-        style={{
-          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
-          borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
-        }}
-      >
-        <div className="flex items-center justify-between max-w-md mx-auto">
-          <div className="flex items-center gap-3">
-            {/* Thicker brand pillar */}
-            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
-            <div>
-              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">AMUD</h1>
-              <p className="font-quote text-[11px] text-muted-foreground mt-1">
-                בונים הרגל, עמוד אחרי עמוד
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ── Tab switcher ── */}
-      <div className="sticky top-[73px] z-20 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to bottom, hsl(44 27% 84% / 0.98) 0%, hsl(44 27% 84% / 0.94) 100%)', backdropFilter: 'blur(8px)' }}>
+      <div className="sticky top-0 z-20 px-4 pb-3 pt-3" style={{ background: 'linear-gradient(to bottom, hsl(44 27% 84% / 0.98) 0%, hsl(44 27% 84% / 0.94) 100%)', backdropFilter: 'blur(8px)' }}>
         <div className="max-w-md mx-auto">
           <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'hsl(44 15% 78%)' }}>
             {([
@@ -151,6 +146,7 @@ const Home = () => {
       <div className="px-4 py-4 max-w-md mx-auto">
         {activeTab === 'feed' && (
           <div className="space-y-3">
+            <Leaderboard />
             {sessionsLoading ? (
               <>
                 {[1, 2, 3].map(i => (
@@ -199,10 +195,23 @@ const Home = () => {
                   <FeedItemCard key={session.id} item={session} />
                 ))}
               {sessions.every(s => s.isMe) && (
-                <div className="rounded-xl border border-dashed border-primary/30 p-4 text-center space-y-1">
-                  <p className="text-sm font-semibold">אין עדיין חברים בפיד</p>
-                  <p className="text-xs text-muted-foreground">הזמן חבר לקרוא איתך 📖</p>
-                </div>
+                <button
+                  onClick={() => {
+                    const url = window.location.origin;
+                    const text = "הצטרפ/י לAMUD - האפליקציה שעוזרת לנו לקרוא יותר ביחד! 📚";
+                    if (navigator.share) {
+                      navigator.share({ title: "AMUD - קריאה חברתית", text, url }).catch(() => {});
+                    } else {
+                      navigator.clipboard.writeText(`${text}\n${url}`);
+                      import("sonner").then(({ toast }) => toast.success("הקישור הועתק ללוח!"));
+                    }
+                  }}
+                  className="w-full rounded-xl p-4 text-center space-y-1 transition-all hover:opacity-90 active:scale-[0.98]"
+                  style={{ background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }}
+                >
+                  <p className="text-sm font-bold">📖 הזמן חבר לקרוא איתך</p>
+                  <p className="text-xs opacity-80">לחץ לשיתוף הזמנה לאפליקציה</p>
+                </button>
               )}
               </>
             )/* end sessionsLoading ternary */}
