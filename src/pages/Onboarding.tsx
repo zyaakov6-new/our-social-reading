@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -152,12 +153,37 @@ const Onboarding = () => {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
+    // Persist display name + reading goal to Supabase so the whole app
+    // can read them — localStorage alone wasn't enough.
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const goalMinutes =
+          goalType === "minutes"
+            ? Number.parseInt(goalValue, 10)
+            : 20; // default when goal is books/month
+
+        await Promise.all([
+          // Update auth metadata so user.user_metadata.full_name is set
+          supabase.auth.updateUser({ data: { full_name: name.trim() || undefined } }),
+          // Upsert profile row so display_name is queryable by friends
+          supabase.from("profiles").upsert(
+            {
+              user_id: user.id,
+              display_name: name.trim() || null,
+              reading_goal_minutes: goalMinutes,
+            },
+            { onConflict: "user_id" }
+          ),
+        ]);
+      }
+    } catch (e) {
+      console.warn("Onboarding save failed:", e);
+      // Non-blocking — proceed even if the save fails
+    }
+
     localStorage.setItem("onboarding_complete", "true");
-    localStorage.setItem(
-      "user_profile",
-      JSON.stringify({ name, email, goalType, goalValue: Number.parseInt(goalValue, 10) })
-    );
     window.dispatchEvent(new Event(ONBOARDING_STATUS_EVENT));
     navigate("/", { replace: true });
   };
