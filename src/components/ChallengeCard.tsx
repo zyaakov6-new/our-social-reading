@@ -28,10 +28,10 @@ const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
       className="w-full rounded-2xl bg-card card-shadow text-right hover:bg-accent/20 transition-all duration-200 overflow-hidden"
       style={{ border: '1px solid hsl(44 15% 80%)' }}
     >
-      {/* Teal header with trophy + name */}
+      {/* Header */}
       <div
         className="flex items-center justify-between px-4 py-3"
-        style={{ background: 'hsl(188 100% 27% / 0.08)', borderBottom: '1px solid hsl(188 100% 27% / 0.14)' }}
+        style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}
       >
         <div className="flex items-center gap-1.5">
           <ChevronLeft size={16} className="text-muted-foreground" />

@@ -54,7 +54,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
       <>
         <div
           className="flex items-center gap-3 rounded-xl bg-card p-3 card-shadow relative group transition-shadow hover:card-shadow-hover"
-          style={{ borderRight: '2px solid hsl(126 15% 28% / 0.45)' }}
+          style={{ border: '1px solid hsl(44 15% 80%)' }}
         >
           {/* Cover / fallback */}
           <div className={`h-16 w-11 flex-shrink-0 rounded-md overflow-hidden ${!book.coverUrl ? `bg-gradient-to-br ${colorClass} flex items-center justify-center` : ''}`}>

@@ -132,9 +132,9 @@ const PostsFeed = () => {
               className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 transition-all duration-200 card-shadow animate-fade-slide-up overflow-hidden"
               style={{ border: '1px solid hsl(44 15% 80%)' }}
             >
-              {/* Teal header band for forum posts */}
+              {/* Post header */}
               <div className="flex items-center gap-2 px-4 py-2.5"
-                style={{ background: 'hsl(188 100% 27% / 0.07)', borderBottom: '1px solid hsl(188 100% 27% / 0.12)' }}>
+                style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
                 <div
                   className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}

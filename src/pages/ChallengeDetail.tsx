@@ -173,7 +173,7 @@ const ChallengeDetail = () => {
         className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
         style={{
           background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
-          borderBottom: '2px solid hsl(188 100% 27% / 0.22)',
+          borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
         }}
       >
         <div className="flex items-center gap-3 max-w-md mx-auto">
@@ -231,7 +231,7 @@ const ChallengeDetail = () => {
         {/* Leaderboard */}
         <div className="rounded-2xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
           <div className="flex items-center gap-2 px-4 py-3"
-            style={{ background: 'hsl(188 100% 27% / 0.07)', borderBottom: '1px solid hsl(188 100% 27% / 0.12)' }}>
+            style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
             <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
             <span className="font-bold text-sm">טבלת מובילים</span>
           </div>
