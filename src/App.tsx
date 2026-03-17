@@ -16,6 +16,7 @@ import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
+import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const AppLayout = () => (
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
+    <HamburgerMenu />
     <ReadingFAB />
     <BottomNav />
   </>
