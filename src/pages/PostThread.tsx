@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowRight, Heart, Send } from "lucide-react";
+import { ArrowRight, Heart, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -141,6 +141,15 @@ const PostThread = () => {
     }
   };
 
+  const deleteComment = async (commentId: string) => {
+    const { error } = await supabase
+      .from("post_comments")
+      .delete()
+      .eq("id", commentId);
+    if (error) { toast.error("שגיאה במחיקת תגובה"); return; }
+    setComments(prev => prev.filter(c => c.id !== commentId));
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen pb-28">
@@ -230,7 +239,7 @@ const PostThread = () => {
           ) : (
             <div className="space-y-2">
               {comments.map(c => (
-                <div key={c.id} className="bg-card border border-border/50 rounded-xl px-4 py-3">
+                <div key={c.id} className="bg-card border border-border/50 rounded-xl px-4 py-3 group">
                   <div className="flex items-start gap-2.5">
                     <button
                       onClick={() => navigate(`/user/${c.userId}`)}
@@ -252,6 +261,15 @@ const PostThread = () => {
                       </div>
                       <p className="text-xs text-foreground/80 mt-0.5">{c.content}</p>
                     </div>
+                    {c.userId === currentUserId && (
+                      <button
+                        onClick={() => deleteComment(c.id)}
+                        className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1 rounded text-muted-foreground/50 hover:text-red-400 transition-all"
+                        title="מחק תגובה"
+                      >
+                        <Trash2 size={12} strokeWidth={1.5} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
