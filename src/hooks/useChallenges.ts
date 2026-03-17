@@ -21,6 +21,7 @@ export interface Challenge {
   myProgress: number;
   myRank: number;
   isParticipant: boolean;
+  isPublic: boolean;
 }
 
 export const useChallenges = () => {
@@ -40,11 +41,15 @@ export const useChallenges = () => {
 
       const participantChallengeIds = (participantRows || []).map((r: any) => r.challenge_id);
 
-      // Also get challenges created by user
+      // Fetch: created by user, OR user is participant, OR is_public=true
+      const orParts = [`creator_id.eq.${user.id}`, `is_public.eq.true`];
+      if (participantChallengeIds.length > 0) {
+        orParts.push(`id.in.(${participantChallengeIds.join(",")})`);
+      }
       const { data: challengeData } = await supabase
         .from("challenges")
         .select("*")
-        .or(`creator_id.eq.${user.id}${participantChallengeIds.length > 0 ? `,id.in.(${participantChallengeIds.join(",")})` : ""}`)
+        .or(orParts.join(","))
         .order("created_at", { ascending: false });
 
       if (!challengeData) { setLoading(false); return; }
@@ -126,6 +131,7 @@ export const useChallenges = () => {
             myProgress,
             myRank,
             isParticipant,
+            isPublic: !!c.is_public,
           };
         })
       );

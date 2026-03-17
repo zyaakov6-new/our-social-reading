@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,9 @@ const Profile = () => {
     monthMinutes: 0,
     allTimeMinutes: 0,
   });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editMinutes, setEditMinutes] = useState("");
@@ -86,6 +89,41 @@ const Profile = () => {
       allTimeMinutes,
     });
   }, [sessions, user?.id]);
+
+  // Load avatar from profiles table
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+      });
+  }, [user?.id]);
+
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+      await supabase.from('profiles').upsert({ user_id: user.id, avatar_url: publicUrl }, { onConflict: 'user_id' });
+      setAvatarUrl(publicUrl);
+    } catch (err: any) {
+      const { toast } = await import('sonner');
+      toast.error(err?.message || 'שגיאה בהעלאת תמונה');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   const openEditLastSession = () => {
     if (!latestSession) return;
@@ -185,14 +223,36 @@ const Profile = () => {
 
       <div className="px-4 pt-4 max-w-md mx-auto space-y-4">
         <div className="flex justify-center mb-3">
-          <div
-            className="h-20 w-20 rounded-full p-[3px]"
+          <button
+            type="button"
+            onClick={() => avatarInputRef.current?.click()}
+            className="relative h-20 w-20 rounded-full p-[3px] group"
             style={{ background: 'linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(28 71% 57%) 100%)' }}
+            title="שנה תמונת פרופיל"
           >
-            <div className="h-full w-full rounded-full bg-card flex items-center justify-center">
-              <span className="font-serif text-3xl font-bold text-foreground">{initial}</span>
+            <div className="h-full w-full rounded-full bg-card flex items-center justify-center overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
+              ) : (
+                <span className="font-serif text-3xl font-bold text-foreground">{initial}</span>
+              )}
             </div>
-          </div>
+            {/* Camera overlay on hover */}
+            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploadingAvatar ? (
+                <div className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+              ) : (
+                <Camera size={20} className="text-white" />
+              )}
+            </div>
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarChange}
+          />
         </div>
 
         <div
