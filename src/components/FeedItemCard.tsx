@@ -6,6 +6,32 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null }) => {
+  const [failed, setFailed] = useState(false);
+  if (coverUrl && !failed) {
+    return (
+      <div className="h-14 w-10 flex-shrink-0 rounded overflow-hidden shadow-sm">
+        <img
+          src={coverUrl}
+          alt={title}
+          className="h-full w-full object-cover"
+          onError={() => setFailed(true)}
+        />
+      </div>
+    );
+  }
+  return (
+    <div
+      className="h-14 w-10 flex-shrink-0 rounded flex items-center justify-center shadow-sm"
+      style={{ background: 'hsl(126 15% 28% / 0.12)' }}
+    >
+      <span className="text-[8px] font-bold text-primary text-center leading-tight px-0.5 font-serif">
+        {title.slice(0, 10)}
+      </span>
+    </div>
+  );
+};
+
 const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl }: { bookId: string; bookTitle: string; bookAuthor: string; coverUrl?: string }) => {
   const [added, setAdded] = useState(false);
   const [open, setOpen] = useState(false);
@@ -233,20 +259,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             </div>
           </div>
           {/* Book cover thumbnail */}
-          {item.coverUrl ? (
-            <div className="h-14 w-10 flex-shrink-0 rounded overflow-hidden shadow-sm">
-              <img src={item.coverUrl} alt={item.bookTitle} className="h-full w-full object-cover" />
-            </div>
-          ) : (
-            <div
-              className="h-14 w-10 flex-shrink-0 rounded flex items-center justify-center shadow-sm"
-              style={{ background: 'hsl(126 15% 28% / 0.12)' }}
-            >
-              <span className="text-[8px] font-bold text-primary text-center leading-tight px-0.5 font-serif">
-                {item.bookTitle.slice(0, 10)}
-              </span>
-            </div>
-          )}
+          <BookCover title={item.bookTitle} coverUrl={item.coverUrl ?? null} />
         </div>
       </div>
 
