@@ -17,7 +17,11 @@ const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl }: { bookI
     const { data: existing } = await supabase.from('books').select('id').eq('user_id', user.id).eq('title', bookTitle).maybeSingle();
     if (existing) { toast.success('הספר כבר בספרייה שלך'); setOpen(false); return; }
     const { error } = await supabase.from('books').insert({ user_id: user.id, title: bookTitle, author: bookAuthor || 'לא ידוע', status, cover_url: coverUrl || null });
-    if (!error) { toast.success('הספר נוסף לספרייה! 📚'); setAdded(true); }
+    if (!error) {
+      toast.success('הספר נוסף לספרייה! 📚');
+      setAdded(true);
+      window.dispatchEvent(new CustomEvent('bookAdded'));
+    }
     setOpen(false);
   };
 
@@ -200,7 +204,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
         {item.isMe ? (
-          <span className="text-xs font-bold text-primary">אני</span>
+          <span className="text-xs font-bold" style={{ color: 'hsl(28 71% 57%)' }}>אני</span>
         ) : (
           <span className="text-xs font-semibold text-foreground truncate">{item.userName}</span>
         )}

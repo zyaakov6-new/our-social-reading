@@ -72,7 +72,9 @@ const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
             </div>
           ))}
         </div>
-        <span className="text-xs text-muted-foreground mr-3">מיקומך: <strong className="text-foreground">#{challenge.myRank}</strong></span>
+        {challenge.isParticipant !== false && (
+          <span className="text-xs text-muted-foreground mr-3">מיקומך: <strong className="text-foreground">#{challenge.myRank}</strong></span>
+        )}
       </div>
     </button>
   );

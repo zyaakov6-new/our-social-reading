@@ -18,6 +18,7 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
     maxResults: '8',
     langRestrict: 'iw', // Hebrew first
     orderBy: 'relevance',
+    printType: 'books', // books only — no articles or magazines
   });
 
   const res = await fetch(`${GOOGLE_BOOKS_API}?${params}`);

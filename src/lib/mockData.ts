@@ -39,6 +39,7 @@ export interface Challenge {
   endDate: string;
   participants: { name: string; progress: number; rank: number }[];
   myRank: number;
+  isParticipant?: boolean;
 }
 
 export const mockBooks: Book[] = [

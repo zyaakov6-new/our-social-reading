@@ -15,8 +15,18 @@ import { Trophy } from "lucide-react";
 type Tab = 'feed' | 'challenges' | 'books';
 
 const ChallengesTab = () => {
-  const { challenges, loading } = useChallenges();
+  const { challenges, loading, joinChallenge } = useChallenges();
   const [createOpen, setCreateOpen] = useState(false);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
+
+  const handleJoin = async (id: string) => {
+    setJoiningId(id);
+    try {
+      await joinChallenge(id);
+    } finally {
+      setJoiningId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -42,43 +52,39 @@ const ChallengesTab = () => {
       </button>
 
       {challenges.length === 0 ? (
-        <div className="space-y-2">
-          <p className="text-xs text-muted-foreground text-center py-1">הצעות לאתגרים מהירים:</p>
-          {[
-            { name: "קורא השבוע 🏆", desc: "140 דקות קריאה ב-7 ימים", goalType: "minutes" as const, goalValue: 140, days: 7 },
-            { name: "ספר בחודש 📚", desc: "סיים ספר אחד תוך 30 יום", goalType: "books" as const, goalValue: 1, days: 30 },
-            { name: "קורא החודש 🥇", desc: "600 דקות קריאה ב-30 יום", goalType: "minutes" as const, goalValue: 600, days: 30 },
-          ].map((template, i) => (
-            <button
-              key={i}
-              onClick={() => setCreateOpen(true)}
-              className="w-full rounded-xl bg-card p-4 card-shadow text-right flex items-center gap-3 hover:bg-accent/30 transition-colors"
-              style={{ border: '1px solid hsl(44 15% 80%)' }}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold">{template.name}</p>
-                <p className="text-xs text-muted-foreground">{template.desc}</p>
-              </div>
-              <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg flex-shrink-0">צור</span>
-            </button>
-          ))}
+        <div className="text-center py-8 text-sm text-muted-foreground">
+          עדיין אין אתגרים — צור את האתגר הראשון!
         </div>
       ) : (
         challenges.map(c => (
-          <ChallengeCard
-            key={c.id}
-            challenge={{
-              id: c.id,
-              name: c.name,
-              goalType: c.goalType,
-              goalValue: c.goalValue,
-              currentProgress: c.myProgress,
-              startDate: c.startDate,
-              endDate: c.endDate,
-              participants: c.participants.map((p, i) => ({ name: p.displayName, progress: p.progress, rank: i + 1 })),
-              myRank: c.myRank,
-            }}
-          />
+          <div key={c.id} className="relative">
+            <ChallengeCard
+              challenge={{
+                id: c.id,
+                name: c.name,
+                goalType: c.goalType,
+                goalValue: c.goalValue,
+                currentProgress: c.myProgress,
+                startDate: c.startDate,
+                endDate: c.endDate,
+                participants: c.participants.map((p, i) => ({ name: p.displayName, progress: p.progress, rank: i + 1 })),
+                myRank: c.myRank,
+                isParticipant: c.isParticipant,
+              }}
+            />
+            {!c.isParticipant && (
+              <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-card/80 backdrop-blur-[2px]" style={{ border: '1px solid hsl(44 15% 80%)' }}>
+                <button
+                  onClick={() => handleJoin(c.id)}
+                  disabled={joiningId === c.id}
+                  className="px-6 py-2.5 rounded-xl font-bold text-sm text-primary-foreground transition-opacity disabled:opacity-60"
+                  style={{ background: 'hsl(126 15% 28%)' }}
+                >
+                  {joiningId === c.id ? 'מצטרף...' : 'הצטרף לאתגר 🎯'}
+                </button>
+              </div>
+            )}
+          </div>
         ))
       )}
 
@@ -104,6 +110,13 @@ const Home = () => {
     refetchBooks();
     refetchSessions();
   };
+
+  // Auto-refresh library when a book is added from the feed
+  useEffect(() => {
+    const handler = () => refetchBooks();
+    window.addEventListener('bookAdded', handler);
+    return () => window.removeEventListener('bookAdded', handler);
+  }, []);
 
   useEffect(() => {
     const tab = pathToTab[location.pathname];
