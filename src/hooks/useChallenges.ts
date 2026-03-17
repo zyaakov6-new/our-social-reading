@@ -94,7 +94,11 @@ export const useChallenges = () => {
                   .lte("session_date", c.end_date);
                 progress = new Set((sessions || []).map((s: any) => s.book_id)).size;
               }
-              return { userId: uid, displayName: profileMap[uid] || "קורא", progress };
+              const fallbackName =
+                uid === user.id
+                  ? (user.user_metadata?.full_name || user.email?.split("@")[0] || "קורא")
+                  : "קורא";
+              return { userId: uid, displayName: profileMap[uid] || fallbackName, progress };
             })
           );
 
