@@ -160,7 +160,15 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
       {/* ── User + timestamp header band ── */}
       <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
-        <span className="text-xs font-semibold text-foreground truncate text-right">{item.userName}</span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          {item.isMe && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+              style={{ background: 'hsl(126 15% 28% / 0.12)', color: 'hsl(126 15% 22%)' }}>
+              אני
+            </span>
+          )}
+          <span className="text-xs font-semibold text-foreground truncate">{item.userName}</span>
+        </div>
       </div>
 
       {/* ── Activity body ── */}
@@ -173,7 +181,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             <span className="font-bold text-base text-primary-foreground">{firstChar}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-serif font-bold text-base text-foreground text-right leading-snug">«{item.bookTitle}»</p>
+            <p className="font-serif font-bold text-base text-foreground text-right leading-snug">{item.bookTitle}</p>
             <div className="flex items-center gap-1.5 mt-1.5 justify-end flex-wrap">
               {item.minutesRead > 0 && (
                 <span className="badge-green">⏱ {item.minutesRead} דק׳</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Flame, Clock, Calendar, Settings, Pencil } from "lucide-react";
+import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import { useNavigate } from "react-router-dom";
@@ -160,7 +160,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen pb-28">
       <div
-        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-5 pb-4"
         style={{
           background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
           borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
@@ -183,7 +183,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="px-4 max-w-md mx-auto space-y-4">
+      <div className="px-4 pt-4 max-w-md mx-auto space-y-4">
         <div className="flex justify-center mb-3">
           <div
             className="h-20 w-20 rounded-full p-[3px]"
@@ -240,7 +240,7 @@ const Profile = () => {
             )}
           </div>
           <div className="rounded-xl p-4 card-shadow text-center stat-teal">
-            <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
+            <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
             {stats.monthMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">החודש עוד לפניך</p>
@@ -254,7 +254,7 @@ const Profile = () => {
             )}
           </div>
           <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
-            <Clock size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
+            <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
             {stats.allTimeMinutes === 0 ? (
               <>
                 <p className="text-sm font-semibold text-foreground">הכול מחכה לקריאה הראשונה</p>

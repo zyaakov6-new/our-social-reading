@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useBooks } from "@/hooks/useBooks";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
 import { useChallenges } from "@/hooks/useChallenges";
@@ -78,6 +78,7 @@ const pathToTab: Record<string, Tab> = {
 
 const Home = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
   const { books, refetch: refetchBooks, deleteBook, updateStatus } = useBooks();
   const { sessions, loading: sessionsLoading, refetch: refetchSessions } = useReadingSessions();
@@ -101,7 +102,7 @@ const Home = () => {
     <div className="min-h-screen pb-28">
       {/* ── App header: Pillar mark + wordmark ──────────────────── */}
       <div
-        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-5 pb-4"
         style={{
           background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
           borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
@@ -117,6 +118,32 @@ const Home = () => {
                 בונים הרגל, עמוד אחרי עמוד
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Tab switcher ── */}
+      <div className="sticky top-[73px] z-20 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to bottom, hsl(44 27% 84% / 0.98) 0%, hsl(44 27% 84% / 0.94) 100%)', backdropFilter: 'blur(8px)' }}>
+        <div className="max-w-md mx-auto">
+          <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'hsl(44 15% 78%)' }}>
+            {([
+              { key: 'feed',       label: 'פיד',     path: '/'          },
+              { key: 'challenges', label: 'אתגרים',  path: '/challenges' },
+              { key: 'books',      label: 'ספרים',   path: '/books'     },
+            ] as const).map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => navigate(tab.path)}
+                className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
+                style={
+                  activeTab === tab.key
+                    ? { background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)', boxShadow: '0 2px 8px hsl(126 15% 15% / 0.25)' }
+                    : { background: 'transparent', color: 'hsl(210 8% 45%)' }
+                }
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
