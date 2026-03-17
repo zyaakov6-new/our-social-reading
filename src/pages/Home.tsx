@@ -59,7 +59,7 @@ const ChallengesTab = () => {
               startDate: c.startDate,
               endDate: c.endDate,
               participants: c.participants.map((p, i) => ({ name: p.displayName, progress: p.progress, rank: i + 1 })),
-              myRank: c.participants.length,
+              myRank: c.myRank,
             }}
           />
         ))

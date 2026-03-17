@@ -19,6 +19,7 @@ export interface Challenge {
   createdAt: string;
   participants: ChallengeParticipant[];
   myProgress: number;
+  myRank: number;
   isParticipant: boolean;
 }
 
@@ -106,6 +107,8 @@ export const useChallenges = () => {
           participantList.sort((a, b) => b.progress - a.progress);
 
           const myProgress = participantList.find((p) => p.userId === user.id)?.progress ?? 0;
+          const myRankIndex = participantList.findIndex((p) => p.userId === user.id);
+          const myRank = myRankIndex >= 0 ? myRankIndex + 1 : participantList.length;
           const isParticipant =
             c.creator_id === user.id ||
             (parts || []).some((p: any) => p.user_id === user.id);
@@ -121,6 +124,7 @@ export const useChallenges = () => {
             createdAt: c.created_at,
             participants: participantList,
             myProgress,
+            myRank,
             isParticipant,
           };
         })
