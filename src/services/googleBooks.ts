@@ -15,9 +15,8 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
 
   const params = new URLSearchParams({
     q: query,
-    maxResults: '8',
+    maxResults: '12',
     orderBy: 'relevance',
-    printType: 'books', // books only — no articles or magazines
   });
 
   const res = await fetch(`${GOOGLE_BOOKS_API}?${params}`);
@@ -26,7 +25,10 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
   const data = await res.json();
   if (!data.items) return [];
 
-  return data.items.map((item: any): BookSearchResult => {
+  // Filter client-side to books only (excludes magazines/articles)
+  const bookItems = data.items.filter((item: any) => item.volumeInfo?.printType === 'BOOK' || !item.volumeInfo?.printType);
+
+  return bookItems.slice(0, 8).map((item: any): BookSearchResult => {
     const info = item.volumeInfo;
 
     // Get best available cover
