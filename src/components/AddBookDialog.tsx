@@ -44,6 +44,8 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
       try {
         const books = await searchBooks(query);
         setResults(books);
+      } catch {
+        setResults([]);
       } finally {
         setSearching(false);
       }

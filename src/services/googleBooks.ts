@@ -1,4 +1,5 @@
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
+const OPEN_LIBRARY_API = 'https://openlibrary.org/search.json';
 
 export interface BookSearchResult {
   googleBooksId: string;
@@ -10,9 +11,7 @@ export interface BookSearchResult {
   isbn: string | null;
 }
 
-export async function searchBooks(query: string): Promise<BookSearchResult[]> {
-  if (!query || query.trim().length < 2) return [];
-
+async function searchGoogleBooks(query: string): Promise<BookSearchResult[]> {
   const params = new URLSearchParams({
     q: query,
     maxResults: '12',
@@ -20,42 +19,82 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
   });
 
   const res = await fetch(`${GOOGLE_BOOKS_API}?${params}`);
-  if (!res.ok) throw new Error('Google Books API error');
+  if (!res.ok) return [];
 
   const data = await res.json();
-  if (!data.items) return [];
+  if (!data.items?.length) return [];
 
-  // Filter client-side to books only (excludes magazines/articles)
-  const bookItems = data.items.filter((item: any) => item.volumeInfo?.printType === 'BOOK' || !item.volumeInfo?.printType);
+  return data.items
+    .filter((item: any) => item.volumeInfo?.printType !== 'MAGAZINE')
+    .slice(0, 8)
+    .map((item: any): BookSearchResult => {
+      const info = item.volumeInfo;
+      const covers = info.imageLinks;
+      const coverUrl =
+        covers?.thumbnail
+          ?.replace('http://', 'https://')
+          ?.replace('&edge=curl', '') ?? null;
+      const isbn =
+        info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')
+          ?.identifier ?? null;
+      return {
+        googleBooksId: item.id,
+        title: info.title ?? 'ללא כותרת',
+        author: info.authors?.[0] ?? 'מחבר לא ידוע',
+        totalPages: info.pageCount ?? 0,
+        coverUrl: coverUrl ?? (isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg` : null),
+        description: info.description ?? null,
+        isbn,
+      };
+    });
+}
 
-  return bookItems.slice(0, 8).map((item: any): BookSearchResult => {
-    const info = item.volumeInfo;
+async function searchOpenLibrary(query: string): Promise<BookSearchResult[]> {
+  const params = new URLSearchParams({
+    q: query,
+    limit: '10',
+    fields: 'key,title,author_name,number_of_pages_median,isbn,cover_i',
+  });
 
-    // Get best available cover
-    const covers = info.imageLinks;
-    const coverUrl = covers?.thumbnail
-      ?.replace('http://', 'https://')
-      ?.replace('&edge=curl', '') ?? null;
+  const res = await fetch(`${OPEN_LIBRARY_API}?${params}`);
+  if (!res.ok) return [];
 
-    // Get ISBN for Open Library fallback
-    const isbn = info.industryIdentifiers?.find(
-      (id: any) => id.type === 'ISBN_13'
-    )?.identifier ?? null;
+  const data = await res.json();
+  if (!data.docs?.length) return [];
 
+  return data.docs.slice(0, 8).map((doc: any): BookSearchResult => {
+    const isbn = doc.isbn?.[0] ?? null;
+    const coverId = doc.cover_i;
+    const coverUrl = coverId
+      ? `https://covers.openlibrary.org/b/id/${coverId}-M.jpg`
+      : isbn
+      ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+      : null;
     return {
-      googleBooksId: item.id,
-      title: info.title ?? 'ללא כותרת',
-      author: info.authors?.[0] ?? 'מחבר לא ידוע',
-      totalPages: info.pageCount ?? 0,
-      coverUrl: coverUrl ?? getFallbackCover(isbn),
-      description: info.description ?? null,
+      googleBooksId: doc.key ?? String(Math.random()),
+      title: doc.title ?? 'ללא כותרת',
+      author: doc.author_name?.[0] ?? 'מחבר לא ידוע',
+      totalPages: doc.number_of_pages_median ?? 0,
+      coverUrl,
+      description: null,
       isbn,
     };
   });
 }
 
-// Open Library fallback if Google has no cover
-function getFallbackCover(isbn: string | null): string | null {
-  if (!isbn) return null;
-  return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+export async function searchBooks(query: string): Promise<BookSearchResult[]> {
+  if (!query || query.trim().length < 2) return [];
+
+  try {
+    const googleResults = await searchGoogleBooks(query);
+    if (googleResults.length > 0) return googleResults;
+  } catch {
+    // Google Books failed, fall through to Open Library
+  }
+
+  try {
+    return await searchOpenLibrary(query);
+  } catch {
+    return [];
+  }
 }
