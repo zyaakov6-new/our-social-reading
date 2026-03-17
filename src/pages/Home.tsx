@@ -117,28 +117,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen pb-28">
-      {/* ── Tab switcher ── */}
-      <div className="sticky top-0 z-20 px-4 pb-3 pt-3" style={{ background: 'linear-gradient(to bottom, hsl(44 27% 84% / 0.98) 0%, hsl(44 27% 84% / 0.94) 100%)', backdropFilter: 'blur(8px)' }}>
-        <div className="max-w-md mx-auto">
-          <div className="flex rounded-2xl p-1 gap-1" style={{ background: 'hsl(44 15% 78%)' }}>
-            {([
-              { key: 'feed',       label: 'פיד',     path: '/'          },
-              { key: 'challenges', label: 'אתגרים',  path: '/challenges' },
-              { key: 'books',      label: 'ספרים',   path: '/books'     },
-            ] as const).map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => navigate(tab.path)}
-                className="flex-1 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
-                style={
-                  activeTab === tab.key
-                    ? { background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)', boxShadow: '0 2px 8px hsl(126 15% 15% / 0.25)' }
-                    : { background: 'transparent', color: 'hsl(210 8% 45%)' }
-                }
-              >
-                {tab.label}
-              </button>
-            ))}
+      {/* Compact top bar */}
+      <div
+        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-3 pb-2.5"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
+          borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
+        }}
+      >
+        <div className="flex items-center gap-3 max-w-md mx-auto">
+          <span style={{ display: 'block', width: '3px', height: '26px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
+          <div>
+            <h1 className="font-display text-[1.5rem] tracking-[0.14em] leading-none">AMUD</h1>
+            <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פיד קריאה</p>
           </div>
         </div>
       </div>

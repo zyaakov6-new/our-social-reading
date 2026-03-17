@@ -25,7 +25,11 @@ const AVATAR_COLORS: Record<string, string> = {
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-const Leaderboard = () => {
+interface LeaderboardProps {
+  onAddFriendsClick?: () => void;
+}
+
+const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -102,7 +106,7 @@ const Leaderboard = () => {
       }
     };
     load();
-  }, [user]);
+  }, [user?.id]);
 
   if (loading) {
     return (
@@ -135,7 +139,7 @@ const Leaderboard = () => {
           <p className="text-sm font-serif font-bold">טבלת מנצחים ריקה</p>
           <p className="text-xs text-muted-foreground">הוסף חברים כדי להתחרות ולראות מי קורא הכי הרבה</p>
           <button
-            onClick={() => navigate("/friends")}
+            onClick={() => onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             style={{ background: 'hsl(126 15% 28%)' }}
           >

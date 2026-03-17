@@ -27,6 +27,89 @@ const AVATAR_COLORS: Record<string, string> = {
   ת: 'hsl(126 20% 32%)',
 };
 
+const FAKE_POSTS: PostSummary[] = [
+  {
+    id: 'fake-1',
+    userId: 'fake',
+    displayName: 'מיכל לוי',
+    title: 'מה הספר שהכי השפיע עליכם בחיים?',
+    contentPreview: 'אצלי זה "מאה שנות בדידות" של מרקס. קראתי אותו בגיל 23 ומאז העולם נראה לי אחרת. כל פעם שאני פותח ספר חדש אני מחפש את אותה תחושה...',
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    likeCount: 14,
+    commentCount: 7,
+  },
+  {
+    id: 'fake-2',
+    userId: 'fake',
+    displayName: 'יונתן כהן',
+    title: 'קינדל vs ספר פיזי — הכריעו',
+    contentPreview: 'שנים הייתי מחנה הספר הפיזי הקיצוני. ריח הנייר, השוליים, ההדגשות. ואז קיבלתי קינדל מתנה ועברתי צד. מי עוד עבר מצד לצד?',
+    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    likeCount: 22,
+    commentCount: 11,
+  },
+  {
+    id: 'fake-3',
+    userId: 'fake',
+    displayName: 'שירה אברהם',
+    title: 'איך אתם מוצאים זמן לקרוא עם ילדים קטנים?',
+    contentPreview: 'מאז הלידה אני מצליחה לקרוא בערך עמוד ביום לפני שאני נרדמת על הספר. יש לכם טיפים איך לשמור על הרגל הקריאה עם תינוק בבית?',
+    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 31,
+    commentCount: 18,
+  },
+  {
+    id: 'fake-4',
+    userId: 'fake',
+    displayName: 'אמיר גולן',
+    title: 'המלצה: "הכל אור" של אנתוני דוֹאֶר',
+    contentPreview: 'פשוט גמרתי ולא מצליח לצאת ממנו. הפרוזה היא משירה, העלילה מרתקת, והדמויות חיות. אם לא קראתם — עצרו הכל ותתחילו. זה ספר שמשנה.',
+    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 19,
+    commentCount: 5,
+  },
+  {
+    id: 'fake-5',
+    userId: 'fake',
+    displayName: 'נועה ברקוביץ',
+    title: 'ספר שקניתם עם ציפיות גבוהות ואכזב',
+    contentPreview: '"בין העולמות" של פיליפ פולמן — כולם אמרו לי שזה יהפוך אותי. קראתי שני ספרים ועדיין לא הרגשתי את הקסם שכולם מדברים עליו. אולי אני מפספסת משהו?',
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 8,
+    commentCount: 14,
+  },
+  {
+    id: 'fake-6',
+    userId: 'fake',
+    displayName: 'דוד מזרחי',
+    title: 'ז\'אנר: מה קוראים כשרוצים לנוח?',
+    contentPreview: 'אחרי ספר כבד כמו "המשפט" של קפקא אני צריך משהו קל. בדרך כלל עובר לסדרות בלשיות — אגאתה כריסטי תמיד עובדת עלי. מה אתם קוראים כדי להירגע?',
+    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 12,
+    commentCount: 9,
+  },
+  {
+    id: 'fake-7',
+    userId: 'fake',
+    displayName: 'תמר שפירא',
+    title: 'ספרות עברית עכשווית — המלצות',
+    contentPreview: 'חיפשתי ספרות ישראלית עכשווית טובה ומצאתי "לילה ביפו" של שי שלף — מדהים. יש לכם המלצות נוספות לסופרים ישראלים שכדאי לגלות?',
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 27,
+    commentCount: 16,
+  },
+  {
+    id: 'fake-8',
+    userId: 'fake',
+    displayName: 'רועי פרידמן',
+    title: 'כמה ספרים אתם קוראים במקביל?',
+    contentPreview: 'אני תמיד עם 3 ספרים פתוחים — אחד ביושן, אחד בנייד ואחד בבית. חברים שלי אומרים שזה מטורף. אתם "ספר אחד בכל פעם" או כמוני?',
+    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    likeCount: 35,
+    commentCount: 21,
+  },
+];
+
 const PostsFeed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostSummary[]>([]);
@@ -118,34 +201,50 @@ const PostsFeed = () => {
             ))}
           </>
         ) : posts.length === 0 ? (
-          <div className="space-y-3">
-            <div className="text-center py-4 space-y-1">
-              <p className="text-sm font-semibold">אין עדיין פוסטים — הצטרף לשיחה!</p>
-              <p className="text-xs text-muted-foreground">כמה נושאים מומלצים לפתיחת דיון:</p>
+          FAKE_POSTS.map(post => (
+            <div
+              key={post.id}
+              className="w-full bg-card rounded-2xl text-right card-shadow animate-fade-slide-up overflow-hidden"
+              style={{ border: '1px solid hsl(44 15% 80%)' }}
+            >
+              {/* Post header */}
+              <div className="flex items-center gap-2 px-4 py-2.5"
+                style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
+                <div
+                  className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
+                >
+                  <span className="text-[11px] font-bold text-primary-foreground">
+                    {post.displayName.charAt(0)}
+                  </span>
+                </div>
+                <span className="text-xs font-semibold text-foreground">{post.displayName}</span>
+                <span className="text-xs text-muted-foreground mr-auto">
+                  {new Date(post.createdAt).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}
+                </span>
+              </div>
+
+              {/* Post body */}
+              <div className="px-4 py-3">
+                <p className="font-serif font-bold text-base mb-1.5 leading-snug">{post.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
+              </div>
+
+              {/* Engagement footer */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border/40">
+                {post.likeCount > 0 && (
+                  <span className="badge-green" style={{ background: 'hsl(0 60% 55% / 0.10)', color: 'hsl(0 60% 40%)', borderColor: 'hsl(0 60% 55% / 0.18)' }}>
+                    <Heart size={11} strokeWidth={2} /> {post.likeCount}
+                  </span>
+                )}
+                {post.commentCount > 0 && (
+                  <span className="badge-teal">
+                    <MessageCircle size={11} strokeWidth={2} /> {post.commentCount}
+                  </span>
+                )}
+              </div>
             </div>
-            {[
-              { title: "מה הספר שהכי השפיע עליך?", preview: "כל אחד מאיתנו סוחב ספר שנגע לו בנשמה. שתפו איזה ספר שינה אתכם ואיך..." },
-              { title: "איך אתם מוצאים זמן לקרוא?", preview: "בין עבודה, משפחה וחיים — לפעמים קשה למצוא רגע שקט לקריאה. מה הטריקים שלכם?" },
-              { title: "ספרים שהתאכזבתם מהם", preview: "כולנו קנינו ספר עם ציפיות גבוהות ויצאנו קצת מאוכזבים. שתפו איזה ספר לא עמד בציפיות..." },
-              { title: "המלצות לז'אנר ספרות עברית", preview: "מחפשים ספרות ישראלית טובה? שתפו כותרים שאהבתם ונגעו לכם..." },
-              { title: "קריאה פיזית vs קינדל — מה עדיף?", preview: "ויכוח נצחי בין אוהבי הספר הפיזי לאוהבי הדיגיטל. אתם באיזה צד?" },
-            ].map((template, i) => (
-              <button
-                key={i}
-                onClick={() => setCreateOpen(true)}
-                className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 transition-all duration-200 card-shadow overflow-hidden"
-                style={{ border: '1px solid hsl(44 15% 80%)' }}
-              >
-                <div className="px-4 py-3">
-                  <p className="font-serif font-bold text-base mb-1 leading-snug">{template.title}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{template.preview}</p>
-                </div>
-                <div className="px-4 py-2 border-t border-border/40 flex items-center gap-2">
-                  <span className="text-xs text-primary font-semibold">לחץ לפתוח דיון →</span>
-                </div>
-              </button>
-            ))}
-          </div>
+          ))
         ) : (
           posts.map(post => (
             <button

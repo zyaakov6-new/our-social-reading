@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const FriendsSection = () => {
   const { user } = useAuth();
-  const { friends, incomingRequests, sendRequest, acceptRequest, rejectRequest, unfriend, searchUsers } = useFriends();
+  const { friends, incomingRequests, outgoingRequests, sendRequest, acceptRequest, rejectRequest, unfriend, searchUsers } = useFriends();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -26,15 +26,32 @@ const FriendsSection = () => {
       .neq('user_id', user.id)
       .limit(50)
       .then(({ data }) => {
-        const { friendships } = {} as any; // will be empty - just show all
-        setAllUsers((data || []).map((p: any) => ({
-          userId: p.user_id,
-          displayName: p.display_name || p.user_id.slice(0, 8),
-          avatarUrl: p.avatar_url,
-        })));
+        const acceptedIds = new Set(friends.map(f => f.profile.userId));
+        const incomingIds = new Set(incomingRequests.map(f => f.profile.userId));
+        const outgoingIds = new Set(outgoingRequests.map(f => f.profile.userId));
+        setAllUsers((data || []).map((p: any) => {
+          let friendshipStatus: 'accepted' | 'pending' | undefined;
+          let isRequester: boolean | undefined;
+          if (acceptedIds.has(p.user_id)) {
+            friendshipStatus = 'accepted';
+          } else if (outgoingIds.has(p.user_id)) {
+            friendshipStatus = 'pending';
+            isRequester = true;
+          } else if (incomingIds.has(p.user_id)) {
+            friendshipStatus = 'pending';
+            isRequester = false;
+          }
+          return {
+            userId: p.user_id,
+            displayName: p.display_name || p.user_id.slice(0, 8),
+            avatarUrl: p.avatar_url,
+            friendshipStatus,
+            isRequester,
+          };
+        }));
         setLoadingAll(false);
       });
-  }, [showSearch, user]);
+  }, [showSearch, user, friends, incomingRequests, outgoingRequests]);
 
   const handleSearch = (q: string) => {
     setSearchQuery(q);
