@@ -6,18 +6,23 @@ export interface BookSearchResult {
   title: string;
   author: string;
   totalPages: number;
+  /** Primary URL to store in DB (first in coverUrls). */
   coverUrl: string | null;
+  /** Ordered list of cover URLs to try; CoverImg tries each until one loads. */
+  coverUrls: string[];
   description: string | null;
   isbn: string | null;
 }
 
 /**
- * Resolves the best cover URL for a Google Books item.
- * Prioritises thumbnail (most common), then other sizes, then Open Library by ISBN.
- * Open Library URLs use ?default=false so a missing cover returns HTTP 404
- * instead of a 1×1 transparent pixel, allowing onError handlers to show placeholders.
+ * Builds an ordered list of cover URL candidates for a Google Books item.
+ * - imageLinks.thumbnail → most commonly available, highest quality
+ * - Google content URL   → works for ~80% of books even with no imageLinks
+ * - Open Library by ISBN → additional source; ?default=false returns 404 (not 1×1) on miss
  */
-function resolveGoogleCover(item: any, isbn: string | null): string | null {
+function buildGoogleCoverUrls(item: any, isbn: string | null): string[] {
+  const urls: string[] = [];
+
   const covers = item.volumeInfo?.imageLinks;
   if (covers) {
     const img =
@@ -26,11 +31,19 @@ function resolveGoogleCover(item: any, isbn: string | null): string | null {
       covers.medium ||
       covers.large ||
       covers.extraLarge;
-    if (img) return img.replace('http://', 'https://').replace('&edge=curl', '');
+    if (img) urls.push(img.replace('http://', 'https://').replace('&edge=curl', ''));
   }
-  // Fallback: Open Library by ISBN (?default=false → 404 on missing → onError fires)
-  if (isbn) return `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`;
-  return null;
+
+  // Google content URL — often returns a real cover even when imageLinks is absent
+  urls.push(
+    `https://books.google.com/books/content?id=${item.id}&printsec=frontcover&img=1&zoom=1&source=gbs_api`
+  );
+
+  if (isbn) {
+    urls.push(`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`);
+  }
+
+  return urls;
 }
 
 async function searchGoogleBooks(query: string): Promise<BookSearchResult[]> {
@@ -49,12 +62,14 @@ async function searchGoogleBooks(query: string): Promise<BookSearchResult[]> {
         info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_13')?.identifier ??
         info.industryIdentifiers?.find((id: any) => id.type === 'ISBN_10')?.identifier ??
         null;
+      const coverUrls = buildGoogleCoverUrls(item, isbn);
       return {
         googleBooksId: item.id,
         title: info.title ?? 'ללא כותרת',
         author: info.authors?.[0] ?? 'מחבר לא ידוע',
         totalPages: info.pageCount ?? 0,
-        coverUrl: resolveGoogleCover(item, isbn),
+        coverUrl: coverUrls[0] ?? null,
+        coverUrls,
         description: info.description ?? null,
         isbn,
       };
@@ -74,19 +89,16 @@ async function searchOpenLibrary(query: string): Promise<BookSearchResult[]> {
 
   return data.docs.slice(0, 8).map((doc: any): BookSearchResult => {
     const isbn = doc.isbn?.[0] ?? null;
-    const coverId = doc.cover_i;
-    // ?default=false → HTTP 404 when no cover exists → onError shows placeholder
-    const coverUrl = coverId
-      ? `https://covers.openlibrary.org/b/id/${coverId}-L.jpg?default=false`
-      : isbn
-      ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`
-      : null;
+    const coverUrls: string[] = [];
+    if (doc.cover_i) coverUrls.push(`https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg?default=false`);
+    if (isbn) coverUrls.push(`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`);
     return {
       googleBooksId: doc.key ?? String(Math.random()),
       title: doc.title ?? 'ללא כותרת',
       author: doc.author_name?.[0] ?? 'מחבר לא ידוע',
       totalPages: doc.number_of_pages_median ?? 0,
-      coverUrl,
+      coverUrl: coverUrls[0] ?? null,
+      coverUrls,
       description: null,
       isbn,
     };
