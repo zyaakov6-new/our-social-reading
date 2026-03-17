@@ -17,7 +17,6 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
   const params = new URLSearchParams({
     q: query,
     maxResults: '8',
-    langRestrict: 'iw',
     orderBy: 'relevance',
   });
 
