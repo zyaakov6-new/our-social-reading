@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Trophy } from "lucide-react";
+import { Trophy, UserPlus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,7 +27,9 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 const Leaderboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [hasFriends, setHasFriends] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,6 +49,7 @@ const Leaderboard = () => {
         );
 
         const allIds = [user.id, ...friendIds];
+        setHasFriends(friendIds.length > 0);
 
         // Get profiles
         const { data: profiles } = await supabase
@@ -114,6 +118,31 @@ const Leaderboard = () => {
             <Skeleton className="h-3 w-12 rounded mr-auto" />
           </div>
         ))}
+      </div>
+    );
+  }
+
+  // No friends yet — show invite CTA
+  if (!hasFriends) {
+    return (
+      <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
+        <div className="flex items-center gap-2 px-4 py-3"
+          style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
+          <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
+          <h3 className="font-bold text-sm">מובילי השבוע</h3>
+        </div>
+        <div className="px-4 py-5 text-center space-y-3">
+          <p className="text-sm font-serif font-bold">טבלת מנצחים ריקה</p>
+          <p className="text-xs text-muted-foreground">הוסף חברים כדי להתחרות ולראות מי קורא הכי הרבה</p>
+          <button
+            onClick={() => navigate("/friends")}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            style={{ background: 'hsl(126 15% 28%)' }}
+          >
+            <UserPlus size={14} strokeWidth={1.5} />
+            הוסף חברים
+          </button>
+        </div>
       </div>
     );
   }

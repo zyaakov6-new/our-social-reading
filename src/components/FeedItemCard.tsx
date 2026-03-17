@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Heart, MessageCircle, Send } from "lucide-react";
+import { Heart, MessageCircle, Send, Trash2 } from "lucide-react";
 import { ReadingSession } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -126,6 +126,19 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
     }
   };
 
+  const deleteComment = async (commentId: string) => {
+    const { error } = await supabase
+      .from("session_comments")
+      .delete()
+      .eq("id", commentId);
+    if (error) {
+      toast.error("שגיאה במחיקת תגובה");
+      return;
+    }
+    setComments(prev => prev.filter(c => c.id !== commentId));
+    setCommentCount(prev => Math.max(0, prev - 1));
+  };
+
   // Deterministic avatar color from first character
   const AVATAR_COLORS: Record<string, string> = {
     א: 'hsl(126 15% 28%)', ב: 'hsl(188 100% 27%)', ג: 'hsl(28 71% 57%)',
@@ -219,7 +232,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               {comments.length > 0 && (
                 <div className="px-4 pt-3 pb-2 space-y-2.5">
                   {comments.map(c => (
-                    <div key={c.id} className="flex items-start gap-2.5">
+                    <div key={c.id} className="flex items-start gap-2.5 group">
                       <button
                         onClick={() => navigate(`/user/${c.user_id}`)}
                         className="h-6 w-6 flex-shrink-0 rounded-full flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -239,6 +252,15 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
                         {" "}
                         <span className="text-xs text-foreground/80">{c.content}</span>
                       </div>
+                      {c.user_id === currentUserId && (
+                        <button
+                          onClick={() => deleteComment(c.id)}
+                          className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1 rounded text-muted-foreground/50 hover:text-red-400 transition-all"
+                          title="מחק תגובה"
+                        >
+                          <Trash2 size={11} strokeWidth={1.5} />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
