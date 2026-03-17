@@ -5,7 +5,10 @@
       "Bash(npx tsc:*)",
       "Bash(grep \"\\\\.tsx$\")",
       "Bash(gh pr:*)",
-      "Bash(where gh:*)"
+      "Bash(where gh:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(where npx:*)"
     ]
   }
 }
