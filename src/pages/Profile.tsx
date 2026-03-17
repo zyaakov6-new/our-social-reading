@@ -85,7 +85,7 @@ const Profile = () => {
       monthMinutes,
       allTimeMinutes,
     });
-  }, [sessions, user]);
+  }, [sessions, user?.id]);
 
   const openEditLastSession = () => {
     if (!latestSession) return;

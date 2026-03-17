@@ -22,8 +22,10 @@ const Friends = () => {
       </div>
 
       <div className="px-4 py-4 max-w-md mx-auto space-y-4">
-        <Leaderboard />
-        <FriendsSection />
+        <Leaderboard onAddFriendsClick={() => document.getElementById('friends-section')?.scrollIntoView({ behavior: 'smooth' })} />
+        <div id="friends-section">
+          <FriendsSection />
+        </div>
       </div>
     </div>
   );

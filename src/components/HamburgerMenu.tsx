@@ -36,7 +36,7 @@ const HamburgerMenu = () => {
       .on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, load)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user?.id]);
 
   // Close on navigation
   useEffect(() => { setOpen(false); }, [location.pathname]);

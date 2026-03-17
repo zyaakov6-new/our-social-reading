@@ -136,7 +136,7 @@ export const useChallenges = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchChallenges();

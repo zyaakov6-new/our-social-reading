@@ -80,7 +80,7 @@ export function useFriends() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id]);
 
   useEffect(() => {
     fetchFriendships();
@@ -88,11 +88,11 @@ export function useFriends() {
 
   const sendRequest = async (addresseeId: string) => {
     if (!user) return;
-    const { error } = await supabase.from('friendships').insert({
+    const { error } = await supabase.from('friendships').upsert({
       requester_id: user.id,
       addressee_id: addresseeId,
       status: 'pending',
-    });
+    }, { onConflict: 'requester_id,addressee_id' });
     if (error) throw error;
     await fetchFriendships();
   };
