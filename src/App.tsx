@@ -36,8 +36,8 @@ const AppLayout = () => (
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
-    <HamburgerMenu />
     <ReadingFAB />
+    <HamburgerMenu />
     <BottomNav />
   </>
 );

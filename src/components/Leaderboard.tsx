@@ -186,7 +186,7 @@ const Leaderboard = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <span className={`text-sm font-semibold truncate ${entry.isMe ? 'text-primary' : ''}`}>
-                    {entry.isMe ? `${entry.displayName} (אני)` : entry.displayName}
+                    {entry.isMe ? "אני" : entry.displayName}
                   </span>
                   <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
                     {entry.weekMinutes} דק׳

@@ -7,6 +7,7 @@ export interface ReadingSession {
   bookId: string;
   bookTitle: string;
   bookAuthor?: string;
+  coverUrl?: string;
   userName: string;
   avatarUrl?: string;
   minutesRead: number;
@@ -80,7 +81,8 @@ export const useReadingSessions = () => {
           books (
             id,
             title,
-            author
+            author,
+            cover_url
           )
         `)
         .in("user_id", allIds)
@@ -115,6 +117,7 @@ export const useReadingSessions = () => {
           bookId: session.books?.id || "",
           bookTitle: session.books?.title || "ספר לא ידוע",
           bookAuthor: session.books?.author,
+          coverUrl: session.books?.cover_url ?? undefined,
           userName,
           avatarUrl: profile?.avatarUrl,
           minutesRead: session.minutes_read,

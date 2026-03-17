@@ -73,7 +73,7 @@ const PostsFeed = () => {
     <div className="min-h-screen pb-28">
       {/* Header */}
       <div
-        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-5 pb-4"
+        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-3 pb-2.5"
         style={{
           background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
           borderBottom: '2px solid hsl(126 15% 28% / 0.20)',
@@ -81,12 +81,10 @@ const PostsFeed = () => {
       >
         <div className="flex items-center justify-between max-w-md mx-auto">
           <div className="flex items-center gap-3">
-            <span style={{ display: 'block', width: '3px', height: '44px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
+            <span style={{ display: 'block', width: '3px', height: '30px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
-              <h1 className="font-display text-[2.6rem] tracking-[0.14em] leading-none">AMUD</h1>
-              <p className="font-quote text-[11px] text-muted-foreground mt-1">
-                פורום הקוראים
-              </p>
+              <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none">AMUD</h1>
+              <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פורום הקוראים</p>
             </div>
           </div>
           <button
@@ -120,9 +118,33 @@ const PostsFeed = () => {
             ))}
           </>
         ) : posts.length === 0 ? (
-          <div className="text-center py-16 space-y-2">
-            <p className="text-sm font-semibold">אין עדיין פוסטים</p>
-            <p className="text-xs text-muted-foreground">היה ראשון לפתוח דיון</p>
+          <div className="space-y-3">
+            <div className="text-center py-4 space-y-1">
+              <p className="text-sm font-semibold">אין עדיין פוסטים — הצטרף לשיחה!</p>
+              <p className="text-xs text-muted-foreground">כמה נושאים מומלצים לפתיחת דיון:</p>
+            </div>
+            {[
+              { title: "מה הספר שהכי השפיע עליך?", preview: "כל אחד מאיתנו סוחב ספר שנגע לו בנשמה. שתפו איזה ספר שינה אתכם ואיך..." },
+              { title: "איך אתם מוצאים זמן לקרוא?", preview: "בין עבודה, משפחה וחיים — לפעמים קשה למצוא רגע שקט לקריאה. מה הטריקים שלכם?" },
+              { title: "ספרים שהתאכזבתם מהם", preview: "כולנו קנינו ספר עם ציפיות גבוהות ויצאנו קצת מאוכזבים. שתפו איזה ספר לא עמד בציפיות..." },
+              { title: "המלצות לז'אנר ספרות עברית", preview: "מחפשים ספרות ישראלית טובה? שתפו כותרים שאהבתם ונגעו לכם..." },
+              { title: "קריאה פיזית vs קינדל — מה עדיף?", preview: "ויכוח נצחי בין אוהבי הספר הפיזי לאוהבי הדיגיטל. אתם באיזה צד?" },
+            ].map((template, i) => (
+              <button
+                key={i}
+                onClick={() => setCreateOpen(true)}
+                className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 transition-all duration-200 card-shadow overflow-hidden"
+                style={{ border: '1px solid hsl(44 15% 80%)' }}
+              >
+                <div className="px-4 py-3">
+                  <p className="font-serif font-bold text-base mb-1 leading-snug">{template.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{template.preview}</p>
+                </div>
+                <div className="px-4 py-2 border-t border-border/40 flex items-center gap-2">
+                  <span className="text-xs text-primary font-semibold">לחץ לפתוח דיון →</span>
+                </div>
+              </button>
+            ))}
           </div>
         ) : (
           posts.map(post => (
