@@ -127,7 +127,7 @@ const Leaderboard = () => {
     return (
       <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
         <div className="flex items-center gap-2 px-4 py-3"
-          style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
+          style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
           <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
           <h3 className="font-bold text-sm">מובילי השבוע</h3>
         </div>
