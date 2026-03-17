@@ -57,7 +57,7 @@ const ChallengesTab = () => {
         </div>
       ) : (
         challenges.map(c => (
-          <div key={c.id} className="relative">
+          <div key={c.id} className="space-y-1">
             <ChallengeCard
               challenge={{
                 id: c.id,
@@ -73,16 +73,14 @@ const ChallengesTab = () => {
               }}
             />
             {!c.isParticipant && (
-              <div className="absolute inset-0 rounded-2xl flex items-center justify-center bg-card/80 backdrop-blur-[2px]" style={{ border: '1px solid hsl(44 15% 80%)' }}>
-                <button
-                  onClick={() => handleJoin(c.id)}
-                  disabled={joiningId === c.id}
-                  className="px-6 py-2.5 rounded-xl font-bold text-sm text-primary-foreground transition-opacity disabled:opacity-60"
-                  style={{ background: 'hsl(126 15% 28%)' }}
-                >
-                  {joiningId === c.id ? 'מצטרף...' : 'הצטרף לאתגר 🎯'}
-                </button>
-              </div>
+              <button
+                onClick={() => handleJoin(c.id)}
+                disabled={joiningId === c.id}
+                className="w-full rounded-xl py-3 font-bold text-sm text-primary-foreground transition-opacity disabled:opacity-60"
+                style={{ background: 'hsl(126 15% 28%)' }}
+              >
+                {joiningId === c.id ? 'מצטרף...' : 'הצטרף לאתגר 🎯'}
+              </button>
             )}
           </div>
         ))
