@@ -7,16 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null }) => {
-  const [failed, setFailed] = useState(false);
-  if (coverUrl && !failed) {
+  const [idx, setIdx] = useState(0);
+  const srcs = coverUrl ? [coverUrl] : [];
+  const src = srcs[idx];
+  if (src) {
     return (
       <div className="h-14 w-10 flex-shrink-0 rounded overflow-hidden shadow-sm">
-        <img
-          src={coverUrl}
-          alt={title}
-          className="h-full w-full object-cover"
-          onError={() => setFailed(true)}
-        />
+        <img key={src} src={src} alt={title} className="h-full w-full object-cover" onError={() => setIdx(i => i + 1)} />
       </div>
     );
   }
