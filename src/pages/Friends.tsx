@@ -6,7 +6,7 @@ const Friends = () => {
     <div className="min-h-screen pb-28">
       {/* Header — matches the app-wide sticky header pattern */}
       <div
-        className="sticky top-0 z-30 backdrop-blur-md px-5 pt-5 pb-4"
+        className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-5 pb-4"
         style={{
           background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97) 0%, hsl(44 27% 84% / 0.97) 100%)',
           borderBottom: '2px solid hsl(126 15% 28% / 0.20)',

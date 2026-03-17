@@ -8,7 +8,9 @@
       "Bash(where gh:*)",
       "mcp__Claude_Preview__preview_start",
       "Bash(where npm:*)",
-      "Bash(where npx:*)"
+      "Bash(where npx:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173)"
     ]
   }
 }
