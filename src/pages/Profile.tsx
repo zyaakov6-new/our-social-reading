@@ -20,6 +20,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { sessions, refetch } = useReadingSessions();
+  const mySessions = sessions.filter(s => s.isMe);
   const [stats, setStats] = useState({
     currentStreak: 0,
     weekMinutes: 0,
@@ -34,7 +35,7 @@ const Profile = () => {
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "קורא";
   const initial = displayName.charAt(0).toUpperCase();
-  const latestSession = sessions[0];
+  const latestSession = mySessions[0];
 
   useEffect(() => {
     if (!user) return;
@@ -43,24 +44,24 @@ const Profile = () => {
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const weekSessions = sessions.filter(s => {
+    const weekSessions = mySessions.filter(s => {
       const sessionDate = new Date(s.sessionDate);
       return sessionDate >= weekAgo;
     });
 
-    const monthSessions = sessions.filter(s => {
+    const monthSessions = mySessions.filter(s => {
       const sessionDate = new Date(s.sessionDate);
       return sessionDate >= monthAgo;
     });
 
     const weekMinutes = weekSessions.reduce((sum, s) => sum + s.minutesRead, 0);
     const monthMinutes = monthSessions.reduce((sum, s) => sum + s.minutesRead, 0);
-    const allTimeMinutes = sessions.reduce((sum, s) => sum + s.minutesRead, 0);
+    const allTimeMinutes = mySessions.reduce((sum, s) => sum + s.minutesRead, 0);
 
     const toLocalDate = (d: Date) =>
       `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-    const sessionDates = sessions.map(s => s.sessionDate.substring(0, 10));
+    const sessionDates = mySessions.map(s => s.sessionDate.substring(0, 10));
     const uniqueDates = [...new Set(sessionDates)].sort().reverse();
 
     let streak = 0;
@@ -129,7 +130,7 @@ const Profile = () => {
     date.setDate(date.getDate() - (34 - i));
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-    const daySessions = sessions.filter(s => s.sessionDate.substring(0, 10) === dateStr);
+    const daySessions = mySessions.filter(s => s.sessionDate.substring(0, 10) === dateStr);
     const totalMinutes = daySessions.reduce((sum, s) => sum + s.minutesRead, 0);
 
     let intensity = 0;
@@ -301,13 +302,13 @@ const Profile = () => {
               </button>
             )}
           </div>
-          {sessions.length === 0 ? (
+          {mySessions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
               כשתתחיל לקרוא, נראה כאן את סשני הקריאה האחרונים שלך
             </p>
           ) : (
             <div className="space-y-3">
-              {sessions.slice(0, 5).map(session => (
+              {mySessions.slice(0, 5).map(session => (
                 <div key={session.id} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground text-xs">
                     {session.timestamp}
