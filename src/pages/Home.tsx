@@ -171,10 +171,12 @@ const Home = () => {
                 {sessions.map(session => (
                   <FeedItemCard key={session.id} item={session} />
                 ))}
+              {sessions.every(s => s.isMe) && (
                 <div className="rounded-xl border border-dashed border-primary/30 p-4 text-center space-y-1">
                   <p className="text-sm font-semibold">אין עדיין חברים בפיד</p>
                   <p className="text-xs text-muted-foreground">הזמן חבר לקרוא איתך 📖</p>
                 </div>
+              )}
               </>
             )/* end sessionsLoading ternary */}
           </div>
