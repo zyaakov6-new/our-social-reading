@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface Book {
   id: string;
@@ -13,15 +14,28 @@ export interface Book {
   updatedAt: string;
 }
 
+// Module-level stale-while-revalidate cache
+interface BooksCache { books: Book[]; userId: string; time: number; }
+let _booksCache: BooksCache | null = null;
+const BOOKS_TTL = 2 * 60 * 1000; // 2 minutes
+
 export const useBooks = () => {
-  const [books, setBooks] = useState<Book[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const isCacheValid = !!(
+    _booksCache &&
+    _booksCache.userId === user?.id &&
+    Date.now() - _booksCache.time < BOOKS_TTL
+  );
+
+  const [books, setBooks] = useState<Book[]>(
+    _booksCache?.userId === user?.id ? (_booksCache?.books ?? []) : []
+  );
+  const [loading, setLoading] = useState(!isCacheValid);
 
   const fetchBooks = async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       const { data, error } = await supabase
         .from("books")
         .select("*")
@@ -42,6 +56,7 @@ export const useBooks = () => {
         updatedAt: book.updated_at,
       }));
 
+      _booksCache = { books: mappedBooks, userId: user.id, time: Date.now() };
       setBooks(mappedBooks);
     } catch (error) {
       console.error("Error fetching books:", error);
@@ -58,6 +73,13 @@ export const useBooks = () => {
         .eq("id", bookId);
       if (error) throw error;
       setBooks(prev => prev.map(b => b.id === bookId ? { ...b, status } : b));
+      if (_booksCache && _booksCache.userId === user?.id) {
+        _booksCache = {
+          ..._booksCache,
+          books: _booksCache.books.map(b => b.id === bookId ? { ...b, status } : b),
+          time: Date.now(),
+        };
+      }
       return true;
     } catch (error) {
       console.error("Error updating book status:", error);
@@ -75,6 +97,13 @@ export const useBooks = () => {
       if (error) throw error;
 
       setBooks((prev) => prev.filter((book) => book.id !== bookId));
+      if (_booksCache && _booksCache.userId === user?.id) {
+        _booksCache = {
+          ..._booksCache,
+          books: _booksCache.books.filter(b => b.id !== bookId),
+          time: Date.now(),
+        };
+      }
       return true;
     } catch (error) {
       console.error("Error deleting book:", error);

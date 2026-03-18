@@ -25,6 +25,16 @@ const AVATAR_COLORS: Record<string, string> = {
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
+// Module-level stale-while-revalidate cache
+interface LeaderboardCache {
+  entries: LeaderboardEntry[];
+  hasFriends: boolean;
+  userId: string;
+  time: number;
+}
+let _leaderboardCache: LeaderboardCache | null = null;
+const LEADERBOARD_TTL = 2 * 60 * 1000; // 2 minutes
+
 interface LeaderboardProps {
   onAddFriendsClick?: () => void;
 }
@@ -32,14 +42,25 @@ interface LeaderboardProps {
 const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [hasFriends, setHasFriends] = useState(false);
-  const [loading, setLoading] = useState(true);
+
+  const isCacheValid = !!(
+    _leaderboardCache &&
+    _leaderboardCache.userId === user?.id &&
+    Date.now() - _leaderboardCache.time < LEADERBOARD_TTL
+  );
+
+  const [entries, setEntries] = useState<LeaderboardEntry[]>(
+    isCacheValid ? _leaderboardCache!.entries : []
+  );
+  const [hasFriends, setHasFriends] = useState(
+    isCacheValid ? _leaderboardCache!.hasFriends : false
+  );
+  const [loading, setLoading] = useState(!isCacheValid);
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
-      setLoading(true);
+      if (!isCacheValid) setLoading(true);
       try {
         // Get all accepted friends
         const { data: friendships } = await supabase
@@ -98,6 +119,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
         }));
 
         result.sort((a, b) => b.weekMinutes - a.weekMinutes);
+        _leaderboardCache = { entries: result, hasFriends: friendIds.length > 0, userId: user.id, time: Date.now() };
         setEntries(result);
       } catch (e) {
         console.error("Leaderboard error:", e);
