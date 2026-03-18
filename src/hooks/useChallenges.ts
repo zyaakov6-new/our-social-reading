@@ -33,7 +33,7 @@ export const useChallenges = () => {
     if (!user) return;
     setLoading(true);
     try {
-      // Get all challenges where user is participant or creator
+      // Step 1: Get challenge IDs where user participates
       const { data: participantRows } = await supabase
         .from("challenge_participants")
         .select("challenge_id")
@@ -41,100 +41,135 @@ export const useChallenges = () => {
 
       const participantChallengeIds = (participantRows || []).map((r: any) => r.challenge_id);
 
-      // Fetch: created by user, OR user is participant, OR is_public=true
       const orParts = [`creator_id.eq.${user.id}`, `is_public.eq.true`];
       if (participantChallengeIds.length > 0) {
         orParts.push(`id.in.(${participantChallengeIds.join(",")})`);
       }
+
+      // Step 2: Get all relevant challenges
       const { data: challengeData } = await supabase
         .from("challenges")
         .select("*")
         .or(orParts.join(","))
         .order("created_at", { ascending: false });
 
-      if (!challengeData) { setLoading(false); return; }
+      if (!challengeData || challengeData.length === 0) {
+        setChallenges([]);
+        setLoading(false);
+        return;
+      }
 
-      const result: Challenge[] = await Promise.all(
-        challengeData.map(async (c: any) => {
-          // Get all participants for this challenge
-          const { data: parts } = await supabase
-            .from("challenge_participants")
-            .select("user_id, joined_at")
-            .eq("challenge_id", c.id);
+      const challengeIds = challengeData.map((c: any) => c.id);
 
-          const allUserIds = [
-            c.creator_id,
-            ...((parts || []).map((p: any) => p.user_id).filter((id: string) => id !== c.creator_id)),
-          ];
+      // Step 3: Get ALL participants for ALL challenges in ONE query
+      const { data: allParticipantRows } = await supabase
+        .from("challenge_participants")
+        .select("challenge_id, user_id")
+        .in("challenge_id", challengeIds);
 
-          // Get profiles for participants
-          const { data: profiles } = await supabase
-            .from("profiles")
-            .select("user_id, display_name")
-            .in("user_id", allUserIds);
+      // Build per-challenge participant map
+      const challengeParticipantsMap: Record<string, string[]> = {};
+      challengeData.forEach((c: any) => {
+        challengeParticipantsMap[c.id] = [c.creator_id];
+      });
+      (allParticipantRows || []).forEach((row: any) => {
+        const existing = challengeParticipantsMap[row.challenge_id] || [];
+        if (!existing.includes(row.user_id)) {
+          challengeParticipantsMap[row.challenge_id] = [...existing, row.user_id];
+        }
+      });
 
-          const profileMap: Record<string, string> = {};
-          (profiles || []).forEach((p: any) => {
-            profileMap[p.user_id] = p.display_name || "קורא";
-          });
+      // Collect all unique user IDs across all challenges
+      const allUserIds = [
+        ...new Set(Object.values(challengeParticipantsMap).flat()),
+      ];
 
-          // Compute progress per participant
-          const participantList: ChallengeParticipant[] = await Promise.all(
-            allUserIds.map(async (uid: string) => {
-              let progress = 0;
-              if (c.goal_type === "minutes") {
-                const { data: sessions } = await supabase
-                  .from("reading_sessions")
-                  .select("minutes_read")
-                  .eq("user_id", uid)
-                  .gte("session_date", c.start_date)
-                  .lte("session_date", c.end_date);
-                progress = (sessions || []).reduce((sum: number, s: any) => sum + (s.minutes_read || 0), 0);
-              } else {
-                // books: count distinct finished books in date range
-                const { data: sessions } = await supabase
-                  .from("reading_sessions")
-                  .select("book_id")
-                  .eq("user_id", uid)
-                  .gte("session_date", c.start_date)
-                  .lte("session_date", c.end_date);
-                progress = new Set((sessions || []).map((s: any) => s.book_id)).size;
-              }
-              const fallbackName =
-                uid === user.id
-                  ? (user.user_metadata?.full_name || user.email?.split("@")[0] || "קורא")
-                  : "קורא";
-              return { userId: uid, displayName: profileMap[uid] || fallbackName, progress };
-            })
+      // Step 4: Get ALL profiles in ONE query
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .in("user_id", allUserIds);
+
+      const profileMap: Record<string, string> = {};
+      (profiles || []).forEach((p: any) => {
+        profileMap[p.user_id] = p.display_name || "קורא";
+      });
+
+      // Step 5: Get ALL reading sessions for all participants in the union date range in ONE query
+      const minStart = challengeData.reduce(
+        (min: string, c: any) => (c.start_date < min ? c.start_date : min),
+        challengeData[0].start_date
+      );
+      const maxEnd = challengeData.reduce(
+        (max: string, c: any) => (c.end_date > max ? c.end_date : max),
+        challengeData[0].end_date
+      );
+
+      const { data: allSessions } = await supabase
+        .from("reading_sessions")
+        .select("user_id, book_id, minutes_read, session_date")
+        .in("user_id", allUserIds)
+        .gte("session_date", minStart)
+        .lte("session_date", maxEnd);
+
+      // Step 6: Compute everything in JS — no more per-participant queries
+      const result: Challenge[] = challengeData.map((c: any) => {
+        const participantIds = challengeParticipantsMap[c.id] || [c.creator_id];
+
+        // Sessions relevant to this challenge's date range
+        const challengeSessions = (allSessions || []).filter(
+          (s: any) =>
+            participantIds.includes(s.user_id) &&
+            s.session_date >= c.start_date &&
+            s.session_date <= c.end_date
+        );
+
+        const participantList: ChallengeParticipant[] = participantIds.map((uid: string) => {
+          const userSessions = challengeSessions.filter((s: any) => s.user_id === uid);
+          let progress = 0;
+          if (c.goal_type === "minutes") {
+            progress = userSessions.reduce((sum: number, s: any) => sum + (s.minutes_read || 0), 0);
+          } else {
+            progress = new Set(userSessions.map((s: any) => s.book_id)).size;
+          }
+          const fallbackName =
+            uid === user.id
+              ? user.user_metadata?.full_name || user.email?.split("@")[0] || "קורא"
+              : "קורא";
+          return {
+            userId: uid,
+            displayName: profileMap[uid] || fallbackName,
+            progress,
+          };
+        });
+
+        participantList.sort((a, b) => b.progress - a.progress);
+
+        const myProgress = participantList.find((p) => p.userId === user.id)?.progress ?? 0;
+        const myRankIndex = participantList.findIndex((p) => p.userId === user.id);
+        const myRank = myRankIndex >= 0 ? myRankIndex + 1 : participantList.length;
+        const isParticipant =
+          c.creator_id === user.id ||
+          (allParticipantRows || []).some(
+            (p: any) => p.challenge_id === c.id && p.user_id === user.id
           );
 
-          // Sort by progress desc
-          participantList.sort((a, b) => b.progress - a.progress);
-
-          const myProgress = participantList.find((p) => p.userId === user.id)?.progress ?? 0;
-          const myRankIndex = participantList.findIndex((p) => p.userId === user.id);
-          const myRank = myRankIndex >= 0 ? myRankIndex + 1 : participantList.length;
-          const isParticipant =
-            c.creator_id === user.id ||
-            (parts || []).some((p: any) => p.user_id === user.id);
-
-          return {
-            id: c.id,
-            creatorId: c.creator_id,
-            name: c.name,
-            goalType: c.goal_type as "minutes" | "books",
-            goalValue: c.goal_value,
-            startDate: c.start_date,
-            endDate: c.end_date,
-            createdAt: c.created_at,
-            participants: participantList,
-            myProgress,
-            myRank,
-            isParticipant,
-            isPublic: !!c.is_public,
-          };
-        })
-      );
+        return {
+          id: c.id,
+          creatorId: c.creator_id,
+          name: c.name,
+          goalType: c.goal_type as "minutes" | "books",
+          goalValue: c.goal_value,
+          startDate: c.start_date,
+          endDate: c.end_date,
+          createdAt: c.created_at,
+          participants: participantList,
+          myProgress,
+          myRank,
+          isParticipant,
+          isPublic: !!c.is_public,
+        };
+      });
 
       setChallenges(result);
     } catch (e) {

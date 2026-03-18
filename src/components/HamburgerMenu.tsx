@@ -1,4 +1,4 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera, Bell } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -6,11 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 const links = [
-  { path: "/",           label: "בית",    icon: Home,          desc: "עמוד הבית" },
-  { path: "/challenges", label: "אתגרים", icon: Trophy,         desc: "אתגרי קריאה" },
-  { path: "/posts",      label: "פורום",  icon: MessageSquare,  desc: "שיחות ודיונים" },
-  { path: "/friends",    label: "חברים",  icon: Users,          desc: "חברים ודירוג" },
-  { path: "/books",      label: "ספרים",  icon: BookOpen,       desc: "ספריית הספרים" },
+  { path: "/",               label: "בית",     icon: Home,          desc: "עמוד הבית" },
+  { path: "/challenges",     label: "אתגרים",  icon: Trophy,         desc: "אתגרי קריאה" },
+  { path: "/posts",          label: "פורום",   icon: MessageSquare,  desc: "שיחות ודיונים" },
+  { path: "/friends",        label: "חברים",   icon: Users,          desc: "חברים ודירוג" },
+  { path: "/books",          label: "ספרים",   icon: BookOpen,       desc: "ספריית הספרים" },
+  { path: "/notifications",  label: "התראות",  icon: Bell,           desc: "לייקים, תגובות והתראות" },
 ];
 
 const HamburgerMenu = () => {
@@ -19,6 +20,11 @@ const HamburgerMenu = () => {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [notifCount, setNotifCount] = useState(0);
+
+  useEffect(() => {
+    setNotifCount(localStorage.getItem("notifications_last_seen") === null ? 1 : 0);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -72,7 +78,7 @@ const HamburgerMenu = () => {
           ) : (
             <motion.span key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }} className="relative">
               <Menu size={18} strokeWidth={1.8} />
-              {pendingCount > 0 && (
+              {(pendingCount > 0 || notifCount > 0) && (
                 <span
                   className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full"
                   style={{ background: "hsl(0 72% 51%)" }}
@@ -134,7 +140,9 @@ const HamburgerMenu = () => {
               <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
                 {links.map(({ path, label, icon: Icon, desc }) => {
                   const active = isActive(path);
-                  const showBadge = path === "/friends" && pendingCount > 0;
+                  const showBadge =
+                    (path === "/friends" && pendingCount > 0) ||
+                    (path === "/notifications" && notifCount > 0);
                   return (
                     <button
                       key={path}
