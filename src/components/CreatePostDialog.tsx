@@ -3,16 +3,54 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type Category = 'review' | 'discussion' | 'question' | 'recommendation';
+
+const CATEGORIES: { value: Category; emoji: string; label: string; placeholder: string }[] = [
+  {
+    value: 'review',
+    emoji: '📖',
+    label: 'ביקורת',
+    placeholder: 'שתף את דעתך על ספר שקראת — מה אהבת, מה פחות, האם תמליץ?',
+  },
+  {
+    value: 'discussion',
+    emoji: '💬',
+    label: 'דיון',
+    placeholder: 'פתח שיחה על נושא ספרותי — שאלה פתוחה, מחשבה, ויכוח...',
+  },
+  {
+    value: 'recommendation',
+    emoji: '✨',
+    label: 'המלצה',
+    placeholder: 'ספר שחייבים לקרוא — למה הוא מיוחד ולמי הוא מתאים?',
+  },
+  {
+    value: 'question',
+    emoji: '❓',
+    label: 'שאלה',
+    placeholder: 'שאל את הקהילה — על ספר, ז׳אנר, הרגלי קריאה, כל דבר...',
+  },
+];
+
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   onCreated: () => void;
+  initialCategory?: Category;
 }
 
-const CreatePostDialog = ({ open, onOpenChange, onCreated }: Props) => {
+const CreatePostDialog = ({ open, onOpenChange, onCreated, initialCategory }: Props) => {
+  const [category, setCategory] = useState<Category>(initialCategory ?? 'discussion');
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const selectedCat = CATEGORIES.find(c => c.value === category)!;
+
+  const handleClose = (v: boolean) => {
+    onOpenChange(v);
+    if (!v) { setTitle(""); setContent(""); setCategory(initialCategory ?? 'discussion'); }
+  };
 
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) return;
@@ -38,12 +76,14 @@ const CreatePostDialog = ({ open, onOpenChange, onCreated }: Props) => {
         display_name: displayName,
         title: title.trim(),
         content: content.trim(),
+        category,
       });
 
       if (error) throw error;
 
       setTitle("");
       setContent("");
+      setCategory(initialCategory ?? 'discussion');
       onOpenChange(false);
       onCreated();
       toast.success("הפוסט פורסם!");
@@ -55,12 +95,38 @@ const CreatePostDialog = ({ open, onOpenChange, onCreated }: Props) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-sm" dir="rtl">
         <DialogHeader>
-          <DialogTitle>פוסט חדש</DialogTitle>
+          <DialogTitle className="font-serif text-lg">פוסט חדש בפורום</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 pt-1">
+
+        <div className="space-y-4 pt-1">
+
+          {/* Category picker */}
+          <div>
+            <p className="text-xs text-muted-foreground mb-2 font-medium">בחר קטגוריה</p>
+            <div className="grid grid-cols-4 gap-1.5">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategory(cat.value)}
+                  className="flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-semibold transition-all"
+                  style={
+                    category === cat.value
+                      ? { background: 'hsl(126 15% 28%)', color: 'white' }
+                      : { background: 'hsl(44 20% 90%)', color: 'hsl(126 15% 28%)' }
+                  }
+                >
+                  <span className="text-base leading-none">{cat.emoji}</span>
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Title */}
           <input
             value={title}
             onChange={e => setTitle(e.target.value)}
@@ -68,20 +134,23 @@ const CreatePostDialog = ({ open, onOpenChange, onCreated }: Props) => {
             dir="rtl"
             className="w-full text-sm bg-muted/50 border border-border/50 rounded-lg px-3 py-2.5 outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/60"
           />
+
+          {/* Content */}
           <textarea
             value={content}
             onChange={e => setContent(e.target.value)}
-            placeholder="מה תרצה לשתף?"
+            placeholder={selectedCat.placeholder}
             dir="rtl"
             rows={5}
             className="w-full text-sm bg-muted/50 border border-border/50 rounded-lg px-3 py-2.5 outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/60 resize-none"
           />
+
           <button
             onClick={handleSubmit}
             disabled={!title.trim() || !content.trim() || submitting}
             className="w-full py-2.5 rounded-xl btn-cta font-semibold text-sm disabled:opacity-40"
           >
-            {submitting ? "מפרסם…" : "פרסם"}
+            {submitting ? "מפרסם…" : `פרסם ${selectedCat.emoji} ${selectedCat.label}`}
           </button>
         </div>
       </DialogContent>
