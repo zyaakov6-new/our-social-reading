@@ -10,7 +10,11 @@
       "Bash(where npm:*)",
       "Bash(where npx:*)",
       "Bash(timeout /t 5 /nobreak)",
-      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173)"
+      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(npx update-browserslist-db@latest --yes)",
+      "Bash(python3 -c \":*)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(node -e \":*)"
     ]
   }
 }

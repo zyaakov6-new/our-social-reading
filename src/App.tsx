@@ -14,6 +14,8 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
+import BookDetailPage from "./pages/BookDetailPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
@@ -33,6 +35,8 @@ const AppLayout = () => (
       <Route path="/post/:postId" element={<PostThread />} />
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
       <Route path="/friends" element={<Friends />} />
+      <Route path="/book/:bookId" element={<BookDetailPage />} />
+      <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

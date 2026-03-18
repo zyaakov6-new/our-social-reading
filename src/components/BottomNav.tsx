@@ -1,4 +1,4 @@
-import { Home, Trophy } from "lucide-react";
+import { Home, Trophy, Bell } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const BottomNav = () => {
@@ -8,14 +8,19 @@ const BottomNav = () => {
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname === path;
 
+  // Show a red dot if notifications_last_seen has never been set
+  const hasUnread = !localStorage.getItem("notifications_last_seen");
+
   const NavBtn = ({
     path,
     label,
     icon: Icon,
+    badge,
   }: {
     path: string;
     label: string;
     icon: React.ElementType;
+    badge?: boolean;
   }) => {
     const active = isActive(path);
     return (
@@ -24,7 +29,7 @@ const BottomNav = () => {
         className="flex flex-col items-center justify-center flex-1 pt-2 pb-3 transition-colors"
       >
         <span
-          className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all duration-200"
+          className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all duration-200 relative"
           style={
             active
               ? {
@@ -35,7 +40,15 @@ const BottomNav = () => {
               : { color: "hsl(210 8% 58%)" }
           }
         >
-          <Icon size={20} strokeWidth={active ? 2 : 1.5} />
+          <span className="relative">
+            <Icon size={20} strokeWidth={active ? 2 : 1.5} />
+            {badge && !active && (
+              <span
+                className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full"
+                style={{ background: "hsl(0 72% 51%)" }}
+              />
+            )}
+          </span>
           <span className={`text-[10px] ${active ? "font-bold" : "font-normal"}`}>
             {label}
           </span>
@@ -53,8 +66,8 @@ const BottomNav = () => {
           "0 -4px 20px -4px hsl(126 15% 15% / 0.12), 0 -1px 4px -1px hsl(210 11% 14% / 0.06)",
       }}
     >
-      {/* RTL visual order:  Challenges | FAB | Home
-          Code (DOM) order: Home | spacer | Challenges        */}
+      {/* RTL visual order:  Notifications | Challenges | FAB | Home
+          Code (DOM) order: Home | spacer | Challenges | Notifications   */}
       <div className="mx-auto flex max-w-md items-stretch">
         {/* Home — visually far right */}
         <NavBtn path="/" label="בית" icon={Home} />
@@ -62,8 +75,16 @@ const BottomNav = () => {
         {/* Spacer under the central FAB button */}
         <div className="w-20 flex-shrink-0" aria-hidden="true" />
 
-        {/* Challenges — visually far left */}
+        {/* Challenges */}
         <NavBtn path="/challenges" label="אתגרים" icon={Trophy} />
+
+        {/* Notifications — visually far left */}
+        <NavBtn
+          path="/notifications"
+          label="התראות"
+          icon={Bell}
+          badge={hasUnread}
+        />
       </div>
     </nav>
   );

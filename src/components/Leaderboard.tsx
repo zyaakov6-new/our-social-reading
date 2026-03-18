@@ -126,39 +126,98 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
     );
   }
 
-  // No friends yet — show invite CTA
+  // Helper: render the "invite friends" row shown when user has no friends
+  const renderInviteRow = () => (
+    <div
+      className="flex items-center justify-between px-4 py-3 mx-3 my-2 rounded-xl"
+      style={{ border: '1px dashed hsl(44 15% 75%)', background: 'hsl(44 20% 97%)' }}
+    >
+      <span className="text-xs text-muted-foreground">הזמן חברים להתחרות</span>
+      <button
+        onClick={() => onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        style={{ background: 'hsl(126 15% 28%)' }}
+      >
+        <UserPlus size={13} strokeWidth={1.5} />
+        הוסף חברים
+      </button>
+    </div>
+  );
+
+  // No friends yet — show user's own row + invite CTA
   if (!hasFriends) {
+    const meEntry = entries.find(e => e.isMe);
     return (
       <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
         <div className="flex items-center gap-2 px-4 py-3"
-          style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
+          style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
           <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
           <h3 className="font-bold text-sm">מובילי השבוע</h3>
         </div>
-        <div className="px-4 py-5 text-center space-y-3">
-          <p className="text-sm font-serif font-bold">טבלת מנצחים ריקה</p>
-          <p className="text-xs text-muted-foreground">הוסף חברים כדי להתחרות ולראות מי קורא הכי הרבה</p>
-          <button
-            onClick={() => onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            style={{ background: 'hsl(126 15% 28%)' }}
-          >
-            <UserPlus size={14} strokeWidth={1.5} />
-            הוסף חברים
-          </button>
-        </div>
+        {meEntry && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-primary/5">
+            <span className="text-base w-6 text-center flex-shrink-0">
+              {meEntry.weekMinutes > 0 ? MEDALS[0] : <span className="text-xs text-muted-foreground">1</span>}
+            </span>
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary-foreground"
+              style={{ background: AVATAR_COLORS[meEntry.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
+            >
+              {meEntry.displayName.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold truncate text-primary">אני</span>
+                <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
+                  {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} דק׳` : "—"}
+                </span>
+              </div>
+              {meEntry.weekMinutes > 0 && (
+                <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: '100%', background: 'hsl(126 15% 28%)', transition: 'width 0.5s ease' }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {renderInviteRow()}
       </div>
     );
   }
 
   if (entries.every(e => e.weekMinutes === 0)) {
+    const meEntry = entries.find(e => e.isMe);
     return (
-      <div className="rounded-xl bg-card p-4 card-shadow">
-        <div className="flex items-center gap-2 mb-3">
-          <Trophy size={16} style={{ color: 'hsl(28 71% 57%)' }} />
-          <h3 className="font-serif font-bold text-sm">מובילי השבוע</h3>
+      <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
+        <div className="flex items-center gap-2 px-4 py-3"
+          style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
+          <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
+          <h3 className="font-bold text-sm">מובילי השבוע</h3>
         </div>
-        <p className="text-sm text-muted-foreground text-center py-3">עוד אין פעילות השבוע — התחל לקרוא!</p>
+        {meEntry && (
+          <div className="flex items-center gap-3 px-4 py-3 bg-primary/5">
+            <span className="text-base w-6 text-center flex-shrink-0">
+              <span className="text-xs text-muted-foreground">1</span>
+            </span>
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-primary-foreground"
+              style={{ background: AVATAR_COLORS[meEntry.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
+            >
+              {meEntry.displayName.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold truncate text-primary">אני</span>
+                <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">—</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-0.5">עוד אין פעילות השבוע — התחל לקרוא!</p>
+            </div>
+          </div>
+        )}
+        {!hasFriends && renderInviteRow()}
       </div>
     );
   }
