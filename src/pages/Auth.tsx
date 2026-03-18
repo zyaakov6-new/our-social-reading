@@ -94,9 +94,26 @@ const Auth = () => {
               <span className="amud-pillar h-32" />
             </div>
 
-            <p className="font-caption text-sm text-muted-foreground text-center">
-              {isSignUp ? "הצטרפו לקהילת הקוראים" : "ברוכים השבים"}
-            </p>
+            <div className="text-center space-y-2.5">
+              <div className="flex items-center gap-3 justify-center">
+                <span className="h-px flex-1 bg-border/70" />
+                <p className="font-serif text-base font-semibold text-foreground tracking-wide">
+                  ברוכים השבים ל-AMUD
+                </p>
+                <span className="h-px flex-1 bg-border/70" />
+              </div>
+              <p className="font-caption text-xs text-muted-foreground leading-relaxed">
+                קרא יותר, התחרה יותר –<br />
+                עם חברים, לוח תוצאות ומעקב אחרי הספרים שלך
+              </p>
+              <div className="flex justify-center gap-3 pt-0.5">
+                {[['📚', 'ספרייה'], ['🏆', 'דירוגים'], ['👥', 'חברים']].map(([emoji, label]) => (
+                  <span key={label} className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-muted/70 px-2.5 py-1 rounded-full">
+                    {emoji} {label}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* ── Google button — primary CTA ─────────────────────── */}
