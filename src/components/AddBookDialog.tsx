@@ -9,26 +9,6 @@ import { toast } from "sonner";
 import { searchBooks, BookSearchResult } from "@/services/googleBooks";
 import { Search, BookOpen, X } from "lucide-react";
 
-/**
- * Tries each URL in `srcs` in order; moves to the next on load failure.
- * Shows a 📖 placeholder only when every URL has failed or none provided.
- */
-const CoverImg = ({ srcs, alt, className }: { srcs: string[]; alt: string; className?: string }) => {
-  const [idx, setIdx] = useState(0);
-  const src = srcs[idx];
-  if (src) {
-    return (
-      <img
-        key={src}
-        src={src}
-        alt={alt}
-        className={className ?? 'h-full w-full object-cover'}
-        onError={() => setIdx(i => i + 1)}
-      />
-    );
-  }
-  return <div className="h-full w-full flex items-center justify-center text-sm select-none">📖</div>;
-};
 
 interface AddBookDialogProps {
   onBookAdded?: () => void;
@@ -177,7 +157,10 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
                       className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-muted transition-colors border-b border-border/50 last:border-0 text-right"
                     >
                       <div className="h-12 w-8 rounded flex-shrink-0 bg-muted overflow-hidden">
-                        <CoverImg srcs={book.coverUrls ?? (book.coverUrl ? [book.coverUrl] : [])} alt={book.title} />
+                        {book.coverUrl
+                          ? <img src={book.coverUrl} alt={book.title} className="h-full w-full object-cover" />
+                          : <div className="h-full w-full flex items-center justify-center text-sm">📖</div>
+                        }
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{book.title}</p>
@@ -196,7 +179,10 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
           {selected && (
             <div className="flex items-center gap-3 rounded-xl bg-muted p-3">
               <div className="h-16 w-11 rounded flex-shrink-0 bg-background overflow-hidden shadow-sm">
-                <CoverImg srcs={selected.coverUrls ?? (selected.coverUrl ? [selected.coverUrl] : [])} alt={selected.title} />
+                {selected.coverUrl
+                  ? <img src={selected.coverUrl} alt={selected.title} className="h-full w-full object-cover" />
+                  : <div className="h-full w-full flex items-center justify-center text-sm">📖</div>
+                }
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-serif font-bold text-sm">{selected.title}</p>
