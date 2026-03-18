@@ -31,13 +31,59 @@ const ChallengesTab = () => {
   if (loading) {
     return (
       <div className="space-y-3">
+        {/* Animated trophy loader */}
+        <div className="flex flex-col items-center justify-center py-8 gap-4">
+          <div className="relative">
+            <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+              {/* Spinning ring */}
+              <circle cx="26" cy="26" r="22" stroke="hsl(44 15% 80%)" strokeWidth="3" fill="none" />
+              <circle
+                cx="26" cy="26" r="22"
+                stroke="hsl(126 15% 28%)"
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray="34 104"
+                strokeLinecap="round"
+                style={{ transformOrigin: '26px 26px', animation: 'spin 1s linear infinite' }}
+              />
+              {/* Trophy icon center */}
+              <text x="26" y="32" textAnchor="middle" fontSize="20" style={{ userSelect: 'none' }}>🏆</text>
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-muted-foreground animate-pulse">טוען אתגרים...</p>
+        </div>
+
+        {/* Challenge card skeletons with shimmer */}
         {[1, 2].map(i => (
-          <div key={i} className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
-            <Skeleton className="h-4 w-3/4 rounded" />
-            <Skeleton className="h-2.5 w-full rounded-full" />
-            <Skeleton className="h-3 w-1/2 rounded" />
+          <div
+            key={i}
+            className="rounded-2xl overflow-hidden"
+            style={{ border: '1px solid hsl(44 15% 80%)', background: 'hsl(44 27% 88%)' }}
+          >
+            {/* Header row */}
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid hsl(44 12% 80%)' }}>
+              <Skeleton className="h-3 w-20 rounded-full" />
+              <Skeleton className="h-4 w-32 rounded" />
+            </div>
+            {/* Progress */}
+            <div className="px-4 py-3 space-y-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-3 w-8 rounded" />
+                <Skeleton className="h-3 w-24 rounded" />
+              </div>
+              <Skeleton className="h-2.5 w-full rounded-full" />
+            </div>
+            {/* Avatars */}
+            <div className="flex items-center gap-2 px-4 pb-3">
+              {[1, 2, 3].map(j => (
+                <Skeleton key={j} className="h-7 w-7 rounded-full flex-shrink-0" style={{ marginRight: j > 1 ? '-8px' : '0' }} />
+              ))}
+              <Skeleton className="h-3 w-20 rounded mr-3" />
+            </div>
           </div>
         ))}
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }

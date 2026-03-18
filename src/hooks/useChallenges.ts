@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
+// Module-level stale-while-revalidate cache
+interface ChallengesCache { challenges: Challenge[]; userId: string; time: number; }
+let _challengesCache: ChallengesCache | null = null;
+const CHALLENGES_TTL = 2 * 60 * 1000;
+
 export interface ChallengeParticipant {
   userId: string;
   displayName: string;
@@ -26,12 +31,21 @@ export interface Challenge {
 
 export const useChallenges = () => {
   const { user } = useAuth();
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  const isCacheValid = !!(
+    _challengesCache &&
+    _challengesCache.userId === user?.id &&
+    Date.now() - _challengesCache.time < CHALLENGES_TTL
+  );
+
+  const [challenges, setChallenges] = useState<Challenge[]>(
+    _challengesCache?.userId === user?.id ? (_challengesCache?.challenges ?? []) : []
+  );
+  const [loading, setLoading] = useState(!isCacheValid);
 
   const fetchChallenges = useCallback(async () => {
     if (!user) return;
-    setLoading(true);
+    if (!isCacheValid) setLoading(true);
     try {
       // Step 1: Get challenge IDs where user participates
       const { data: participantRows } = await supabase
@@ -171,6 +185,7 @@ export const useChallenges = () => {
         };
       });
 
+      _challengesCache = { challenges: result, userId: user.id, time: Date.now() };
       setChallenges(result);
     } catch (e) {
       console.error("useChallenges error:", e);
