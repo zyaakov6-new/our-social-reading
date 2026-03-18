@@ -19,7 +19,6 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -53,10 +52,9 @@ const Auth = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: name }, emailRedirectTo: window.location.origin },
+          options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("נרשמת בהצלחה! בדקו את האימייל לאישור");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -164,19 +162,6 @@ const Auth = () => {
               </button>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                {isSignUp && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="name" className="font-caption text-muted-foreground text-xs">שם תצוגה</Label>
-                    <Input
-                      id="name"
-                      placeholder="השם שלכם"
-                      value={name}
-                      onChange={e => setName(e.target.value)}
-                      className="text-right h-11 bg-input border-border/60 rounded-lg"
-                      required
-                    />
-                  </div>
-                )}
                 <div className="space-y-1.5">
                   <Label htmlFor="email" className="font-caption text-muted-foreground text-xs">אימייל</Label>
                   <Input
