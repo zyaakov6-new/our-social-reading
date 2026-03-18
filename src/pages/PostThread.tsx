@@ -194,14 +194,14 @@ const PostThread = () => {
         <div className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
           <div className="flex items-center gap-2.5">
             <button
-              onClick={() => navigate(`/user/${post.userId}`)}
+              onClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
               className="h-8 w-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity"
             >
               <span className="text-xs font-semibold text-accent-foreground">{post.displayName.charAt(0)}</span>
             </button>
             <div>
               <button
-                onClick={() => navigate(`/user/${post.userId}`)}
+                onClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
                 className="text-sm font-semibold hover:text-primary transition-colors block"
               >
                 {post.displayName}
@@ -242,7 +242,7 @@ const PostThread = () => {
                 <div key={c.id} className="bg-card border border-border/50 rounded-xl px-4 py-3 group">
                   <div className="flex items-start gap-2.5">
                     <button
-                      onClick={() => navigate(`/user/${c.userId}`)}
+                      onClick={() => navigate(`/user/${c.userId}?name=${encodeURIComponent(c.displayName)}`)}
                       className="h-7 w-7 rounded-full bg-accent flex items-center justify-center flex-shrink-0 hover:opacity-80 transition-opacity"
                     >
                       <span className="text-[10px] font-semibold text-accent-foreground">{c.displayName.charAt(0)}</span>
@@ -250,7 +250,7 @@ const PostThread = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-1.5 flex-wrap">
                         <button
-                          onClick={() => navigate(`/user/${c.userId}`)}
+                          onClick={() => navigate(`/user/${c.userId}?name=${encodeURIComponent(c.displayName)}`)}
                           className="text-xs font-semibold hover:text-primary transition-colors"
                         >
                           {c.displayName}

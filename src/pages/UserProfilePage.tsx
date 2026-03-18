@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Flame, Clock, BookOpen, UserPlus, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,6 +26,8 @@ type FriendStatus = "none" | "pending" | "friends";
 const UserProfilePage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const nameOverride = searchParams.get("name");
   const { user: me } = useAuth();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -181,8 +183,9 @@ const UserProfilePage = () => {
     );
   }
 
-  const isMe = me?.id === userId;
-  const initial = profile.displayName.charAt(0).toUpperCase();
+  const isMe = me?.id === userId && !nameOverride;
+  const displayName = nameOverride || profile.displayName;
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="min-h-screen pb-28 bg-background" dir="rtl">
@@ -194,7 +197,7 @@ const UserProfilePage = () => {
         >
           <ArrowRight size={20} strokeWidth={1.5} />
         </button>
-        <h1 className="font-semibold text-base">{profile.displayName}</h1>
+        <h1 className="font-semibold text-base">{displayName}</h1>
       </div>
 
       <div className="px-4 pt-6 max-w-md mx-auto space-y-5">
@@ -202,13 +205,13 @@ const UserProfilePage = () => {
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
             {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt={profile.displayName} className="h-full w-full rounded-full object-cover" />
+              <img src={profile.avatarUrl} alt={displayName} className="h-full w-full rounded-full object-cover" />
             ) : (
               <span className="font-display text-2xl text-accent-foreground">{initial}</span>
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-semibold text-lg leading-tight">{profile.displayName}</h2>
+            <h2 className="font-semibold text-lg leading-tight">{displayName}</h2>
             {stats.streak > 0 && (
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                 <Flame size={12} className="text-streak" />
