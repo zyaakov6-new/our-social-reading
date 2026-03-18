@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, MessageCircle, PenSquare } from "lucide-react";
+import { Heart, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreatePostDialog from "@/components/CreatePostDialog";
+
+type Category = 'review' | 'discussion' | 'question' | 'recommendation';
 
 interface PostSummary {
   id: string;
@@ -14,7 +16,22 @@ interface PostSummary {
   createdAt: string;
   likeCount: number;
   commentCount: number;
+  category: Category;
 }
+
+const CATEGORY_META: Record<Category, { emoji: string; label: string; color: string; bg: string }> = {
+  review:         { emoji: '📖', label: 'ביקורת',  color: 'hsl(188 60% 30%)',           bg: 'hsl(188 60% 92%)' },
+  discussion:     { emoji: '💬', label: 'דיון',    color: 'hsl(126 15% 28%)',           bg: 'hsl(126 15% 91%)' },
+  recommendation: { emoji: '✨', label: 'המלצה',   color: 'hsl(28 71% 40%)',            bg: 'hsl(28 71% 92%)' },
+  question:       { emoji: '❓', label: 'שאלה',    color: 'hsl(260 40% 40%)',           bg: 'hsl(260 40% 93%)' },
+};
+
+const PROMPT_CATS: { value: Category; emoji: string; label: string }[] = [
+  { value: 'review',         emoji: '📖', label: 'ביקורת' },
+  { value: 'discussion',     emoji: '💬', label: 'דיון' },
+  { value: 'recommendation', emoji: '✨', label: 'המלצה' },
+  { value: 'question',       emoji: '❓', label: 'שאלה' },
+];
 
 const AVATAR_COLORS: Record<string, string> = {
   א: 'hsl(126 15% 28%)', ב: 'hsl(188 100% 27%)', ג: 'hsl(28 71% 57%)',
@@ -27,104 +44,93 @@ const AVATAR_COLORS: Record<string, string> = {
   ת: 'hsl(126 20% 32%)',
 };
 
-const FAKE_POSTS: PostSummary[] = [
-  {
-    id: 'fake-1',
-    userId: 'fake',
-    displayName: 'מיכל לוי',
-    title: 'מה הספר שהכי השפיע עליכם בחיים?',
-    contentPreview: 'אצלי זה "מאה שנות בדידות" של מרקס. קראתי אותו בגיל 23 ומאז העולם נראה לי אחרת. כל פעם שאני פותח ספר חדש אני מחפש את אותה תחושה...',
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    likeCount: 14,
-    commentCount: 7,
-  },
-  {
-    id: 'fake-2',
-    userId: 'fake',
-    displayName: 'יונתן כהן',
-    title: 'קינדל vs ספר פיזי — הכריעו',
-    contentPreview: 'שנים הייתי מחנה הספר הפיזי הקיצוני. ריח הנייר, השוליים, ההדגשות. ואז קיבלתי קינדל מתנה ועברתי צד. מי עוד עבר מצד לצד?',
-    createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-    likeCount: 22,
-    commentCount: 11,
-  },
-  {
-    id: 'fake-3',
-    userId: 'fake',
-    displayName: 'שירה אברהם',
-    title: 'איך אתם מוצאים זמן לקרוא עם ילדים קטנים?',
-    contentPreview: 'מאז הלידה אני מצליחה לקרוא בערך עמוד ביום לפני שאני נרדמת על הספר. יש לכם טיפים איך לשמור על הרגל הקריאה עם תינוק בבית?',
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 31,
-    commentCount: 18,
-  },
-  {
-    id: 'fake-4',
-    userId: 'fake',
-    displayName: 'אמיר גולן',
-    title: 'המלצה: "הכל אור" של אנתוני דוֹאֶר',
-    contentPreview: 'פשוט גמרתי ולא מצליח לצאת ממנו. הפרוזה היא משירה, העלילה מרתקת, והדמויות חיות. אם לא קראתם — עצרו הכל ותתחילו. זה ספר שמשנה.',
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 19,
-    commentCount: 5,
-  },
-  {
-    id: 'fake-5',
-    userId: 'fake',
-    displayName: 'נועה ברקוביץ',
-    title: 'ספר שקניתם עם ציפיות גבוהות ואכזב',
-    contentPreview: '"בין העולמות" של פיליפ פולמן — כולם אמרו לי שזה יהפוך אותי. קראתי שני ספרים ועדיין לא הרגשתי את הקסם שכולם מדברים עליו. אולי אני מפספסת משהו?',
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 8,
-    commentCount: 14,
-  },
-  {
-    id: 'fake-6',
-    userId: 'fake',
-    displayName: 'דוד מזרחי',
-    title: 'ז\'אנר: מה קוראים כשרוצים לנוח?',
-    contentPreview: 'אחרי ספר כבד כמו "המשפט" של קפקא אני צריך משהו קל. בדרך כלל עובר לסדרות בלשיות — אגאתה כריסטי תמיד עובדת עלי. מה אתם קוראים כדי להירגע?',
-    createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 12,
-    commentCount: 9,
-  },
-  {
-    id: 'fake-7',
-    userId: 'fake',
-    displayName: 'תמר שפירא',
-    title: 'ספרות עברית עכשווית — המלצות',
-    contentPreview: 'חיפשתי ספרות ישראלית עכשווית טובה ומצאתי "לילה ביפו" של שי שלף — מדהים. יש לכם המלצות נוספות לסופרים ישראלים שכדאי לגלות?',
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 27,
-    commentCount: 16,
-  },
-  {
-    id: 'fake-8',
-    userId: 'fake',
-    displayName: 'רועי פרידמן',
-    title: 'כמה ספרים אתם קוראים במקביל?',
-    contentPreview: 'אני תמיד עם 3 ספרים פתוחים — אחד ביושן, אחד בנייד ואחד בבית. חברים שלי אומרים שזה מטורף. אתם "ספר אחד בכל פעם" או כמוני?',
-    createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    likeCount: 35,
-    commentCount: 21,
-  },
-];
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `לפני ${m || 1} דק׳`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `לפני ${h} שע׳`;
+  const d = Math.floor(h / 24);
+  return `לפני ${d} יום${d > 1 ? 'ות' : ''}`;
+}
+
+const PostCard = ({
+  post,
+  onClick,
+}: {
+  post: PostSummary;
+  onClick: () => void;
+}) => {
+  const cat = CATEGORY_META[post.category] ?? CATEGORY_META.discussion;
+  const initial = post.displayName.charAt(0);
+  return (
+    <button
+      onClick={onClick}
+      className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 active:scale-[0.99] transition-all duration-150 overflow-hidden"
+      style={{ border: '1px solid hsl(44 15% 80%)', boxShadow: '0 1px 4px hsl(44 20% 70% / 0.25)' }}
+    >
+      {/* Header row */}
+      <div className="flex items-center gap-2 px-4 py-2.5"
+        style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
+        <div
+          className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+          style={{ background: AVATAR_COLORS[initial] ?? 'hsl(126 15% 28%)' }}
+        >
+          <span className="text-[11px] font-bold text-white">{initial}</span>
+        </div>
+        <span className="text-xs font-semibold">{post.displayName}</span>
+
+        {/* Category badge */}
+        <span
+          className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
+          style={{ background: cat.bg, color: cat.color }}
+        >
+          {cat.emoji} {cat.label}
+        </span>
+
+        <span className="text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
+      </div>
+
+      {/* Body */}
+      <div className="px-4 py-3">
+        <p className="font-serif font-bold text-base mb-1.5 leading-snug">{post.title}</p>
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{post.contentPreview}</p>
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center gap-3 px-4 py-2.5 border-t border-border/40">
+        {post.likeCount > 0 ? (
+          <span className="flex items-center gap-1 text-xs" style={{ color: 'hsl(0 60% 50%)' }}>
+            <Heart size={12} strokeWidth={2} fill="currentColor" /> {post.likeCount}
+          </span>
+        ) : null}
+        {post.commentCount > 0 ? (
+          <span className="flex items-center gap-1 text-xs text-teal-700">
+            <MessageCircle size={12} strokeWidth={2} /> {post.commentCount}
+          </span>
+        ) : null}
+        {post.likeCount === 0 && post.commentCount === 0 && (
+          <span className="text-xs text-muted-foreground">היה ראשון להגיב ✍️</span>
+        )}
+      </div>
+    </button>
+  );
+};
 
 const PostsFeed = () => {
   const navigate = useNavigate();
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
+  const [initialCategory, setInitialCategory] = useState<Category>('discussion');
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  useEffect(() => { fetchPosts(); }, []);
 
   const fetchPosts = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("posts")
-      .select("id, user_id, display_name, title, content, created_at")
+      .select("id, user_id, display_name, title, content, created_at, category")
       .order("created_at", { ascending: false });
 
     if (error || !data) { setLoading(false); return; }
@@ -140,10 +146,11 @@ const PostsFeed = () => {
           userId: p.user_id,
           displayName: p.display_name || "קורא",
           title: p.title,
-          contentPreview: p.content.length > 120 ? p.content.slice(0, 120) + "…" : p.content,
+          contentPreview: p.content.length > 150 ? p.content.slice(0, 150) + "…" : p.content,
           createdAt: p.created_at,
           likeCount: likeCount ?? 0,
           commentCount: commentCount ?? 0,
+          category: (p.category ?? 'discussion') as Category,
         };
       })
     );
@@ -152,9 +159,14 @@ const PostsFeed = () => {
     setLoading(false);
   };
 
+  const openCreate = (cat: Category) => {
+    setInitialCategory(cat);
+    setCreateOpen(true);
+  };
+
   return (
     <div className="min-h-screen pb-28">
-      {/* Header */}
+      {/* ── Header ── */}
       <div
         className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-3 pb-2.5"
         style={{
@@ -170,17 +182,38 @@ const PostsFeed = () => {
               <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פורום הקוראים</p>
             </div>
           </div>
-          <button
-            onClick={() => setCreateOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl btn-cta text-sm font-semibold"
-          >
-            <PenSquare size={15} strokeWidth={1.5} />
-            פוסט חדש
-          </button>
         </div>
       </div>
 
       <div className="px-4 py-4 max-w-md mx-auto space-y-3">
+
+        {/* ── "What's on your mind" prompt card ── */}
+        <div
+          className="rounded-2xl bg-card p-4 space-y-3"
+          style={{ border: '1px solid hsl(44 15% 80%)', boxShadow: '0 1px 4px hsl(44 20% 70% / 0.25)' }}
+        >
+          <p className="text-sm font-semibold text-center text-foreground">
+            📚 מה על הלב הספרותי שלך?
+          </p>
+          <p className="text-xs text-muted-foreground text-center leading-relaxed">
+            שתף ביקורת, פתח דיון, המלץ על ספר, או שאל את הקהילה
+          </p>
+          <div className="grid grid-cols-4 gap-2">
+            {PROMPT_CATS.map(cat => (
+              <button
+                key={cat.value}
+                onClick={() => openCreate(cat.value)}
+                className="flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all active:scale-95"
+                style={{ background: 'hsl(44 20% 91%)', color: 'hsl(126 15% 28%)' }}
+              >
+                <span className="text-xl leading-none">{cat.emoji}</span>
+                <span className="text-[11px] font-semibold">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Post list ── */}
         {loading ? (
           <>
             {[1, 2, 3].map(i => (
@@ -201,98 +234,18 @@ const PostsFeed = () => {
             ))}
           </>
         ) : posts.length === 0 ? (
-          FAKE_POSTS.map(post => (
-            <div
-              key={post.id}
-              className="w-full bg-card rounded-2xl text-right card-shadow animate-fade-slide-up overflow-hidden"
-              style={{ border: '1px solid hsl(44 15% 80%)' }}
-            >
-              {/* Post header */}
-              <div className="flex items-center gap-2 px-4 py-2.5"
-                style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
-                <div
-                  className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
-                >
-                  <span className="text-[11px] font-bold text-primary-foreground">
-                    {post.displayName.charAt(0)}
-                  </span>
-                </div>
-                <span className="text-xs font-semibold text-foreground">{post.displayName}</span>
-                <span className="text-xs text-muted-foreground mr-auto">
-                  {new Date(post.createdAt).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}
-                </span>
-              </div>
-
-              {/* Post body */}
-              <div className="px-4 py-3">
-                <p className="font-serif font-bold text-base mb-1.5 leading-snug">{post.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
-              </div>
-
-              {/* Engagement footer */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border/40">
-                {post.likeCount > 0 && (
-                  <span className="badge-green" style={{ background: 'hsl(0 60% 55% / 0.10)', color: 'hsl(0 60% 40%)', borderColor: 'hsl(0 60% 55% / 0.18)' }}>
-                    <Heart size={11} strokeWidth={2} /> {post.likeCount}
-                  </span>
-                )}
-                {post.commentCount > 0 && (
-                  <span className="badge-teal">
-                    <MessageCircle size={11} strokeWidth={2} /> {post.commentCount}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))
+          <div className="text-center py-12 text-muted-foreground">
+            <p className="text-4xl mb-3">📭</p>
+            <p className="text-sm font-semibold">הפורום עדיין ריק</p>
+            <p className="text-xs mt-1">היה ראשון לפתוח דיון!</p>
+          </div>
         ) : (
           posts.map(post => (
-            <button
+            <PostCard
               key={post.id}
+              post={post}
               onClick={() => navigate(`/post/${post.id}`)}
-              className="w-full bg-card rounded-2xl text-right hover:bg-accent/30 transition-all duration-200 card-shadow animate-fade-slide-up overflow-hidden"
-              style={{ border: '1px solid hsl(44 15% 80%)' }}
-            >
-              {/* Post header */}
-              <div className="flex items-center gap-2 px-4 py-2.5"
-                style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
-                <div
-                  className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: AVATAR_COLORS[post.displayName.charAt(0)] ?? 'hsl(126 15% 28%)' }}
-                >
-                  <span className="text-[11px] font-bold text-primary-foreground">
-                    {post.displayName.charAt(0)}
-                  </span>
-                </div>
-                <span className="text-xs font-semibold text-foreground">{post.displayName}</span>
-                <span className="text-xs text-muted-foreground mr-auto">
-                  {new Date(post.createdAt).toLocaleDateString("he-IL", { day: "numeric", month: "short" })}
-                </span>
-              </div>
-
-              {/* Post body */}
-              <div className="px-4 py-3">
-                <p className="font-serif font-bold text-base mb-1.5 leading-snug">{post.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{post.contentPreview}</p>
-              </div>
-
-              {/* Engagement footer */}
-              <div className="flex items-center gap-2 px-4 py-2.5 border-t border-border/40">
-                {post.likeCount > 0 && (
-                  <span className="badge-green" style={{ background: 'hsl(0 60% 55% / 0.10)', color: 'hsl(0 60% 40%)', borderColor: 'hsl(0 60% 55% / 0.18)' }}>
-                    <Heart size={11} strokeWidth={2} /> {post.likeCount}
-                  </span>
-                )}
-                {post.commentCount > 0 && (
-                  <span className="badge-teal">
-                    <MessageCircle size={11} strokeWidth={2} /> {post.commentCount}
-                  </span>
-                )}
-                {post.likeCount === 0 && post.commentCount === 0 && (
-                  <span className="text-xs text-muted-foreground">היה ראשון להגיב</span>
-                )}
-              </div>
-            </button>
+            />
           ))
         )}
       </div>
@@ -301,6 +254,7 @@ const PostsFeed = () => {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreated={fetchPosts}
+        initialCategory={initialCategory}
       />
     </div>
   );
