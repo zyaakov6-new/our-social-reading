@@ -160,25 +160,29 @@ const PostsFeed = () => {
 
     if (error || !data) { setLoading(false); return; }
 
-    const postsWithCounts = await Promise.all(
-      data.map(async (p: any) => {
-        const [{ count: likeCount }, { count: commentCount }] = await Promise.all([
-          supabase.from("post_likes").select("id", { count: "exact", head: true }).eq("post_id", p.id),
-          supabase.from("post_comments").select("id", { count: "exact", head: true }).eq("post_id", p.id),
-        ]);
-        return {
-          id: p.id,
-          userId: p.user_id,
-          displayName: p.display_name || "קורא",
-          title: p.title,
-          contentPreview: p.content.length > 150 ? p.content.slice(0, 150) + "…" : p.content,
-          createdAt: p.created_at,
-          likeCount: likeCount ?? 0,
-          commentCount: commentCount ?? 0,
-          category: (p.category ?? 'discussion') as Category,
-        };
-      })
-    );
+    const postIds = (data as any[]).map((p) => p.id);
+
+    const [{ data: allLikes }, { data: allComments }] = await Promise.all([
+      supabase.from("post_likes").select("post_id").in("post_id", postIds),
+      supabase.from("post_comments").select("post_id").in("post_id", postIds),
+    ]);
+
+    const likeMap: Record<string, number> = {};
+    const commentMap: Record<string, number> = {};
+    (allLikes || []).forEach((l: any) => { likeMap[l.post_id] = (likeMap[l.post_id] || 0) + 1; });
+    (allComments || []).forEach((c: any) => { commentMap[c.post_id] = (commentMap[c.post_id] || 0) + 1; });
+
+    const postsWithCounts: PostSummary[] = (data as any[]).map((p) => ({
+      id: p.id,
+      userId: p.user_id,
+      displayName: p.display_name || "קורא",
+      title: p.title,
+      contentPreview: p.content.length > 150 ? p.content.slice(0, 150) + "…" : p.content,
+      createdAt: p.created_at,
+      likeCount: likeMap[p.id] || 0,
+      commentCount: commentMap[p.id] || 0,
+      category: (p.category ?? 'discussion') as Category,
+    }));
 
     setPosts(postsWithCounts);
     setLoading(false);

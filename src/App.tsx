@@ -21,7 +21,14 @@ import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 3, // 3 minutes — avoid redundant refetches on navigation
+      gcTime: 1000 * 60 * 10,
+    },
+  },
+});
 
 const AppLayout = () => (
   <>

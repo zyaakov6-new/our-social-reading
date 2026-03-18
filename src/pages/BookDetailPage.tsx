@@ -66,6 +66,7 @@ const BookDetailPage = () => {
   const navigate = useNavigate();
 
   const [book, setBook] = useState<BookDetail | null>(null);
+  const [isOwner, setIsOwner] = useState(false);
   const [sessions, setSessions] = useState<ReadingSession[]>([]);
   const [otherReaders, setOtherReaders] = useState<OtherReader[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,8 +94,7 @@ const BookDetailPage = () => {
             "id, user_id, title, author, total_pages, current_page, cover_url, status, created_at, updated_at"
           )
           .eq("id", bookId!)
-          .eq("user_id", user.id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from("reading_sessions")
           .select("id, minutes_read, pages_read, session_date, created_at")
@@ -117,6 +117,7 @@ const BookDetailPage = () => {
           createdAt: b.created_at,
           updatedAt: b.updated_at,
         });
+        setIsOwner(b.user_id === user.id);
 
         // Fetch other readers who have the same book title (best approximation without google_books_id)
         const { data: otherBooks } = await supabase
@@ -405,7 +406,7 @@ const BookDetailPage = () => {
 
         {/* Action buttons */}
         <div className="flex gap-2 flex-wrap">
-          {book.status === "reading" && (
+          {isOwner && book.status === "reading" && (
             <button
               onClick={() => setLogOpen(true)}
               className="flex-1 min-w-0 rounded-xl py-3 text-sm font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
@@ -416,8 +417,8 @@ const BookDetailPage = () => {
           )}
         </div>
 
-        {/* Status change buttons */}
-        <div
+        {/* Status change buttons — only for book owner */}
+        {isOwner && <div
           className="bg-card rounded-xl p-3 space-y-2"
           style={{ border: "1px solid hsl(44 15% 80%)" }}
         >
@@ -446,7 +447,7 @@ const BookDetailPage = () => {
               </button>
             ))}
           </div>
-        </div>
+        </div>}
 
         {/* Recent sessions */}
         {recentSessions.length > 0 && (
