@@ -57,9 +57,11 @@ function timeAgo(iso: string): string {
 const PostCard = ({
   post,
   onClick,
+  onAuthorClick,
 }: {
   post: PostSummary;
   onClick: () => void;
+  onAuthorClick: () => void;
 }) => {
   const cat = CATEGORY_META[post.category] ?? CATEGORY_META.discussion;
   const initial = post.displayName.charAt(0);
@@ -73,12 +75,16 @@ const PostCard = ({
       <div className="flex items-center gap-2 px-4 py-2.5"
         style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
         <div
-          className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0"
+          onClick={e => { e.stopPropagation(); onAuthorClick(); }}
+          className="h-7 w-7 rounded-full flex items-center justify-center flex-shrink-0 hover:opacity-75 transition-opacity"
           style={{ background: AVATAR_COLORS[initial] ?? 'hsl(126 15% 28%)' }}
         >
           <span className="text-[11px] font-bold text-white">{initial}</span>
         </div>
-        <span className="text-xs font-semibold">{post.displayName}</span>
+        <span
+          onClick={e => { e.stopPropagation(); onAuthorClick(); }}
+          className="text-xs font-semibold hover:text-primary transition-colors cursor-pointer"
+        >{post.displayName}</span>
 
         {/* Category badge */}
         <span
@@ -245,6 +251,7 @@ const PostsFeed = () => {
               key={post.id}
               post={post}
               onClick={() => navigate(`/post/${post.id}`)}
+              onAuthorClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
             />
           ))
         )}
