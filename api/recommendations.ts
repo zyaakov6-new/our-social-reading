@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { IncomingMessage, ServerResponse } from "http";
 
 interface BookInput {
   title: string;
@@ -13,16 +13,36 @@ interface Recommendation {
   reason: string;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+// Collect the raw body from the Node.js IncomingMessage stream
+function readBody(req: IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", (chunk) => (data += chunk));
+    req.on("end", () => resolve(data));
+    req.on("error", reject);
+  });
+}
+
+function json(res: ServerResponse, status: number, body: unknown) {
+  const payload = JSON.stringify(body);
+  res.writeHead(status, {
+    "Content-Type": "application/json",
+    "Content-Length": Buffer.byteLength(payload),
+  });
+  res.end(payload);
+}
+
+export default async function handler(req: IncomingMessage, res: ServerResponse) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return json(res, 405, { error: "Method not allowed" });
   }
 
   try {
-    const { books } = req.body as { books: BookInput[] };
+    const raw = await readBody(req);
+    const { books } = JSON.parse(raw) as { books: BookInput[] };
 
     if (!books?.length) {
-      return res.status(400).json({ error: "No books provided" });
+      return json(res, 400, { error: "No books provided" });
     }
 
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -65,9 +85,9 @@ Rules:
 
     const recommendations: Recommendation[] = JSON.parse(cleanJson);
 
-    return res.status(200).json({ recommendations });
+    return json(res, 200, { recommendations });
   } catch (error) {
     console.error("Recommendations error:", error);
-    return res.status(500).json({ error: "Failed to generate recommendations" });
+    return json(res, 500, { error: "Failed to generate recommendations" });
   }
 }
