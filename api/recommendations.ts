@@ -52,7 +52,7 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
       .join("\n");
 
     const response = await client.messages.create({
-      model: "claude-opus-4-6",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 1024,
       messages: [
         {
@@ -87,7 +87,9 @@ Rules:
 
     return json(res, 200, { recommendations });
   } catch (error) {
-    console.error("Recommendations error:", error);
-    return json(res, 500, { error: "Failed to generate recommendations" });
+    const msg = error instanceof Error ? error.message : String(error);
+    const status = (error as any)?.status ?? "unknown";
+    console.error(`Recommendations error [${status}]:`, msg);
+    return json(res, 500, { error: "Failed to generate recommendations", detail: msg });
   }
 }
