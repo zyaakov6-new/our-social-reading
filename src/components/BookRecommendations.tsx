@@ -199,8 +199,9 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
     fetchRecs();
   }, [books]);
 
-  // Don't render section if user has no books yet
+  // Don't render section if user has no books yet, or if errored and nothing to show
   if (books.length < 1) return null;
+  if (error && recommendations.length === 0) return null;
 
   const handleCardClick = (rec: Recommendation) => {
     if (rec.googleBooksId) {
@@ -234,11 +235,7 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
       {/* Content */}
       {loading ? (
         <RecommendationSkeleton />
-      ) : error ? (
-        <div className="text-center py-4 text-xs text-muted-foreground">
-          לא הצלחנו לטעון המלצות כרגע
-        </div>
-      ) : recommendations.length > 0 ? (
+      ) : error ? null : recommendations.length > 0 ? (
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {recommendations.map((rec, i) => (
             <RecCard
