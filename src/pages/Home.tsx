@@ -9,6 +9,7 @@ import BookCard from "@/components/BookCard";
 import AddBookDialog from "@/components/AddBookDialog";
 import CreateChallengeDialog from "@/components/CreateChallengeDialog";
 import Leaderboard from "@/components/Leaderboard";
+import BookRecommendations from "@/components/BookRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy } from "lucide-react";
 
@@ -227,6 +228,7 @@ const Home = () => {
         {activeTab === 'books' && (
           <div className="space-y-6">
             <AddBookDialog onBookAdded={refetchBooks} />
+            <BookRecommendations books={books} />
 
             {books.length === 0 ? (
               <div className="text-center py-12 space-y-2">
