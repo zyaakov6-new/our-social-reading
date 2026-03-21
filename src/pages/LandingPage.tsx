@@ -18,26 +18,6 @@ const useReveal = () => {
   return { ref, visible };
 };
 
-/* ─── Animated counter ────────────────────────────────────────────── */
-const Counter = ({ target, suffix = "" }: { target: number; suffix?: string }) => {
-  const [val, setVal] = useState(0);
-  const { ref, visible } = useReveal();
-  useEffect(() => {
-    if (!visible) return;
-    const duration = 1400;
-    const step = 16;
-    const inc = target / (duration / step);
-    let cur = 0;
-    const timer = setInterval(() => {
-      cur = Math.min(cur + inc, target);
-      setVal(Math.floor(cur));
-      if (cur >= target) clearInterval(timer);
-    }, step);
-    return () => clearInterval(timer);
-  }, [visible, target]);
-  return <span ref={ref}>{val.toLocaleString("he-IL")}{suffix}</span>;
-};
-
 /* ─── Fake leaderboard data ───────────────────────────────────────── */
 const LEADERS = [
   { name: "מיכל כ.", pages: 847, pct: 94, avatar: "מ", color: "#3C513E" },
@@ -64,7 +44,7 @@ const FEATURES = [
   {
     icon: "⚔️",
     title: "אתגרי קריאה",
-    desc: "צור או הצטרף לאתגרים — מי גומר 5 ספרים ראשון? מי קורא 100 שעות?",
+    desc: "צור או הצטרף לאתגרים - מי גומר 5 ספרים ראשון? מי קורא 100 שעות?",
     accent: "#007788",
   },
 ];
@@ -91,7 +71,7 @@ const LandingPage = () => {
   return (
     <div dir="rtl" style={{ background: "hsl(44 27% 84%)", minHeight: "100vh", overflowX: "hidden" }}>
 
-      {/* ── CSS keyframes injected once ───────────────────────────── */}
+      {/* ── CSS keyframes ──────────────────────────────────────────── */}
       <style>{`
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(28px); }
@@ -100,9 +80,6 @@ const LandingPage = () => {
         @keyframes scaleIn {
           from { opacity: 0; transform: scale(0.92); }
           to   { opacity: 1; transform: scale(1); }
-        }
-        @keyframes barGrow {
-          from { width: 0%; }
         }
         @keyframes floatBook {
           0%, 100% { transform: translateY(0) rotate(var(--r)); }
@@ -164,11 +141,10 @@ const LandingPage = () => {
           border: "none",
           borderRadius: "8px",
           padding: "8px 20px",
-          fontFamily: "'Heebo', sans-serif",
           fontWeight: 700,
           fontSize: "0.88rem",
           cursor: "pointer",
-          transition: "background 0.2s, transform 0.15s",
+          transition: "background 0.2s",
         }}
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(126 15% 22%)"; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(126 15% 28%)"; }}
@@ -190,14 +166,14 @@ const LandingPage = () => {
       }}>
         {/* Floating decorative book spines */}
         {[
-          { top: "8%",  left: "4%",  h: 120, w: 18, c: "#3C513E", r: "-12deg",  delay: "0s" },
-          { top: "15%", left: "12%", h: 90,  w: 14, c: "#007788", r: "8deg",    delay: "0.8s" },
-          { top: "70%", left: "6%",  h: 140, w: 20, c: "#E08E45", r: "-6deg",   delay: "1.2s" },
-          { top: "80%", left: "15%", h: 80,  w: 13, c: "#3C513E", r: "14deg",   delay: "0.4s" },
-          { top: "10%", right: "5%",  h: 110, w: 16, c: "#007788", r: "10deg",  delay: "0.6s" },
-          { top: "20%", right: "13%", h: 95,  w: 15, c: "#E08E45", r: "-8deg",  delay: "1.5s" },
-          { top: "65%", right: "4%",  h: 130, w: 19, c: "#3C513E", r: "7deg",   delay: "0.2s" },
-          { top: "75%", right: "14%", h: 75,  w: 12, c: "#007788", r: "-15deg", delay: "1.0s" },
+          { top: "8%",  left: "4%",  h: 120, w: 18, c: "#3C513E", r: "-12deg", delay: "0s" },
+          { top: "15%", left: "12%", h: 90,  w: 14, c: "#007788", r: "8deg",   delay: "0.8s" },
+          { top: "70%", left: "6%",  h: 140, w: 20, c: "#E08E45", r: "-6deg",  delay: "1.2s" },
+          { top: "80%", left: "15%", h: 80,  w: 13, c: "#3C513E", r: "14deg",  delay: "0.4s" },
+          { top: "10%", right: "5%",  h: 110, w: 16, c: "#007788", r: "10deg", delay: "0.6s" },
+          { top: "20%", right: "13%", h: 95,  w: 15, c: "#E08E45", r: "-8deg", delay: "1.5s" },
+          { top: "65%", right: "4%",  h: 130, w: 19, c: "#3C513E", r: "7deg",  delay: "0.2s" },
+          { top: "75%", right: "14%", h: 75,  w: 12, c: "#007788", r: "-15deg",delay: "1.0s" },
         ].map((b, i) => (
           <div key={i} className="book-float" style={{
             position: "absolute",
@@ -218,7 +194,7 @@ const LandingPage = () => {
         {/* Hero content */}
         <div ref={heroReveal.ref} style={{ textAlign: "center", maxWidth: "560px", position: "relative", zIndex: 2 }}>
 
-          {/* Label */}
+          {/* Label badge */}
           <div style={{
             display: "inline-flex",
             alignItems: "center",
@@ -232,17 +208,14 @@ const LandingPage = () => {
             opacity: 0,
           }}>
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#E08E45", display: "inline-block" }} className="cta-pulse" />
-            <span style={{ fontFamily: "'Heebo', sans-serif", fontWeight: 600, fontSize: "0.78rem", color: "#E08E45" }}>
-              פלטפורמת הקריאה החברותית הראשונה בישראל
+            <span style={{ fontWeight: 600, fontSize: "0.78rem", color: "#E08E45" }}>
+              פלטפורמת הקריאה החברתית הראשונה בישראל
             </span>
           </div>
 
           {/* Main headline */}
           <h1 style={{
-            fontFamily: "'Frank Ruhl Libre', serif",
-            fontWeight: 900,
             fontSize: "clamp(2.6rem, 8vw, 4.2rem)",
-            lineHeight: 1.05,
             color: "hsl(210 11% 10%)",
             marginBottom: "1.2rem",
             animation: heroReveal.visible ? "fadeUp 0.7s ease 0.1s forwards" : "none",
@@ -255,8 +228,6 @@ const LandingPage = () => {
 
           {/* Sub */}
           <p style={{
-            fontFamily: "'Heebo', sans-serif",
-            fontWeight: 400,
             fontSize: "1.05rem",
             color: "hsl(210 8% 38%)",
             lineHeight: 1.65,
@@ -265,7 +236,7 @@ const LandingPage = () => {
             opacity: 0,
           }}>
             עקוב אחרי הקריאה שלך, התחרה עם חברים<br />
-            ועלה בלוח הדירוגים — כמו Goodreads אבל עם שריפה.
+            ועלה בלוח הדירוגים.
           </p>
 
           {/* CTA */}
@@ -283,7 +254,6 @@ const LandingPage = () => {
               border: "none",
               borderRadius: "12px",
               padding: "16px 40px",
-              fontFamily: "'Heebo', sans-serif",
               fontWeight: 800,
               fontSize: "1.05rem",
               cursor: "pointer",
@@ -299,15 +269,15 @@ const LandingPage = () => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px hsl(28 71% 57% / 0.35)";
               }}
             >
-              הצטרף חינם →
+              ← הצטרף חינם
             </button>
-            <span style={{ fontSize: "0.75rem", color: "hsl(210 8% 52%)", fontFamily: "'Heebo', sans-serif" }}>
-              ללא כרטיס אשראי · 2 דקות להתחלה
+            <span style={{ fontSize: "0.75rem", color: "hsl(210 8% 52%)" }}>
+              ללא כרטיס אשראי - 2 דקות להתחלה
             </span>
           </div>
         </div>
 
-        {/* Leaderboard card floating below hero text */}
+        {/* Leaderboard preview card */}
         <div style={{
           marginTop: "3rem",
           width: "100%",
@@ -323,7 +293,7 @@ const LandingPage = () => {
           zIndex: 2,
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-            <span style={{ fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: "0.88rem", color: "hsl(210 11% 14%)" }}>
+            <span style={{ fontWeight: 700, fontSize: "0.88rem", color: "hsl(210 11% 14%)" }}>
               🏆 דירוג החודש
             </span>
             <span style={{
@@ -332,26 +302,24 @@ const LandingPage = () => {
               borderRadius: "100px",
               padding: "2px 10px",
               fontSize: "0.7rem",
-              fontFamily: "'Heebo', sans-serif",
               fontWeight: 600,
             }}>חי</span>
           </div>
           {LEADERS.map((l, i) => (
             <div key={l.name} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: i < 4 ? "10px" : 0 }}>
-              <span style={{ fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: "0.72rem", color: "hsl(210 8% 52%)", width: "16px", textAlign: "center" }}>
+              <span style={{ fontWeight: 700, fontSize: "0.72rem", color: "hsl(210 8% 52%)", width: "16px", textAlign: "center" }}>
                 {i + 1}
               </span>
               <div style={{
                 width: 30, height: 30, borderRadius: "50%",
                 background: l.color,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontFamily: "'Heebo', sans-serif", fontWeight: 700,
-                fontSize: "0.7rem", color: "#fff", flexShrink: 0,
+                fontWeight: 700, fontSize: "0.7rem", color: "#fff", flexShrink: 0,
               }}>{l.avatar}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
-                  <span style={{ fontFamily: "'Heebo', sans-serif", fontSize: "0.78rem", fontWeight: 600, color: "hsl(210 11% 14%)" }}>{l.name}</span>
-                  <span style={{ fontFamily: "'Heebo', sans-serif", fontSize: "0.72rem", color: "hsl(210 8% 52%)" }}>{l.pages} עמ׳</span>
+                  <span style={{ fontSize: "0.78rem", fontWeight: 600, color: "hsl(210 11% 14%)" }}>{l.name}</span>
+                  <span style={{ fontSize: "0.72rem", color: "hsl(210 8% 52%)" }}>{l.pages} עמ׳</span>
                 </div>
                 <div style={{ height: 5, background: "hsl(44 15% 78%)", borderRadius: "100px", overflow: "hidden" }}>
                   <div className="hero-bar" style={{
@@ -368,42 +336,11 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* ══ STATS BAR ════════════════════════════════════════════════ */}
-      <div style={{
-        background: "hsl(126 15% 28%)",
-        padding: "1.5rem 2rem",
-        display: "flex",
-        justifyContent: "center",
-        gap: "clamp(2rem, 8vw, 6rem)",
-        flexWrap: "wrap",
-      }}>
-        {[
-          { val: 847,   suf: "+", label: "קוראים פעילים" },
-          { val: 12453, suf: "",  label: "ספרים בספריות" },
-          { val: 3891,  suf: "+", label: "שעות קריאה" },
-        ].map(({ val, suf, label }) => (
-          <div key={label} style={{ textAlign: "center" }}>
-            <div style={{
-              fontFamily: "'Frank Ruhl Libre', serif",
-              fontWeight: 900, fontSize: "2rem",
-              color: "hsl(28 71% 57%)",
-              lineHeight: 1,
-            }}>
-              <Counter target={val} suffix={suf} />
-            </div>
-            <div style={{ fontFamily: "'Heebo', sans-serif", fontSize: "0.78rem", color: "hsl(44 27% 84% / 0.7)", marginTop: "4px" }}>
-              {label}
-            </div>
-          </div>
-        ))}
-      </div>
-
       {/* ══ FEATURES ═════════════════════════════════════════════════ */}
       <section style={{ padding: "5rem 1.5rem", maxWidth: "720px", margin: "0 auto" }}>
         <div ref={featReveal.ref}>
           <p className={`reveal-up${featReveal.visible ? " visible" : ""}`} style={{
             textAlign: "center",
-            fontFamily: "'Heebo', sans-serif",
             fontWeight: 700,
             fontSize: "0.78rem",
             letterSpacing: "0.12em",
@@ -415,8 +352,6 @@ const LandingPage = () => {
           </p>
           <h2 className={`reveal-up${featReveal.visible ? " visible" : ""}`} style={{
             textAlign: "center",
-            fontFamily: "'Frank Ruhl Libre', serif",
-            fontWeight: 900,
             fontSize: "clamp(1.8rem, 5vw, 2.5rem)",
             color: "hsl(210 11% 10%)",
             marginBottom: "3rem",
@@ -443,14 +378,12 @@ const LandingPage = () => {
                 <span style={{ fontSize: "2rem", lineHeight: 1, flexShrink: 0 }}>{f.icon}</span>
                 <div>
                   <h3 style={{
-                    fontFamily: "'Heebo', sans-serif",
                     fontWeight: 700,
                     fontSize: "1rem",
                     color: "hsl(210 11% 14%)",
                     marginBottom: "0.4rem",
                   }}>{f.title}</h3>
                   <p style={{
-                    fontFamily: "'Heebo', sans-serif",
                     fontWeight: 400,
                     fontSize: "0.9rem",
                     color: "hsl(210 8% 40%)",
@@ -467,7 +400,6 @@ const LandingPage = () => {
       <section style={{ padding: "4rem 1.5rem", background: "hsl(44 20% 80%)" }}>
         <div ref={lbReveal.ref} style={{ maxWidth: "480px", margin: "0 auto" }}>
           <p className={`reveal-up${lbReveal.visible ? " visible" : ""}`} style={{
-            fontFamily: "'Heebo', sans-serif",
             fontWeight: 700,
             fontSize: "0.78rem",
             letterSpacing: "0.12em",
@@ -478,8 +410,6 @@ const LandingPage = () => {
             תחרות אמיתית
           </p>
           <h2 className={`reveal-up${lbReveal.visible ? " visible" : ""}`} style={{
-            fontFamily: "'Frank Ruhl Libre', serif",
-            fontWeight: 900,
             fontSize: "clamp(1.7rem, 5vw, 2.3rem)",
             color: "hsl(210 11% 10%)",
             lineHeight: 1.15,
@@ -490,7 +420,6 @@ const LandingPage = () => {
             <span style={{ color: "hsl(28 71% 57%)" }}>החודש?</span>
           </h2>
           <p className={`reveal-up${lbReveal.visible ? " visible" : ""}`} style={{
-            fontFamily: "'Heebo', sans-serif",
             fontSize: "0.92rem",
             color: "hsl(210 8% 42%)",
             lineHeight: 1.6,
@@ -500,7 +429,6 @@ const LandingPage = () => {
             ראה בזמן אמת כמה עמודים קרא כל חבר. המוטיבציה מגיעה לבד.
           </p>
 
-          {/* Full-detail leaderboard */}
           <div className={`reveal-scale${lbReveal.visible ? " visible" : ""}`} style={{
             background: "hsl(44 22% 90%)",
             border: "1px solid hsl(44 12% 74%)",
@@ -509,7 +437,6 @@ const LandingPage = () => {
             boxShadow: "0 12px 40px hsl(210 11% 14% / 0.12)",
             transitionDelay: "0.3s",
           }}>
-            {/* header */}
             <div style={{
               padding: "1rem 1.25rem",
               borderBottom: "1px solid hsl(44 12% 74%)",
@@ -517,11 +444,10 @@ const LandingPage = () => {
               alignItems: "center",
               justifyContent: "space-between",
             }}>
-              <span style={{ fontFamily: "'Heebo', sans-serif", fontWeight: 700, fontSize: "0.85rem" }}>
-                🏆 אתגר ינואר — "100 ספרים ביחד"
+              <span style={{ fontWeight: 700, fontSize: "0.85rem" }}>
+                🏆 אתגר ינואר - "100 ספרים ביחד"
               </span>
               <span style={{
-                fontFamily: "'Heebo', sans-serif",
                 fontSize: "0.7rem",
                 background: "hsl(28 71% 57% / 0.12)",
                 color: "hsl(28 71% 40%)",
@@ -541,7 +467,6 @@ const LandingPage = () => {
                 background: i === 0 ? "hsl(28 71% 57% / 0.04)" : "transparent",
               }}>
                 <span style={{
-                  fontFamily: "'Frank Ruhl Libre', serif",
                   fontWeight: 900,
                   fontSize: i === 0 ? "1.1rem" : "0.85rem",
                   color: i === 0 ? "hsl(28 71% 50%)" : "hsl(210 8% 60%)",
@@ -554,20 +479,17 @@ const LandingPage = () => {
                   width: 36, height: 36, borderRadius: "50%",
                   background: l.color,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontFamily: "'Heebo', sans-serif", fontWeight: 700,
-                  fontSize: "0.8rem", color: "#fff", flexShrink: 0,
+                  fontWeight: 700, fontSize: "0.8rem", color: "#fff", flexShrink: 0,
                   boxShadow: i === 0 ? `0 0 0 2px hsl(28 71% 57% / 0.4)` : "none",
                 }}>{l.avatar}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
                     <span style={{
-                      fontFamily: "'Heebo', sans-serif",
                       fontWeight: i === 0 ? 700 : 500,
                       fontSize: "0.85rem",
                       color: "hsl(210 11% 14%)",
                     }}>{l.name}</span>
                     <span style={{
-                      fontFamily: "'Frank Ruhl Libre', serif",
                       fontWeight: 700,
                       fontSize: "0.82rem",
                       color: l.color,
@@ -586,15 +508,8 @@ const LandingPage = () => {
               </div>
             ))}
 
-            <div style={{
-              padding: "0.9rem 1.25rem",
-              textAlign: "center",
-            }}>
-              <span style={{
-                fontFamily: "'Heebo', sans-serif",
-                fontSize: "0.78rem",
-                color: "hsl(210 8% 52%)",
-              }}>
+            <div style={{ padding: "0.9rem 1.25rem", textAlign: "center" }}>
+              <span style={{ fontSize: "0.78rem", color: "hsl(210 8% 52%)" }}>
                 הצטרף כדי לראות את הדירוג המלא שלך 👇
               </span>
             </div>
@@ -607,7 +522,6 @@ const LandingPage = () => {
         <div ref={stepsReveal.ref}>
           <p className={`reveal-up${stepsReveal.visible ? " visible" : ""}`} style={{
             textAlign: "center",
-            fontFamily: "'Heebo', sans-serif",
             fontWeight: 700,
             fontSize: "0.78rem",
             letterSpacing: "0.12em",
@@ -619,8 +533,6 @@ const LandingPage = () => {
           </p>
           <h2 className={`reveal-up${stepsReveal.visible ? " visible" : ""}`} style={{
             textAlign: "center",
-            fontFamily: "'Frank Ruhl Libre', serif",
-            fontWeight: 900,
             fontSize: "clamp(1.7rem, 5vw, 2.2rem)",
             color: "hsl(210 11% 10%)",
             marginBottom: "3rem",
@@ -629,7 +541,7 @@ const LandingPage = () => {
             שלושה צעדים ואתה בתוך זה
           </h2>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             {STEPS.map((s, i) => (
               <div key={s.n}
                 className={`reveal-up${stepsReveal.visible ? " visible" : ""}`}
@@ -641,7 +553,6 @@ const LandingPage = () => {
                   paddingBottom: i < 2 ? "2rem" : 0,
                   position: "relative",
                 }}>
-                {/* Vertical connector */}
                 {i < 2 && (
                   <div style={{
                     position: "absolute",
@@ -652,14 +563,12 @@ const LandingPage = () => {
                     background: "hsl(44 12% 74%)",
                   }} />
                 )}
-                {/* Number badge */}
                 <div style={{
                   width: 40, height: 40, borderRadius: "50%",
                   background: i === 0 ? "hsl(28 71% 57%)" : "hsl(44 22% 90%)",
                   border: `2px solid ${i === 0 ? "hsl(28 71% 57%)" : "hsl(44 12% 74%)"}`,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   flexShrink: 0,
-                  fontFamily: "'Frank Ruhl Libre', serif",
                   fontWeight: 900,
                   fontSize: "0.85rem",
                   color: i === 0 ? "#fff" : "hsl(210 8% 52%)",
@@ -668,14 +577,12 @@ const LandingPage = () => {
                 }}>{s.n}</div>
                 <div style={{ paddingTop: "6px" }}>
                   <h3 style={{
-                    fontFamily: "'Heebo', sans-serif",
                     fontWeight: 700,
                     fontSize: "1rem",
                     color: "hsl(210 11% 14%)",
                     marginBottom: "0.3rem",
                   }}>{s.title}</h3>
                   <p style={{
-                    fontFamily: "'Heebo', sans-serif",
                     fontSize: "0.88rem",
                     color: "hsl(210 8% 42%)",
                     lineHeight: 1.6,
@@ -695,7 +602,6 @@ const LandingPage = () => {
         position: "relative",
         overflow: "hidden",
       }}>
-        {/* Background pattern */}
         <div style={{
           position: "absolute", inset: 0,
           backgroundImage: "radial-gradient(circle at 30% 50%, hsl(126 18% 35% / 0.6) 0%, transparent 60%), radial-gradient(circle at 80% 20%, hsl(28 71% 57% / 0.15) 0%, transparent 50%)",
@@ -704,7 +610,6 @@ const LandingPage = () => {
 
         <div style={{ position: "relative", zIndex: 1 }}>
           <p style={{
-            fontFamily: "'Heebo', sans-serif",
             fontWeight: 700,
             fontSize: "0.78rem",
             letterSpacing: "0.14em",
@@ -716,8 +621,6 @@ const LandingPage = () => {
           </p>
 
           <h2 style={{
-            fontFamily: "'Frank Ruhl Libre', serif",
-            fontWeight: 900,
             fontSize: "clamp(2rem, 6vw, 3rem)",
             color: "hsl(44 27% 84%)",
             lineHeight: 1.1,
@@ -728,14 +631,13 @@ const LandingPage = () => {
           </h2>
 
           <p style={{
-            fontFamily: "'Heebo', sans-serif",
             fontSize: "0.95rem",
             color: "hsl(44 27% 84% / 0.7)",
             marginBottom: "2.5rem",
             lineHeight: 1.6,
           }}>
-            הפוך את הקריאה לחוויה חברותית.<br />
-            פחות Goodreads, יותר Strava לספרים.
+            הפוך את הקריאה לחוויה חברתית.<br />
+            עקוב, התחרה, ועלה בדירוג.
           </p>
 
           <button onClick={() => navigate("/auth")} style={{
@@ -744,7 +646,6 @@ const LandingPage = () => {
             border: "none",
             borderRadius: "12px",
             padding: "18px 48px",
-            fontFamily: "'Heebo', sans-serif",
             fontWeight: 800,
             fontSize: "1.1rem",
             cursor: "pointer",
@@ -760,16 +661,15 @@ const LandingPage = () => {
               (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px hsl(28 71% 57% / 0.5)";
             }}
           >
-            הצטרף עכשיו — חינם →
+            ← הצטרף עכשיו - חינם
           </button>
 
           <p style={{
             marginTop: "1rem",
-            fontFamily: "'Heebo', sans-serif",
             fontSize: "0.75rem",
             color: "hsl(44 27% 84% / 0.45)",
           }}>
-            כניסה עם Google · ללא כרטיס אשראי
+            כניסה עם Google - ללא כרטיס אשראי
           </p>
         </div>
       </section>
@@ -780,12 +680,8 @@ const LandingPage = () => {
         textAlign: "center",
         borderTop: "1px solid hsl(44 12% 74%)",
       }}>
-        <span style={{
-          fontFamily: "'Heebo', sans-serif",
-          fontSize: "0.75rem",
-          color: "hsl(210 8% 60%)",
-        }}>
-          © 2026 AMUD · כל הזכויות שמורות
+        <span style={{ fontSize: "0.75rem", color: "hsl(210 8% 60%)" }}>
+          © 2026 AMUD - כל הזכויות שמורות
         </span>
       </footer>
     </div>
