@@ -13,6 +13,7 @@ import PostThread from "./pages/PostThread";
 import ChallengeDetail from "./pages/ChallengeDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import LandingPage from "./pages/LandingPage";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import BottomNav from "./components/BottomNav";
@@ -73,7 +74,7 @@ const AppRoutes = () => {
         path="/*"
         element={
           !user ? (
-            <Navigate to="/auth" replace />
+            <LandingPage />
           ) : needsOnboarding ? (
             <Navigate to="/onboarding" replace />
           ) : (
