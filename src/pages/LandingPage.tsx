@@ -30,21 +30,21 @@ const LEADERS = [
 /* ─── Feature cards data ──────────────────────────────────────────── */
 const FEATURES = [
   {
-    icon: "📚",
-    title: "ספרייה חכמה",
-    desc: "עקוב אחרי כל ספר שקראת, קורא עכשיו ורוצה לקרוא. חפש מיליוני ספרים.",
+    icon: "👀",
+    title: "ראה מה חברים קוראים",
+    desc: "הפיד מראה בזמן אמת מה כל חבר קורא עכשיו. זה מדבק - ברגע שאתה רואה, אתה רוצה לקרוא גם.",
     accent: "#3C513E",
   },
   {
-    icon: "🏆",
-    title: "לוח דירוגים",
-    desc: "ראה בזמן אמת מי מוביל בין חבריך. כמה עמודים, כמה שעות, כמה ספרים.",
+    icon: "📚",
+    title: "ספרייה אישית",
+    desc: "עקוב אחרי כל ספר שקראת, קורא עכשיו ורוצה לקרוא. תעד עמודים ובנה היסטוריה.",
     accent: "#E08E45",
   },
   {
     icon: "⚔️",
-    title: "אתגרי קריאה",
-    desc: "צור או הצטרף לאתגרים - מי גומר 5 ספרים ראשון? מי קורא 100 שעות?",
+    title: "אתגרים ודירוגים",
+    desc: "אתגרי קריאה קבוצתיים ולוח דירוגים - כי קצת תחרות לא הזיקה לאף אחד.",
     accent: "#007788",
   },
 ];
@@ -221,9 +221,9 @@ const LandingPage = () => {
             animation: heroReveal.visible ? "fadeUp 0.7s ease 0.1s forwards" : "none",
             opacity: 0,
           }}>
-            ספרים<br />
-            <span style={{ color: "hsl(126 15% 28%)" }}>הם ספורט</span><br />
-            קבוצתי
+            כשחברים שלך<br />
+            <span style={{ color: "hsl(126 15% 28%)" }}>קוראים,</span><br />
+            אתה קורא
           </h1>
 
           {/* Sub */}
@@ -235,8 +235,8 @@ const LandingPage = () => {
             animation: heroReveal.visible ? "fadeUp 0.7s ease 0.2s forwards" : "none",
             opacity: 0,
           }}>
-            עקוב אחרי הקריאה שלך, התחרה עם חברים<br />
-            ועלה בלוח הדירוגים.
+            עמוד מראה לך מה חברים שלך קוראים עכשיו.<br />
+            זה בדיוק מה שגורם לך לפתוח ספר.
           </p>
 
           {/* CTA */}
@@ -269,7 +269,7 @@ const LandingPage = () => {
                 (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px hsl(28 71% 57% / 0.35)";
               }}
             >
-              ← הצטרף חינם
+              הצטרף חינם ←
             </button>
             <span style={{ fontSize: "0.75rem", color: "hsl(210 8% 52%)" }}>
               ללא כרטיס אשראי - 2 דקות להתחלה
@@ -416,8 +416,8 @@ const LandingPage = () => {
             marginBottom: "0.6rem",
             transitionDelay: "0.1s",
           }}>
-            מי קורא הכי הרבה<br />
-            <span style={{ color: "hsl(28 71% 57%)" }}>החודש?</span>
+            מיכל קראה 847 עמודים<br />
+            <span style={{ color: "hsl(28 71% 57%)" }}>השבוע.</span>
           </h2>
           <p className={`reveal-up${lbReveal.visible ? " visible" : ""}`} style={{
             fontSize: "0.92rem",
@@ -426,7 +426,7 @@ const LandingPage = () => {
             marginBottom: "2rem",
             transitionDelay: "0.2s",
           }}>
-            ראה בזמן אמת כמה עמודים קרא כל חבר. המוטיבציה מגיעה לבד.
+            כשאתה רואה שחבר שלך קורא, המוטיבציה מגיעה לבד. אין צורך בתזכורות.
           </p>
 
           <div className={`reveal-scale${lbReveal.visible ? " visible" : ""}`} style={{
@@ -636,8 +636,8 @@ const LandingPage = () => {
             marginBottom: "2.5rem",
             lineHeight: 1.6,
           }}>
-            הפוך את הקריאה לחוויה חברתית.<br />
-            עקוב, התחרה, ועלה בדירוג.
+            ראה מה חברים שלך קוראים - הם יראו מה אתה קורא.<br />
+            כולם קוראים יותר.
           </p>
 
           <button onClick={() => navigate("/auth")} style={{
@@ -661,7 +661,7 @@ const LandingPage = () => {
               (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px hsl(28 71% 57% / 0.5)";
             }}
           >
-            ← הצטרף עכשיו - חינם
+            הצטרף עכשיו - חינם ←
           </button>
 
           <p style={{
