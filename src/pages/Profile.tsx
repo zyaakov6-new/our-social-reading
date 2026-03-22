@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera } from "lucide-react";
+import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera, Share2 } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
+import InviteModal from "@/components/InviteModal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -32,6 +33,7 @@ const Profile = () => {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [editMinutes, setEditMinutes] = useState("");
   const [editPages, setEditPages] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -212,12 +214,22 @@ const Profile = () => {
               <p className="font-quote text-[10px] text-muted-foreground mt-0.5">הפרופיל שלי</p>
             </div>
           </div>
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="h-9 w-9 rounded-full bg-muted/80 flex items-center justify-center hover:bg-accent transition-colors"
-          >
-            <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setInviteOpen(true)}
+              className="h-9 w-9 rounded-full flex items-center justify-center transition-colors"
+              style={{ background: "hsl(28 71% 57% / 0.12)", color: "hsl(28 71% 45%)" }}
+              title="הזמן חברים"
+            >
+              <Share2 size={17} strokeWidth={1.8} />
+            </button>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="h-9 w-9 rounded-full bg-muted/80 flex items-center justify-center hover:bg-accent transition-colors"
+            >
+              <Settings size={18} strokeWidth={1.5} className="text-muted-foreground" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -387,6 +399,7 @@ const Profile = () => {
       </div>
 
       <SettingsSidebar open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent dir="rtl">

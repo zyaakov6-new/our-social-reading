@@ -45,18 +45,33 @@ const Auth = () => {
     }
   };
 
+  /** After signup, auto-connect with whoever shared the invite link */
+  const handleReferral = async (newUserId: string) => {
+    const referrerId = localStorage.getItem("amud_referral");
+    if (!referrerId || referrerId === newUserId) return;
+    try {
+      await supabase.from("friendships").upsert(
+        { requester_id: newUserId, addressee_id: referrerId, status: "accepted" },
+        { onConflict: "requester_id,addressee_id" }
+      );
+      localStorage.removeItem("amud_referral");
+    } catch {
+      // non-critical — silently ignore
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { full_name: name }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("נרשמת בהצלחה! בדקו את האימייל לאישור");
+        if (data.user) await handleReferral(data.user.id);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;

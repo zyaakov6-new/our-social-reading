@@ -1,6 +1,7 @@
 import { Analytics } from "@vercel/analytics/react";
+import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,27 +17,46 @@ import Auth from "./pages/Auth";
 import LandingPage from "./pages/LandingPage";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
+import SharePage from "./pages/SharePage";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { staleTime: 3 * 60 * 1000 } },
+});
+
+/** Stores referral ID in localStorage then redirects to /auth or / */
+const JoinRedirect = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) localStorage.setItem("amud_referral", ref);
+    navigate(user ? "/" : "/auth", { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  return null;
+};
 
 const AppLayout = () => (
   <>
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/books" element={<Home />} />
-      <Route path="/challenges" element={<Home />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/user/:userId" element={<UserProfilePage />} />
-      <Route path="/posts" element={<PostsFeed />} />
-      <Route path="/post/:postId" element={<PostThread />} />
-      <Route path="/challenge/:id" element={<ChallengeDetail />} />
-      <Route path="/friends" element={<Friends />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/"               element={<Home />} />
+      <Route path="/books"          element={<Home />} />
+      <Route path="/challenges"     element={<Home />} />
+      <Route path="/profile"        element={<Profile />} />
+      <Route path="/user/:userId"   element={<UserProfilePage />} />
+      <Route path="/posts"          element={<PostsFeed />} />
+      <Route path="/post/:postId"   element={<PostThread />} />
+      <Route path="/challenge/:id"  element={<ChallengeDetail />} />
+      <Route path="/friends"        element={<Friends />} />
+      <Route path="/onboarding"     element={<Onboarding />} />
+      <Route path="/share/:userId"  element={<SharePage />} />
+      <Route path="*"               element={<NotFound />} />
     </Routes>
     <ReadingFAB />
     <HamburgerMenu />
@@ -62,6 +82,10 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      {/* Public routes — accessible without login */}
+      <Route path="/share/:userId" element={<SharePage />} />
+      <Route path="/join"          element={<JoinRedirect />} />
+
       <Route
         path="/auth"
         element={user ? <Navigate to="/" replace /> : <Auth />}

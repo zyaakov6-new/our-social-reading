@@ -1,9 +1,11 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Share2 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import InviteModal from "./InviteModal";
+import { useStreak } from "@/hooks/useStreak";
 
 const links = [
   { path: "/",           label: "בית",    icon: Home,          desc: "עמוד הבית" },
@@ -19,6 +21,8 @@ const HamburgerMenu = () => {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const { streak } = useStreak();
 
   useEffect(() => {
     if (!user) return;
@@ -126,7 +130,14 @@ const HamburgerMenu = () => {
                 </div>
                 <div className="text-right flex-1 min-w-0">
                   <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">הצג פרופיל ←</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <p className="text-xs text-muted-foreground">הצג פרופיל ←</p>
+                    {streak > 0 && (
+                      <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: "hsl(28 71% 57%)" }}>
+                        🔥{streak}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </button>
 
@@ -180,6 +191,27 @@ const HamburgerMenu = () => {
                 })}
               </nav>
 
+              {/* Invite friends */}
+              <div className="px-3 pb-3">
+                <button
+                  onClick={() => { setInviteOpen(true); setOpen(false); }}
+                  className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right font-medium text-sm transition-all"
+                  style={{
+                    background: "hsl(28 71% 57% / 0.1)",
+                    color: "hsl(28 71% 45%)",
+                    border: "1px solid hsl(28 71% 57% / 0.2)",
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.18)"; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.1)"; }}
+                >
+                  <Share2 size={18} strokeWidth={1.8} />
+                  <div className="text-right">
+                    <p className="text-sm font-bold">הזמן חברים</p>
+                    <p className="text-[11px] opacity-70">שתף קישור ייחודי</p>
+                  </div>
+                </button>
+              </div>
+
               {/* Footer — sign out */}
               <div
                 className="px-3 py-4"
@@ -203,6 +235,7 @@ const HamburgerMenu = () => {
           </>
         )}
       </AnimatePresence>
+      <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
     </>
   );
 };
