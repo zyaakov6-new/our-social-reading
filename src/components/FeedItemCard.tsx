@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
+import AuthGateModal from "./AuthGateModal";
 
 const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null }) => {
   const [idx, setIdx] = useState(0);
@@ -29,13 +30,13 @@ const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null
   );
 };
 
-const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl }: { bookId: string; bookTitle: string; bookAuthor: string; coverUrl?: string }) => {
+const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl, onGate }: { bookId: string; bookTitle: string; bookAuthor: string; coverUrl?: string; onGate?: () => void }) => {
   const [added, setAdded] = useState(false);
   const [open, setOpen] = useState(false);
 
   const addBook = async (status: 'want' | 'reading' | 'finished') => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) { onGate?.(); return; }
     // Check if already in library
     const { data: existing } = await supabase.from('books').select('id').eq('user_id', user.id).eq('title', bookTitle).maybeSingle();
     if (existing) { toast.success('הספר כבר בספרייה שלך'); setOpen(false); return; }
@@ -54,7 +55,7 @@ const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl }: { bookI
     <div className="mr-auto relative">
       {!open ? (
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => onGate ? onGate() : setOpen(true)}
           className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
         >
           <BookOpen size={13} strokeWidth={1.5} />
@@ -91,9 +92,12 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  // null = still loading, number/bool = loaded
   const [countsReady, setCountsReady] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [gateAction, setGateAction] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const openGate = (action: string) => { setGateAction(action); setGateOpen(true); };
 
   // On mount: fetch likes + comment count + current user in parallel
   useEffect(() => {
@@ -142,7 +146,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   };
 
   const toggleLike = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) { openGate("לאהוב פוסטים"); return; }
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
@@ -160,7 +164,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
 
   const submitComment = async () => {
     if (!commentText.trim() || submitting) return;
-    if (!currentUserId) { toast.error("יש להתחבר כדי להגיב"); return; }
+    if (!currentUserId) { openGate("להגיב"); return; }
     setSubmitting(true);
     try {
       const [{ data: profile }, { data: { user: authUser } }] = await Promise.all([
@@ -220,6 +224,8 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const avatarBg = AVATAR_COLORS[firstChar] ?? 'hsl(126 15% 28%)';
 
   return (
+    <>
+    <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action={gateAction} />
     <div className="bg-card rounded-2xl overflow-hidden card-shadow animate-fade-slide-up"
       style={{ border: '1px solid hsl(44 15% 80%)' }}>
 
@@ -281,7 +287,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             </button>
 
             <button
-              onClick={() => setShowComments(v => !v)}
+              onClick={() => currentUserId ? setShowComments(v => !v) : openGate("להגיב ולראות תגובות")}
               className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm transition-colors ${
                 showComments ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/10"
               }`}
@@ -290,7 +296,13 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               {commentCount > 0 && <span className="text-xs font-medium">{commentCount}</span>}
             </button>
             {!item.isMe && (
-              <AddToLibraryButton bookId={item.bookId} bookTitle={item.bookTitle} bookAuthor={item.bookAuthor || ''} coverUrl={item.coverUrl} />
+              <AddToLibraryButton
+                bookId={item.bookId}
+                bookTitle={item.bookTitle}
+                bookAuthor={item.bookAuthor || ''}
+                coverUrl={item.coverUrl}
+                onGate={!currentUserId ? () => openGate("להוסיף ספרים לספרייה") : undefined}
+              />
             )}
           </>
         )}
@@ -368,6 +380,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

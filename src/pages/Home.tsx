@@ -19,7 +19,27 @@ import { supabase } from "@/integrations/supabase/client";
 type Tab = 'feed' | 'challenges' | 'books';
 
 const ChallengesTab = () => {
+  const { user } = useAuth();
   const { challenges, loading, joinChallenge } = useChallenges();
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 px-4">
+        <div className="text-4xl">🏆</div>
+        <h3 className="font-serif font-bold text-lg">אתגרי קריאה</h3>
+        <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+          הצטרף לאתגרים עם חברים — מי יקרא הכי הרבה דקות השבוע?
+        </p>
+        <button
+          onClick={() => window.location.href = "/auth"}
+          className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90"
+          style={{ background: 'hsl(126 15% 28%)' }}
+        >
+          הצטרף כדי להשתתף ←
+        </button>
+      </div>
+    );
+  }
   const [createOpen, setCreateOpen] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
 

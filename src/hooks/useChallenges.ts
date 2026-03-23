@@ -30,7 +30,7 @@ export const useChallenges = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchChallenges = useCallback(async () => {
-    if (!user) return;
+    if (!user) { setLoading(false); return; }
     setLoading(true);
     try {
       // Get all challenges where user is participant or creator
