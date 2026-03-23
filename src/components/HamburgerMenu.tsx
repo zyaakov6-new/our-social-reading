@@ -16,9 +16,10 @@ const authLinks = [
 ];
 
 const guestLinks = [
-  { path: "/feed",       label: "פיד",    icon: Home,   desc: "מה הקהילה קוראת" },
-  { path: "/books",      label: "ספרים",  icon: BookOpen, desc: "ספריית הספרים" },
-  { path: "/challenges", label: "אתגרים", icon: Trophy,  desc: "אתגרי קריאה" },
+  { path: "/feed",       label: "פיד",    icon: Home,          desc: "מה הקהילה קוראת" },
+  { path: "/posts",      label: "פורום",  icon: MessageSquare, desc: "שיחות ודיונים" },
+  { path: "/books",      label: "ספרים",  icon: BookOpen,      desc: "ספריית הספרים" },
+  { path: "/challenges", label: "אתגרים", icon: Trophy,        desc: "אתגרי קריאה" },
 ];
 
 const HamburgerMenu = () => {
