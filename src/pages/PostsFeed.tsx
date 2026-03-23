@@ -4,6 +4,8 @@ import { Heart, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import CreatePostDialog from "@/components/CreatePostDialog";
+import AuthGateModal from "@/components/AuthGateModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 type Category = 'review' | 'discussion' | 'question' | 'recommendation';
 
@@ -125,10 +127,12 @@ const PostCard = ({
 
 const PostsFeed = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState<Category>('discussion');
+  const [gateOpen, setGateOpen] = useState(false);
 
   useEffect(() => { fetchPosts(); }, []);
 
@@ -166,6 +170,7 @@ const PostsFeed = () => {
   };
 
   const openCreate = (cat: Category) => {
+    if (!user) { setGateOpen(true); return; }
     setInitialCategory(cat);
     setCreateOpen(true);
   };
@@ -263,6 +268,7 @@ const PostsFeed = () => {
         onCreated={fetchPosts}
         initialCategory={initialCategory}
       />
+      <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action="לפרסם פוסט" />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { ArrowRight, Heart, Send, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import AuthGateModal from "@/components/AuthGateModal";
 
 interface Post {
   id: string;
@@ -34,7 +35,11 @@ const PostThread = () => {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [gateAction, setGateAction] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const openGate = (action: string) => { setGateAction(action); setGateOpen(true); };
 
   useEffect(() => {
     if (!postId) return;
@@ -86,7 +91,7 @@ const PostThread = () => {
   };
 
   const toggleLike = async () => {
-    if (!currentUserId) return;
+    if (!currentUserId) { openGate("לאהוב פוסטים"); return; }
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
@@ -104,7 +109,7 @@ const PostThread = () => {
 
   const submitComment = async () => {
     if (!commentText.trim() || submitting) return;
-    if (!currentUserId) { toast.error("יש להתחבר כדי להגיב"); return; }
+    if (!currentUserId) { openGate("להגיב"); return; }
     setSubmitting(true);
     try {
       const [{ data: profile }, { data: { user: authUser } }] = await Promise.all([
@@ -177,6 +182,8 @@ const PostThread = () => {
   }
 
   return (
+    <>
+    <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action={gateAction} />
     <div className="min-h-screen pb-28 bg-background" dir="rtl">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-5 pb-4 border-b border-border/40">
@@ -283,7 +290,8 @@ const PostThread = () => {
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitComment(); } }}
-              placeholder="הוסף תגובה..."
+              onFocus={() => { if (!currentUserId) { openGate("להגיב"); (inputRef.current as HTMLInputElement | null)?.blur(); } }}
+              placeholder={currentUserId ? "הוסף תגובה..." : "התחבר כדי להגיב..."}
               dir="rtl"
               className="flex-1 text-sm bg-muted/50 border border-border/50 rounded-lg px-3 py-2 outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/60 text-right"
             />
@@ -298,6 +306,7 @@ const PostThread = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

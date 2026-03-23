@@ -66,12 +66,14 @@ const AppLayout = () => (
 );
 
 /** Routes accessible to guests (read-only view of the app) */
-const GUEST_BROWSEABLE = ['/feed', '/books', '/challenges'];
+const GUEST_BROWSEABLE = ['/feed', '/books', '/challenges', '/posts'];
 
 /** When unauthenticated: landing page at /, read-only app at /feed /books /challenges */
 const GuestRoutes = () => {
   const location = useLocation();
-  if (GUEST_BROWSEABLE.includes(location.pathname)) return <AppLayout />;
+  const browseable = GUEST_BROWSEABLE.includes(location.pathname)
+    || location.pathname.startsWith('/post/');
+  if (browseable) return <AppLayout />;
   return <LandingPage />;
 };
 

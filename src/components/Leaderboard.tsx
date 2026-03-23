@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
+import AuthGateModal from "./AuthGateModal";
 
 interface LeaderboardEntry {
   userId: string;
@@ -35,6 +36,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [hasFriends, setHasFriends] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [gateOpen, setGateOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -166,25 +168,28 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   // No friends yet — show invite CTA
   if (!hasFriends) {
     return (
-      <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
-        <div className="flex items-center gap-2 px-4 py-3"
-          style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
-          <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
-          <h3 className="font-bold text-sm">מובילי השבוע</h3>
+      <>
+        <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action="להוסיף חברים" />
+        <div className="rounded-xl bg-card card-shadow overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)' }}>
+          <div className="flex items-center gap-2 px-4 py-3"
+            style={{ borderBottom: '1px solid hsl(44 12% 76% / 0.6)' }}>
+            <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
+            <h3 className="font-bold text-sm">מובילי השבוע</h3>
+          </div>
+          <div className="px-4 py-5 text-center space-y-3">
+            <p className="text-sm font-serif font-bold">טבלת מנצחים ריקה</p>
+            <p className="text-xs text-muted-foreground">הוסף חברים כדי להתחרות ולראות מי קורא הכי הרבה</p>
+            <button
+              onClick={() => !user ? setGateOpen(true) : onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              style={{ background: 'hsl(126 15% 28%)' }}
+            >
+              <UserPlus size={14} strokeWidth={1.5} />
+              הוסף חברים
+            </button>
+          </div>
         </div>
-        <div className="px-4 py-5 text-center space-y-3">
-          <p className="text-sm font-serif font-bold">טבלת מנצחים ריקה</p>
-          <p className="text-xs text-muted-foreground">הוסף חברים כדי להתחרות ולראות מי קורא הכי הרבה</p>
-          <button
-            onClick={() => onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-            style={{ background: 'hsl(126 15% 28%)' }}
-          >
-            <UserPlus size={14} strokeWidth={1.5} />
-            הוסף חברים
-          </button>
-        </div>
-      </div>
+      </>
     );
   }
 
