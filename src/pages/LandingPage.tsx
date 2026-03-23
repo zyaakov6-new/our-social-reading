@@ -275,13 +275,12 @@ export default function LandingPage() {
             display: "flex", flexWrap: "wrap", alignItems: "center", gap: 20,
             animation: "fadeUp .7s ease .38s forwards", opacity: 0,
           }}>
-            <button className="btn-primary" onClick={() => navigate("/auth")}>
-              הצטרף חינם ←
+            <button className="btn-primary" onClick={() => navigate("/feed")}>
+              נסה עכשיו ←
             </button>
-            <button className="btn-outline" onClick={() => navigate("/feed")}
-              style={{ color: `${VELLUM}bb`, borderColor: `${VELLUM}33` }}>
-              צפה בלי להירשם
-            </button>
+            <span style={{ fontFamily: "'Heebo', sans-serif", fontSize: "0.75rem", color: `${VELLUM}55` }}>
+              בחינם, ללא הרשמה
+            </span>
           </div>
         </div>
 
