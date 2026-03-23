@@ -46,6 +46,7 @@ const AppLayout = () => (
   <>
     <Routes>
       <Route path="/"               element={<Home />} />
+      <Route path="/feed"           element={<Home />} />
       <Route path="/books"          element={<Home />} />
       <Route path="/challenges"     element={<Home />} />
       <Route path="/profile"        element={<Profile />} />
