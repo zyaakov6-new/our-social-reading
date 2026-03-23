@@ -5,11 +5,14 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import AuthGateModal from "./AuthGateModal";
 
 type TimerState = 'idle' | 'select' | 'running' | 'paused' | 'confirm' | 'done';
 
 const ReadingFAB = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [state, setState] = useState<TimerState>('idle');
   const [selectedBookId, setSelectedBookId] = useState<string>('');
   const [seconds, setSeconds] = useState(0);
@@ -17,6 +20,7 @@ const ReadingFAB = () => {
   const [manualMinutes, setManualMinutes] = useState('');
   const [currentPageInput, setCurrentPageInput] = useState('');
   const [saving, setSaving] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
 
   const { books } = useBooks();
   const currentBooks = books;
@@ -100,6 +104,8 @@ const ReadingFAB = () => {
 
   return (
     <>
+      <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action="לרשום קריאה" />
+
       {state === 'idle' && (
         <motion.div
           initial={{ scale: 0 }}
@@ -110,7 +116,7 @@ const ReadingFAB = () => {
             <div className="h-16 w-16 rounded-full bg-card shadow-[0_-4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center pointer-events-auto">
               <button
                 type="button"
-                onClick={() => setState('select')}
+                onClick={() => user ? setState('select') : setGateOpen(true)}
                 className="h-12 w-12 rounded-full reading-gradient flex items-center justify-center shadow-md hover:shadow-lg transition-shadow"
                 aria-label="התחל סשן קריאה"
               >

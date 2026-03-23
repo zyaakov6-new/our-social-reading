@@ -37,11 +37,55 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
     const load = async () => {
       setLoading(true);
       try {
-        // Get all accepted friends
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const weekAgoStr = weekAgo.toISOString().split("T")[0];
+
+        if (!user) {
+          // ── Guest mode: show global top readers (no friends filter) ──
+          const { data: sessions } = await supabase
+            .from("reading_sessions")
+            .select("user_id, minutes_read")
+            .gte("session_date", weekAgoStr);
+
+          const minutesMap: Record<string, number> = {};
+          (sessions || []).forEach((s: any) => {
+            minutesMap[s.user_id] = (minutesMap[s.user_id] || 0) + (s.minutes_read || 0);
+          });
+
+          const topIds = Object.entries(minutesMap)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 8)
+            .map(([id]) => id);
+
+          if (topIds.length === 0) { setEntries([]); setLoading(false); return; }
+
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("user_id, display_name")
+            .in("user_id", topIds);
+
+          const profileMap: Record<string, string> = {};
+          (profiles || []).forEach((p: any) => {
+            profileMap[p.user_id] = p.display_name || "קורא";
+          });
+
+          const result: LeaderboardEntry[] = topIds.map(id => ({
+            userId: id,
+            displayName: profileMap[id] || "קורא",
+            weekMinutes: minutesMap[id] || 0,
+            isMe: false,
+          }));
+
+          setHasFriends(true); // treat as "has data" so we show the table
+          setEntries(result);
+          return;
+        }
+
+        // ── Authenticated mode: show user + friends ──
         const { data: friendships } = await supabase
           .from("friendships")
           .select("requester_id, addressee_id")
@@ -66,25 +110,18 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
           profileMap[p.user_id] = p.display_name || "קורא";
         });
 
-        // Get this week's reading sessions
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        const weekAgoStr = weekAgo.toISOString().split("T")[0];
-
         const { data: sessions } = await supabase
           .from("reading_sessions")
           .select("user_id, minutes_read")
           .in("user_id", allIds)
           .gte("session_date", weekAgoStr);
 
-        // Aggregate
         const minutesMap: Record<string, number> = {};
         allIds.forEach(id => { minutesMap[id] = 0; });
         (sessions || []).forEach((s: any) => {
           minutesMap[s.user_id] = (minutesMap[s.user_id] || 0) + (s.minutes_read || 0);
         });
 
-        // For the current user, fall back to auth metadata if no profile row exists
         const myFallbackName =
           user.user_metadata?.full_name ||
           user.email?.split("@")[0] ||
@@ -213,6 +250,21 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
           );
         })}
       </div>
+      {/* Guest CTA: join to appear on the leaderboard */}
+      {!user && (
+        <div className="px-4 py-3 text-center"
+          style={{ borderTop: '1px solid hsl(44 12% 76% / 0.5)', background: 'hsl(126 15% 28% / 0.04)' }}>
+          <p className="text-xs text-muted-foreground mb-2">הצטרף כדי להופיע בדירוג ולהתחרות</p>
+          <button
+            onClick={() => navigate("/auth")}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            style={{ background: 'hsl(126 15% 28%)' }}
+          >
+            <UserPlus size={12} strokeWidth={2} />
+            הצטרף חינם
+          </button>
+        </div>
+      )}
     </div>
   );
 };

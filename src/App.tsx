@@ -1,7 +1,7 @@
 import { Analytics } from "@vercel/analytics/react";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate, useNavigate, useSearchParams } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -64,6 +64,16 @@ const AppLayout = () => (
   </>
 );
 
+/** Routes accessible to guests (read-only view of the app) */
+const GUEST_BROWSEABLE = ['/feed', '/books', '/challenges'];
+
+/** When unauthenticated: landing page at /, read-only app at /feed /books /challenges */
+const GuestRoutes = () => {
+  const location = useLocation();
+  if (GUEST_BROWSEABLE.includes(location.pathname)) return <AppLayout />;
+  return <LandingPage />;
+};
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
@@ -82,7 +92,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public routes — accessible without login */}
+      {/* Always public */}
       <Route path="/share/:userId" element={<SharePage />} />
       <Route path="/join"          element={<JoinRedirect />} />
 
@@ -98,7 +108,7 @@ const AppRoutes = () => {
         path="/*"
         element={
           !user ? (
-            <LandingPage />
+            <GuestRoutes />
           ) : needsOnboarding ? (
             <Navigate to="/onboarding" replace />
           ) : (

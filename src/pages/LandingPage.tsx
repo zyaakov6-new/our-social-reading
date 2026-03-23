@@ -278,9 +278,10 @@ export default function LandingPage() {
             <button className="btn-primary" onClick={() => navigate("/auth")}>
               הצטרף חינם ←
             </button>
-            <span style={{ fontFamily: "'Heebo', sans-serif", fontSize: "0.75rem", color: `${VELLUM}55` }}>
-              ללא כרטיס אשראי
-            </span>
+            <button className="btn-outline" onClick={() => navigate("/feed")}
+              style={{ color: `${VELLUM}bb`, borderColor: `${VELLUM}33` }}>
+              צפה בלי להירשם
+            </button>
           </div>
         </div>
 

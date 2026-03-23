@@ -1,4 +1,4 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Share2 } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Share2, UserPlus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,12 +7,18 @@ import { useAuth } from "@/contexts/AuthContext";
 import InviteModal from "./InviteModal";
 import { useStreak } from "@/hooks/useStreak";
 
-const links = [
+const authLinks = [
   { path: "/",           label: "בית",    icon: Home,          desc: "עמוד הבית" },
   { path: "/challenges", label: "אתגרים", icon: Trophy,         desc: "אתגרי קריאה" },
   { path: "/posts",      label: "פורום",  icon: MessageSquare,  desc: "שיחות ודיונים" },
   { path: "/friends",    label: "חברים",  icon: Users,          desc: "חברים ודירוג" },
   { path: "/books",      label: "ספרים",  icon: BookOpen,       desc: "ספריית הספרים" },
+];
+
+const guestLinks = [
+  { path: "/feed",       label: "פיד",    icon: Home,   desc: "מה הקהילה קוראת" },
+  { path: "/books",      label: "ספרים",  icon: BookOpen, desc: "ספריית הספרים" },
+  { path: "/challenges", label: "אתגרים", icon: Trophy,  desc: "אתגרי קריאה" },
 ];
 
 const HamburgerMenu = () => {
@@ -53,6 +59,7 @@ const HamburgerMenu = () => {
   const displayName =
     user?.user_metadata?.full_name || user?.email?.split("@")[0] || "קורא";
   const initial = displayName.charAt(0).toUpperCase();
+  const links = user ? authLinks : guestLinks;
 
   return (
     <>
@@ -116,30 +123,37 @@ const HamburgerMenu = () => {
                 boxShadow: "4px 0 24px hsl(126 15% 10% / 0.14)",
               }}
             >
-              {/* Header — user card (clickable → profile) */}
-              <button
-                onClick={() => navTo("/profile")}
-                className="flex items-center gap-3 px-5 pt-12 pb-5 w-full text-right hover:bg-black/5 transition-colors"
-                style={{ borderBottom: "1px solid hsl(44 12% 76%)" }}
-              >
-                <div
-                  className="h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg text-white shadow-md overflow-hidden"
-                  style={{ background: "hsl(126 15% 28%)" }}
+              {/* Header */}
+              {user ? (
+                <button
+                  onClick={() => navTo("/profile")}
+                  className="flex items-center gap-3 px-5 pt-12 pb-5 w-full text-right hover:bg-black/5 transition-colors"
+                  style={{ borderBottom: "1px solid hsl(44 12% 76%)" }}
                 >
-                  {initial}
-                </div>
-                <div className="text-right flex-1 min-w-0">
-                  <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <p className="text-xs text-muted-foreground">הצג פרופיל ←</p>
-                    {streak > 0 && (
-                      <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: "hsl(28 71% 57%)" }}>
-                        🔥{streak}
-                      </span>
-                    )}
+                  <div
+                    className="h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-lg text-white shadow-md overflow-hidden"
+                    style={{ background: "hsl(126 15% 28%)" }}
+                  >
+                    {initial}
                   </div>
+                  <div className="text-right flex-1 min-w-0">
+                    <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-xs text-muted-foreground">הצג פרופיל ←</p>
+                      {streak > 0 && (
+                        <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: "hsl(28 71% 57%)" }}>
+                          🔥{streak}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ) : (
+                <div className="px-5 pt-12 pb-5" style={{ borderBottom: "1px solid hsl(44 12% 76%)" }}>
+                  <p className="font-display text-2xl tracking-widest mb-0.5">AMUD</p>
+                  <p className="text-xs text-muted-foreground">פלטפורמת הקריאה החברתית</p>
                 </div>
-              </button>
+              )}
 
               {/* Nav links */}
               <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
@@ -191,46 +205,65 @@ const HamburgerMenu = () => {
                 })}
               </nav>
 
-              {/* Invite friends */}
-              <div className="px-3 pb-3">
-                <button
-                  onClick={() => { setInviteOpen(true); setOpen(false); }}
-                  className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right font-medium text-sm transition-all"
-                  style={{
-                    background: "hsl(28 71% 57% / 0.1)",
-                    color: "hsl(28 71% 45%)",
-                    border: "1px solid hsl(28 71% 57% / 0.2)",
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.18)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.1)"; }}
-                >
-                  <Share2 size={18} strokeWidth={1.8} />
-                  <div className="text-right">
-                    <p className="text-sm font-bold">הזמן חברים</p>
-                    <p className="text-[11px] opacity-70">שתף קישור ייחודי</p>
+              {/* Footer */}
+              {user ? (
+                <>
+                  {/* Invite friends */}
+                  <div className="px-3 pb-3">
+                    <button
+                      onClick={() => { setInviteOpen(true); setOpen(false); }}
+                      className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right font-medium text-sm transition-all"
+                      style={{
+                        background: "hsl(28 71% 57% / 0.1)",
+                        color: "hsl(28 71% 45%)",
+                        border: "1px solid hsl(28 71% 57% / 0.2)",
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.18)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(28 71% 57% / 0.1)"; }}
+                    >
+                      <Share2 size={18} strokeWidth={1.8} />
+                      <div className="text-right">
+                        <p className="text-sm font-bold">הזמן חברים</p>
+                        <p className="text-[11px] opacity-70">שתף קישור ייחודי</p>
+                      </div>
+                    </button>
                   </div>
-                </button>
-              </div>
 
-              {/* Footer — sign out */}
-              <div
-                className="px-3 py-4"
-                style={{ borderTop: "1px solid hsl(44 12% 76%)" }}
-              >
-                <button
-                  onClick={async () => { setOpen(false); await signOut(); }}
-                  className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right transition-all"
-                  style={{ color: "hsl(0 60% 44%)" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(0 80% 96%)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
-                >
-                  <LogOut size={20} strokeWidth={1.5} />
-                  <div className="text-right">
-                    <p className="text-sm font-medium">יציאה</p>
-                    <p className="text-[11px] text-muted-foreground">התנתקות מהחשבון</p>
+                  {/* Sign out */}
+                  <div className="px-3 py-4" style={{ borderTop: "1px solid hsl(44 12% 76%)" }}>
+                    <button
+                      onClick={async () => { setOpen(false); await signOut(); }}
+                      className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right transition-all"
+                      style={{ color: "hsl(0 60% 44%)" }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = "hsl(0 80% 96%)"; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+                    >
+                      <LogOut size={20} strokeWidth={1.5} />
+                      <div className="text-right">
+                        <p className="text-sm font-medium">יציאה</p>
+                        <p className="text-[11px] text-muted-foreground">התנתקות מהחשבון</p>
+                      </div>
+                    </button>
                   </div>
-                </button>
-              </div>
+                </>
+              ) : (
+                <div className="px-3 py-4 space-y-2" style={{ borderTop: "1px solid hsl(44 12% 76%)" }}>
+                  <button
+                    onClick={() => { setOpen(false); navigate("/auth"); }}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white transition-opacity hover:opacity-90"
+                    style={{ background: "hsl(126 15% 28%)" }}
+                  >
+                    <UserPlus size={16} strokeWidth={2} />
+                    הצטרף בחינם
+                  </button>
+                  <button
+                    onClick={() => { setOpen(false); navigate("/auth"); }}
+                    className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
+                  >
+                    כבר רשום? התחבר
+                  </button>
+                </div>
+              )}
             </motion.aside>
           </>
         )}
