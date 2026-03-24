@@ -1,29 +1,32 @@
 import { useNavigate } from "react-router-dom";
-import { Trophy, BookOpen, Target } from "lucide-react";
+import { Trophy, BookOpen, Target, Medal, Star } from "lucide-react";
 
 const DEMO_LEADERBOARD = [
-  { rank: 1, name: "יעל כ׳", minutes: 147, medal: "🥇" },
-  { rank: 2, name: "דני ל׳", minutes: 93, medal: "🥈" },
-  { rank: 3, name: "מיכל א׳", minutes: 71, medal: "🥉" },
+  { rank: 1, name: "יעל כ׳", minutes: 147 },
+  { rank: 2, name: "דני ל׳", minutes: 93 },
+  { rank: 3, name: "מיכל א׳", minutes: 71 },
   { rank: 4, name: "אתה?", minutes: 0, isYou: true },
+];
+
+const RANK_ICONS = [
+  <Medal size={14} strokeWidth={2} style={{ color: "hsl(43 74% 49%)" }} />,
+  <Medal size={14} strokeWidth={2} style={{ color: "hsl(210 14% 65%)" }} />,
+  <Medal size={14} strokeWidth={2} style={{ color: "hsl(22 65% 50%)" }} />,
 ];
 
 const FEATURES = [
   {
-    icon: <Trophy size={20} />,
-    emoji: "🏆",
+    icon: <Trophy size={22} strokeWidth={1.5} />,
     title: "לוח תוצאות שבועי",
     desc: "ראה כמה דקות קרא כל חבר השבוע — ותנצח אותו. כי תחרות עושה אותך קורא טוב יותר.",
   },
   {
-    icon: <BookOpen size={20} />,
-    emoji: "📚",
+    icon: <BookOpen size={22} strokeWidth={1.5} />,
     title: "ספרייה אישית",
     desc: "רשימת רצון, ספרים שסיימת, ומה שאתה קורא עכשיו — הכל במקום אחד, בעברית.",
   },
   {
-    icon: <Target size={20} />,
-    emoji: "🎯",
+    icon: <Target size={22} strokeWidth={1.5} />,
     title: "יעד קריאה שנתי",
     desc: "קבע כמה ספרים תקרא השנה ועקוב אחרי ההתקדמות. עם סרגל התקדמות שמחכה לך כל בוקר.",
   },
@@ -82,21 +85,21 @@ const LandingPage = () => {
             והפסק לאבד מוטיבציה באמצע ספר.
           </p>
 
-          {/* CTAs */}
+          {/* CTAs — try first is primary */}
           <div className="flex flex-col items-center gap-3 pt-1">
             <button
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/feed")}
               className="w-full max-w-[280px] h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
               style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.30)" }}
             >
-              הצטרף בחינם ←
+              נסה עכשיו ←
             </button>
             <button
-              onClick={() => navigate("/feed")}
+              onClick={() => navigate("/auth")}
               className="text-sm font-semibold transition-colors underline-offset-2 hover:underline"
               style={{ color: "hsl(126 15% 28%)" }}
             >
-              גלה את האפליקציה קודם
+              הצטרף
             </button>
           </div>
 
@@ -128,7 +131,9 @@ const LandingPage = () => {
                   background: r.isYou ? "hsl(126 15% 28% / 0.05)" : undefined,
                 }}
               >
-                <span className="text-sm w-6 text-center flex-shrink-0">{r.medal ?? r.rank}</span>
+                <span className="w-6 flex justify-center flex-shrink-0">
+                  {RANK_ICONS[i] ?? <span className="text-xs text-muted-foreground">{r.rank}</span>}
+                </span>
                 <div
                   className="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-bold flex-shrink-0"
                   style={{
@@ -157,10 +162,11 @@ const LandingPage = () => {
               </div>
             ))}
             <div
-              className="px-4 py-2.5 text-center text-[11px] font-semibold"
+              className="px-4 py-2.5 text-center text-[11px] font-semibold flex items-center justify-center gap-1.5"
               style={{ color: "hsl(28 71% 57%)", background: "hsl(28 71% 57% / 0.05)" }}
             >
-              ✨ יעל קראה 147 דקות — אתה יכול לנצח אותה השבוע!
+              <Star size={11} strokeWidth={2} fill="currentColor" />
+              יעל קראה 147 דקות — אתה יכול לנצח אותה השבוע!
             </div>
           </div>
         </section>
@@ -179,23 +185,18 @@ const LandingPage = () => {
               className="flex items-start gap-4 rounded-2xl p-4"
               style={{ background: "hsl(44 30% 97%)", border: "1px solid hsl(44 15% 80%)" }}
             >
-              <span className="text-2xl flex-shrink-0 mt-0.5">{f.emoji}</span>
+              <div
+                className="flex-shrink-0 mt-0.5 p-2 rounded-xl"
+                style={{ background: "hsl(126 15% 28% / 0.08)", color: "hsl(126 15% 28%)" }}
+              >
+                {f.icon}
+              </div>
               <div>
                 <p className="font-bold text-sm mb-1">{f.title}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
               </div>
             </div>
           ))}
-        </section>
-
-        {/* ── Social proof ────────────────────────── */}
-        <section className="pb-10 text-center">
-          <div
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium"
-            style={{ background: "hsl(44 30% 97%)", border: "1px solid hsl(44 15% 80%)", color: "hsl(126 15% 28%)" }}
-          >
-            📖 כבר מאות קוראים ישראלים מתחרים ומשתפים ב-AMUD
-          </div>
         </section>
 
         {/* ── Final CTA ───────────────────────────── */}
@@ -206,8 +207,7 @@ const LandingPage = () => {
           >
             <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד</h3>
             <p className="text-sm leading-relaxed" style={{ opacity: 0.82 }}>
-              הצטרף לקהילת הקוראים העברית הראשונה.<br />
-              בחינם. תמיד. בלי פרסומות.
+              הצטרף לקהילת הקוראים העברית הראשונה.
             </p>
             <button
               onClick={() => navigate("/auth")}
@@ -226,7 +226,7 @@ const LandingPage = () => {
         className="border-t py-6 text-center"
         style={{ borderColor: "hsl(44 15% 80%)" }}
       >
-        <p className="text-xs text-muted-foreground">AMUD — עמוד · בחינם לתמיד · קריאה חברתית בעברית</p>
+        <p className="text-xs text-muted-foreground">AMUD — קריאה חברתית בעברית</p>
       </footer>
 
     </div>
