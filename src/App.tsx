@@ -32,7 +32,7 @@ const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts"];
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 3, // 3 minutes — avoid redundant refetches on navigation
+      staleTime: 1000 * 60 * 3, // 3 minutes - avoid redundant refetches on navigation
       gcTime: 1000 * 60 * 10,
     },
   },
@@ -93,7 +93,7 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Public share page — no auth required */}
+      {/* Public share page - no auth required */}
       <Route path="/share/leaderboard/:userId" element={<LeaderboardShare />} />
 
       <Route

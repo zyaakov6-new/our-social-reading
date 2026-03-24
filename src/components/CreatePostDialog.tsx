@@ -10,25 +10,25 @@ const CATEGORIES: { value: Category; emoji: string; label: string; placeholder: 
     value: 'review',
     emoji: '📖',
     label: 'ביקורת',
-    placeholder: 'שתף את דעתך על ספר שקראת — מה אהבת, מה פחות, האם תמליץ?',
+    placeholder: 'שתף את דעתך על ספר שקראת - מה אהבת, מה פחות, האם תמליץ?',
   },
   {
     value: 'discussion',
     emoji: '💬',
     label: 'דיון',
-    placeholder: 'פתח שיחה על נושא ספרותי — שאלה פתוחה, מחשבה, ויכוח...',
+    placeholder: 'פתח שיחה על נושא ספרותי - שאלה פתוחה, מחשבה, ויכוח...',
   },
   {
     value: 'recommendation',
     emoji: '✨',
     label: 'המלצה',
-    placeholder: 'ספר שחייבים לקרוא — למה הוא מיוחד ולמי הוא מתאים?',
+    placeholder: 'ספר שחייבים לקרוא - למה הוא מיוחד ולמי הוא מתאים?',
   },
   {
     value: 'question',
     emoji: '❓',
     label: 'שאלה',
-    placeholder: 'שאל את הקהילה — על ספר, ז׳אנר, הרגלי קריאה, כל דבר...',
+    placeholder: 'שאל את הקהילה - על ספר, ז׳אנר, הרגלי קריאה, כל דבר...',
   },
 ];
 

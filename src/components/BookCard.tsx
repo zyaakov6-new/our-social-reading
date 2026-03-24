@@ -110,7 +110,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             )}
           </div>
 
-          {/* Log reading button — always visible */}
+          {/* Log reading button - always visible */}
           <button
             onClick={() => setLogOpen(true)}
             className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0"
@@ -148,7 +148,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             </Popover>
           )}
 
-          {/* Delete button — hover only */}
+          {/* Delete button - hover only */}
           {onDelete && (
             <AlertDialog>
               <AlertDialogTrigger asChild>

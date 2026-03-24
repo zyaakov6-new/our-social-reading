@@ -95,7 +95,7 @@ const ChallengeDetail = () => {
     const url = `${window.location.origin}/challenge/${id}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
-      toast.success("הקישור הועתק — שלח לחבר שלך 🔗");
+      toast.success("הקישור הועתק - שלח לחבר שלך 🔗");
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {
       toast.error("לא הצלחנו להעתיק");
@@ -224,7 +224,7 @@ const ChallengeDetail = () => {
             style={{ background: 'hsl(28 71% 57% / 0.12)', color: 'hsl(28 55% 38%)' }}
           >
             {copied ? <Check size={12} /> : <Copy size={12} />}
-            {copied ? "הקישור הועתק!" : "הזמן חבר — העתק קישור"}
+            {copied ? "הקישור הועתק!" : "הזמן חבר - העתק קישור"}
           </button>
         </div>
 
@@ -270,7 +270,7 @@ const ChallengeDetail = () => {
           </div>
         </div>
 
-        {/* Leave button — only for non-creators */}
+        {/* Leave button - only for non-creators */}
         {challenge.creatorId !== user?.id && (
           <button
             onClick={handleLeave}

@@ -63,10 +63,10 @@ const LandingPage = () => {
           </div>
 
           <p className="text-sm leading-relaxed text-muted-foreground max-w-[300px] mx-auto">
-            תתחרה, תעקוב, תנצח — בעברית.
+            תתחרה, תעקוב, תנצח - בעברית.
           </p>
 
-          {/* CTAs — try first is primary */}
+          {/* CTAs - try first is primary */}
           <div className="flex flex-col items-center gap-3 pt-1">
             <button
               onClick={() => navigate("/auth")}
@@ -104,7 +104,7 @@ const LandingPage = () => {
                 color: "hsl(126 15% 28%)",
               }}
             >
-              <Trophy size={13} strokeWidth={2} /> לוח תוצאות — השבוע
+              <Trophy size={13} strokeWidth={2} /> לוח תוצאות - השבוע
             </div>
             {DEMO_LEADERBOARD.map((r, i) => (
               <div
@@ -150,7 +150,7 @@ const LandingPage = () => {
               style={{ color: "hsl(28 71% 57%)", background: "hsl(28 71% 57% / 0.05)" }}
             >
               <Star size={11} strokeWidth={2} fill="currentColor" />
-              יעל קראה 147 דקות — אתה יכול לנצח אותה השבוע!
+              יעל קראה 147 דקות - אתה יכול לנצח אותה השבוע!
             </div>
           </div>
         </section>
@@ -170,7 +170,7 @@ const LandingPage = () => {
           >
             <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד</h3>
             <p className="text-sm leading-relaxed" style={{ opacity: 0.82 }}>
-              AMUD רק נולדה — ואתה מוזמן להיות בין הראשונים שיעצבו אותה.
+              AMUD רק נולדה - ואתה מוזמן להיות בין הראשונים שיעצבו אותה.
             </p>
             <button
               onClick={() => navigate("/auth")}
@@ -189,7 +189,7 @@ const LandingPage = () => {
         className="border-t py-6 text-center"
         style={{ borderColor: "hsl(44 15% 80%)" }}
       >
-        <p className="text-xs text-muted-foreground">AMUD — קריאה חברתית בעברית</p>
+        <p className="text-xs text-muted-foreground">AMUD - קריאה חברתית בעברית</p>
       </footer>
 
     </div>

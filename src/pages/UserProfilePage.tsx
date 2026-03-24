@@ -74,7 +74,7 @@ const UserProfilePage = () => {
       return p;
     }
 
-    // No profile row — build a minimal one from session_comments (display_name stored there)
+    // No profile row - build a minimal one from session_comments (display_name stored there)
     // or from auth metadata if this is the current user
     let displayName = "קורא";
     if (me?.id === userId) {
@@ -255,13 +255,13 @@ const UserProfilePage = () => {
           )}
         </div>
 
-        {/* Stats row — hidden for fake authors */}
+        {/* Stats row - hidden for fake authors */}
         {!isFakeAuthor && (
           <div className="grid grid-cols-3 gap-3">
             {[
-              { icon: Flame,    label: "רצף",      value: stats.streak > 0 ? `${stats.streak}d` : "—" },
-              { icon: Clock,    label: "השבוע",     value: stats.weekMinutes > 0 ? `${stats.weekMinutes}m` : "—" },
-              { icon: BookOpen, label: "סה״כ דקות", value: stats.totalMinutes > 0 ? `${stats.totalMinutes}m` : "—" },
+              { icon: Flame,    label: "רצף",      value: stats.streak > 0 ? `${stats.streak}d` : "-" },
+              { icon: Clock,    label: "השבוע",     value: stats.weekMinutes > 0 ? `${stats.weekMinutes}m` : "-" },
+              { icon: BookOpen, label: "סה״כ דקות", value: stats.totalMinutes > 0 ? `${stats.totalMinutes}m` : "-" },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="rounded-xl bg-card border border-border/50 p-3 text-center">
                 <Icon size={16} strokeWidth={1.5} className="text-primary mx-auto mb-1" />

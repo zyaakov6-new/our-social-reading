@@ -32,7 +32,7 @@ const LeaderboardSlide = () => (
   <div className="w-full rounded-2xl overflow-hidden" style={{ border: '1px solid hsl(44 15% 80%)', background: 'hsl(44 30% 96%)' }}>
     <div className="px-4 py-2.5 text-xs font-bold flex items-center gap-1.5"
       style={{ borderBottom: '1px solid hsl(44 15% 80%)', color: 'hsl(126 15% 28%)' }}>
-      🏆 לוח תוצאות — החודש
+      🏆 לוח תוצאות - החודש
     </div>
     {LEADERBOARD_DEMO.map(r => (
       <div key={r.rank} className="flex items-center gap-3 px-4 py-2.5"
@@ -48,7 +48,7 @@ const LeaderboardSlide = () => (
       </div>
     ))}
     <div className="px-4 py-2 text-center text-[11px] font-semibold" style={{ color: 'hsl(28 71% 57%)' }}>
-      ✨ יעל קראה 5 ספרים — אתה יכול לנצח!
+      ✨ יעל קראה 5 ספרים - אתה יכול לנצח!
     </div>
   </div>
 );
@@ -194,7 +194,7 @@ const Onboarding = () => {
 
   const handleFinish = async () => {
     setSaving(true);
-    // Set localStorage FIRST — before any async op that fires onAuthStateChange.
+    // Set localStorage FIRST - before any async op that fires onAuthStateChange.
     // supabase.auth.updateUser() triggers onAuthStateChange mid-await, which
     // re-evaluates needsOnboarding in AppRoutes. If localStorage isn't set yet,
     // the user gets bounced back to /onboarding (the double-loop bug).
@@ -364,7 +364,7 @@ const Onboarding = () => {
                   </div>
                 ))}
                 <div className="px-3 py-2 text-center text-[11px] font-semibold" style={{ color: 'hsl(28 71% 57%)' }}>
-                  ✨ יעל קראה 5 ספרים — אתה יכול לנצח!
+                  ✨ יעל קראה 5 ספרים - אתה יכול לנצח!
                 </div>
               </div>
 
@@ -422,7 +422,7 @@ const Onboarding = () => {
               <div className="text-center space-y-1">
                 <p className="text-2xl">📖</p>
                 <h2 className="font-serif text-xl font-bold">איזה ספר אתה קורא עכשיו?</h2>
-                <p className="text-xs text-muted-foreground">הוסף ספר אחד — נתחיל לעקוב אחרי ההתקדמות שלך</p>
+                <p className="text-xs text-muted-foreground">הוסף ספר אחד - נתחיל לעקוב אחרי ההתקדמות שלך</p>
               </div>
 
               <div className="relative">

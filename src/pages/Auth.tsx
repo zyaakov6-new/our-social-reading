@@ -37,7 +37,7 @@ const Auth = () => {
         },
       });
       if (error) throw error;
-      // Browser will redirect — no need to setGoogleLoading(false)
+      // Browser will redirect - no need to setGoogleLoading(false)
     } catch (error: any) {
       toast.error(error.message || "שגיאה בכניסה עם Google");
       setGoogleLoading(false);
@@ -55,7 +55,7 @@ const Auth = () => {
       );
       localStorage.removeItem("amud_referral");
     } catch {
-      // non-critical — silently ignore
+      // non-critical - silently ignore
     }
   };
 
@@ -129,7 +129,7 @@ const Auth = () => {
             </div>
           </div>
 
-          {/* ── Google button — primary CTA ─────────────────────── */}
+          {/* ── Google button - primary CTA ─────────────────────── */}
           <div className="space-y-3">
             <button
               type="button"

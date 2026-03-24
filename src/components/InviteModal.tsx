@@ -76,7 +76,7 @@ const InviteModal = ({ open, onClose }: Props) => {
         </DialogHeader>
 
         <p className="text-sm text-muted-foreground text-right leading-relaxed">
-          שתף קישור ייחודי עם חברים — כשהם מצטרפים, תהיו חברים אוטומטית ותופיעו בלוח הדירוגים של אחד השני.
+          שתף קישור ייחודי עם חברים - כשהם מצטרפים, תהיו חברים אוטומטית ותופיעו בלוח הדירוגים של אחד השני.
         </p>
 
         {/* Invite link box */}

@@ -65,7 +65,7 @@ const HamburgerMenu = () => {
 
   return (
     <>
-      {/* ── Trigger button — fixed top-left ─────────────────────── */}
+      {/* ── Trigger button - fixed top-left ─────────────────────── */}
       <button
         onClick={() => setOpen(v => !v)}
         className="fixed top-4 left-4 z-50 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-200 shadow-md"
@@ -111,7 +111,7 @@ const HamburgerMenu = () => {
               onClick={() => setOpen(false)}
             />
 
-            {/* Side drawer — slides in from the left */}
+            {/* Side drawer - slides in from the left */}
             <motion.aside
               key="drawer"
               initial={{ x: "-100%" }}

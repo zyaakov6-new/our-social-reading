@@ -57,7 +57,7 @@ const BottomNav = () => {
     >
       {/* DOM order: Home | spacer | Challenges */}
       <div className="mx-auto flex max-w-md items-stretch">
-        {/* Home — visually far right */}
+        {/* Home - visually far right */}
         <NavBtn path="/" label="בית" icon={Home} />
 
         {/* Spacer under the central FAB button */}

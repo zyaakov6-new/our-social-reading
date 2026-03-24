@@ -20,7 +20,7 @@ export default function BookSearch({ onBookAdded }: Props) {
       return;
     }
 
-    // Debounce — wait 400ms after user stops typing
+    // Debounce - wait 400ms after user stops typing
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       setLoading(true);

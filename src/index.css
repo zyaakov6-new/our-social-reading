@@ -12,8 +12,8 @@
      *  #212529  Obsidian            →  hsl(210 11% 14%)   Foreground / text
      * ──────────────────────────────────────────────────────────────────── */
 
-    --background: 44 27% 84%;          /* Jerusalem Vellum — page */
-    --foreground: 210 11% 14%;         /* Obsidian — primary text */
+    --background: 44 27% 84%;          /* Jerusalem Vellum - page */
+    --foreground: 210 11% 14%;         /* Obsidian - primary text */
 
     --card: 44 22% 90%;                /* Slightly lighter vellum for cards */
     --card-foreground: 210 11% 14%;
@@ -43,9 +43,9 @@
     --radius: 0.75rem;
 
     /* ── Custom semantic tokens ───────────────────────────────────────── */
-    --cta: 28 71% 57%;                 /* Terra Cotta — CTA & achievements */
+    --cta: 28 71% 57%;                 /* Terra Cotta - CTA & achievements */
     --cta-foreground: 210 11% 14%;
-    --streak: 28 71% 57%;              /* Terra Cotta — streaks & rewards */
+    --streak: 28 71% 57%;              /* Terra Cotta - streaks & rewards */
     --streak-foreground: 44 30% 93%;
     --success: 126 15% 28%;
     --timer-bg: 126 15% 28%;
@@ -84,7 +84,7 @@
     width: 100%;
   }
 
-  /* H1 — Hebrew serif display (Frank Ruhl Libre) for page titles */
+  /* H1 - Hebrew serif display (Frank Ruhl Libre) for page titles */
   h1 {
     font-family: 'Frank Ruhl Libre', 'Heebo', sans-serif;
     font-weight: 900;
@@ -92,7 +92,7 @@
     line-height: 1.1;
   }
 
-  /* H2 — Semibold, slightly tight */
+  /* H2 - Semibold, slightly tight */
   h2 {
     font-family: 'Frank Ruhl Libre', 'Heebo', sans-serif;
     font-weight: 700;
@@ -100,7 +100,7 @@
     line-height: 1.25;
   }
 
-  /* H3 — Section titles */
+  /* H3 - Section titles */
   h3 {
     font-family: 'Heebo', sans-serif;
     font-weight: 600;
@@ -108,14 +108,14 @@
     line-height: 1.35;
   }
 
-  /* UI body — Heebo Regular */
+  /* UI body - Heebo Regular */
   p, span, div, button, input, textarea, select, label {
     font-family: 'Heebo', sans-serif;
   }
 }
 
 @layer utilities {
-  /* Playfair Display italic — AMUD wordmark & editorial headlines */
+  /* Playfair Display italic - AMUD wordmark & editorial headlines */
   .font-display {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 900;
@@ -124,7 +124,7 @@
     line-height: 1.05;
   }
 
-  /* Heebo UI — standard interface text */
+  /* Heebo UI - standard interface text */
   .font-ui {
     font-family: 'Heebo', sans-serif;
     font-weight: 400;
@@ -132,7 +132,7 @@
     line-height: 1.55;
   }
 
-  /* Caption / metadata — open tracking, light weight */
+  /* Caption / metadata - open tracking, light weight */
   .font-caption {
     font-family: 'Heebo', sans-serif;
     font-weight: 300;
@@ -142,7 +142,7 @@
     color: hsl(210 8% 52%);
   }
 
-  /* Frank Ruhl Libre — long-form Hebrew reading text */
+  /* Frank Ruhl Libre - long-form Hebrew reading text */
   .font-literary {
     font-family: 'Frank Ruhl Libre', serif;
     font-weight: 400;
@@ -151,7 +151,7 @@
     line-height: 1.75;
   }
 
-  /* Frank Ruhl Libre italic — Hebrew quotes & book titles */
+  /* Frank Ruhl Libre italic - Hebrew quotes & book titles */
   .font-quote {
     font-family: 'Frank Ruhl Libre', serif;
     font-style: italic;
@@ -160,7 +160,7 @@
     line-height: 1.65;
   }
 
-  /* Tabular lining numerals — stat counters, page numbers */
+  /* Tabular lining numerals - stat counters, page numbers */
   .font-numbers {
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: "tnum" 1, "lnum" 1;
@@ -193,7 +193,7 @@
 
   /* ── "Quiet Performance" utilities ──────────────────────────────────── */
 
-  /* The Amud/Pillar: thin vertical Obsidian line — brand motif */
+  /* The Amud/Pillar: thin vertical Obsidian line - brand motif */
   .amud-pillar {
     display: block;
     width: 1px;
@@ -201,7 +201,7 @@
     flex-shrink: 0;
   }
 
-  /* Terra Cotta CTA button — use ONLY for the single most important action */
+  /* Terra Cotta CTA button - use ONLY for the single most important action */
   .btn-cta {
     background-color: hsl(var(--cta));
     color: hsl(var(--cta-foreground));
@@ -251,7 +251,7 @@
     );
   }
 
-  /* Architectural card — flat, precise, minimal shadow */
+  /* Architectural card - flat, precise, minimal shadow */
   .card-arch {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));

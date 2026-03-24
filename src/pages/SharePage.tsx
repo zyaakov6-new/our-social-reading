@@ -34,7 +34,7 @@ const SharePage = () => {
 
       const displayName = profile?.display_name || "קורא";
 
-      // Fetch sessions — only possible if authenticated (own card or friend)
+      // Fetch sessions - only possible if authenticated (own card or friend)
       let booksThisMonth = 0;
       let pagesThisMonth = 0;
       let streak = 0;
@@ -55,7 +55,7 @@ const SharePage = () => {
           pagesThisMonth = sessions.reduce((sum, s) => sum + (s.pages_read || 0), 0);
         }
 
-        // Streak — own card only (needs all sessions)
+        // Streak - own card only (needs all sessions)
         if (isOwnCard) {
           const { data: allSessions } = await supabase
             .from("reading_sessions")

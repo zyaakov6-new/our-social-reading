@@ -215,7 +215,7 @@ const FriendsSection = () => {
 
       {/* Friends list */}
       {friends.length === 0 && !showSearch && incomingRequests.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-3">עדיין אין חברים — לחץ "הוסף חבר" כדי למצוא</p>
+        <p className="text-sm text-muted-foreground text-center py-3">עדיין אין חברים - לחץ "הוסף חבר" כדי למצוא</p>
       )}
       {friends.length > 0 && (
         <div className="space-y-2">

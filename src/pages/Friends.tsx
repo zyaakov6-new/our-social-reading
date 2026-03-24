@@ -4,7 +4,7 @@ import Leaderboard from "@/components/Leaderboard";
 const Friends = () => {
   return (
     <div className="min-h-screen pb-28">
-      {/* Header — matches the app-wide sticky header pattern */}
+      {/* Header - matches the app-wide sticky header pattern */}
       <div
         className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-3 pb-2.5"
         style={{

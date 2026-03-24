@@ -204,7 +204,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
     </div>
   );
 
-  // No friends yet — show user's own row + invite CTA
+  // No friends yet - show user's own row + invite CTA
   if (!hasFriends) {
     const meEntry = entries.find(e => e.isMe);
     return (
@@ -229,7 +229,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-semibold truncate text-primary">אני</span>
                 <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
-                  {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} דק׳` : "—"}
+                  {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} דק׳` : "-"}
                 </span>
               </div>
               {meEntry.weekMinutes > 0 && (
@@ -271,9 +271,9 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold truncate text-primary">אני</span>
-                <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">—</span>
+                <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">-</span>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">עוד אין פעילות השבוע — התחל לקרוא!</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">עוד אין פעילות השבוע - התחל לקרוא!</p>
             </div>
           </div>
         )}

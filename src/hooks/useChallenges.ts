@@ -126,7 +126,7 @@ export const useChallenges = () => {
         .gte("session_date", minStart)
         .lte("session_date", maxEnd);
 
-      // Step 6: Compute everything in JS — no more per-participant queries
+      // Step 6: Compute everything in JS - no more per-participant queries
       const result: Challenge[] = challengeData.map((c: any) => {
         const participantIds = challengeParticipantsMap[c.id] || [c.creator_id];
 

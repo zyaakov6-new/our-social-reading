@@ -28,7 +28,7 @@ const ChallengesTab = () => {
         <div className="text-4xl">🏆</div>
         <h3 className="font-serif font-bold text-lg">אתגרי קריאה</h3>
         <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-          הצטרף לאתגרים עם חברים — מי יקרא הכי הרבה דקות השבוע?
+          הצטרף לאתגרים עם חברים - מי יקרא הכי הרבה דקות השבוע?
         </p>
         <button
           onClick={() => window.location.href = "/auth"}
@@ -123,7 +123,7 @@ const ChallengesTab = () => {
 
       {challenges.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground">
-          עדיין אין אתגרים — צור את האתגר הראשון!
+          עדיין אין אתגרים - צור את האתגר הראשון!
         </div>
       ) : (
         challenges.map(c => (
@@ -362,7 +362,7 @@ const Home = () => {
                   <p className="text-xs font-semibold text-muted-foreground">טיפ קריאה</p>
                   <p className="text-sm font-hebrew-serif font-bold">5 דקות הן התחלה מצוינת</p>
                   <p className="text-xs text-muted-foreground">
-                    גם קטע קצר לפני השינה נחשב — העקביות היא מה שבונה את ההרגל.
+                    גם קטע קצר לפני השינה נחשב - העקביות היא מה שבונה את ההרגל.
                   </p>
                 </div>
               </>
@@ -401,7 +401,7 @@ const Home = () => {
 
         {activeTab === 'books' && (
           <div className="space-y-6">
-            {/* Add book — gated for guests */}
+            {/* Add book - gated for guests */}
             {user ? (
               <AddBookDialog onBookAdded={refetchBooks} />
             ) : (
@@ -420,7 +420,7 @@ const Home = () => {
 
             {user && <BookRecommendations books={books} />}
 
-            {/* Reading goal — authenticated only */}
+            {/* Reading goal - authenticated only */}
             {user && <ReadingGoalBanner finishedCount={finishedBooks.length} />}
 
             {books.length === 0 ? (

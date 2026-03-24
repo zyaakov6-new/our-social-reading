@@ -148,7 +148,7 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
           </div>
         </div>
 
-        {/* Progress bar — shown when current page is entered and totalPages is known */}
+        {/* Progress bar - shown when current page is entered and totalPages is known */}
         {progress !== null && (
           <div className="space-y-1">
             <div className="h-2 rounded-full bg-muted overflow-hidden">

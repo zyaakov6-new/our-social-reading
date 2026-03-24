@@ -417,7 +417,7 @@ const BookDetailPage = () => {
           )}
         </div>
 
-        {/* Status change buttons — only for book owner */}
+        {/* Status change buttons - only for book owner */}
         {isOwner && <div
           className="bg-card rounded-xl p-3 space-y-2"
           style={{ border: "1px solid hsl(44 15% 80%)" }}

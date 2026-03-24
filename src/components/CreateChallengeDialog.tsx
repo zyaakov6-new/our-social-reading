@@ -69,7 +69,7 @@ const CreateChallengeDialog = ({ open, onOpenChange, onCreated }: Props) => {
           </div>
           <div className="space-y-1.5">
             <Label>שם האתגר</Label>
-            <Input placeholder='למשל: "קריאה עם חברים — מרץ"' value={name} onChange={e => setName(e.target.value)} className="text-right" autoFocus />
+            <Input placeholder='למשל: "קריאה עם חברים - מרץ"' value={name} onChange={e => setName(e.target.value)} className="text-right" autoFocus />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

@@ -235,7 +235,7 @@ const AboutPage = ({ onBack }: { onBack: () => void }) => (
     <div className="space-y-2">
       <h3 className="section-heading">AMUD היא</h3>
       <p className="text-sm text-muted-foreground leading-relaxed">
-        אפליקציית מעקב קריאה חברתית, בנויה עבור הקורא הישראלי. בנה הרגל קריאה יומי, התחרה עם חברים ועקוב אחרי ההתקדמות שלך — עמוד אחרי עמוד.
+        אפליקציית מעקב קריאה חברתית, בנויה עבור הקורא הישראלי. בנה הרגל קריאה יומי, התחרה עם חברים ועקוב אחרי ההתקדמות שלך - עמוד אחרי עמוד.
       </p>
     </div>
 
@@ -291,7 +291,7 @@ const SettingsSidebar = ({ open, onOpenChange }: Props) => {
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent side="right" className="w-full max-w-sm p-0 bg-background" dir="rtl">
         <div className="flex flex-col h-full">
-          {/* Header — SheetContent already renders a close (X) button, no need for a second one */}
+          {/* Header - SheetContent already renders a close (X) button, no need for a second one */}
           <SheetHeader className="px-5 py-4 border-b border-border/50">
             <SheetTitle className="font-semibold text-base text-right">
               {page === "main" ? "הגדרות" : ""}
@@ -330,7 +330,7 @@ const SettingsSidebar = ({ open, onOpenChange }: Props) => {
             {page === "about"   && <AboutPage   onBack={() => setPage("main")} />}
           </div>
 
-          {/* Footer — sign out only on main page */}
+          {/* Footer - sign out only on main page */}
           {page === "main" && (
             <div className="px-5 py-4 border-t border-border/50">
               <button
