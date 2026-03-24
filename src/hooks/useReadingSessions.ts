@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface ReadingSession {
   id: string;
@@ -22,15 +23,32 @@ export interface ReadingSession {
   isMe: boolean;
 }
 
+// Module-level stale-while-revalidate cache
+interface SessionsCache {
+  sessions: ReadingSession[];
+  userId: string;
+  time: number;
+}
+let _sessionsCache: SessionsCache | null = null;
+const SESSIONS_TTL = 2 * 60 * 1000; // 2 minutes
+
 export const useReadingSessions = () => {
-  const [sessions, setSessions] = useState<ReadingSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const isCacheValid = !!(
+    _sessionsCache &&
+    _sessionsCache.userId === user?.id &&
+    Date.now() - _sessionsCache.time < SESSIONS_TTL
+  );
+
+  const [sessions, setSessions] = useState<ReadingSession[]>(
+    _sessionsCache?.userId === user?.id ? (_sessionsCache?.sessions ?? []) : []
+  );
+  const [loading, setLoading] = useState(!isCacheValid);
 
   const fetchSessions = async () => {
+    if (!user) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
       // Get accepted friend IDs
       const { data: friendships } = await supabase
         .from("friendships")
@@ -130,6 +148,7 @@ export const useReadingSessions = () => {
         };
       });
 
+      _sessionsCache = { sessions: mappedSessions, userId: user.id, time: Date.now() };
       setSessions(mappedSessions);
     } catch (error) {
       console.error("Error fetching reading sessions:", error);

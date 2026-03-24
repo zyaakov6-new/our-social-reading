@@ -1,4 +1,4 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Share2, UserPlus } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera, Bell } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,12 +7,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import InviteModal from "./InviteModal";
 import { useStreak } from "@/hooks/useStreak";
 
-const authLinks = [
-  { path: "/",           label: "בית",    icon: Home,          desc: "עמוד הבית" },
-  { path: "/challenges", label: "אתגרים", icon: Trophy,         desc: "אתגרי קריאה" },
-  { path: "/posts",      label: "פורום",  icon: MessageSquare,  desc: "שיחות ודיונים" },
-  { path: "/friends",    label: "חברים",  icon: Users,          desc: "חברים ודירוג" },
-  { path: "/books",      label: "ספרים",  icon: BookOpen,       desc: "ספריית הספרים" },
+const links = [
+  { path: "/",               label: "בית",     icon: Home,          desc: "עמוד הבית" },
+  { path: "/challenges",     label: "אתגרים",  icon: Trophy,         desc: "אתגרי קריאה" },
+  { path: "/posts",          label: "פורום",   icon: MessageSquare,  desc: "שיחות ודיונים" },
+  { path: "/friends",        label: "חברים",   icon: Users,          desc: "חברים ודירוג" },
+  { path: "/books",          label: "ספרים",   icon: BookOpen,       desc: "ספריית הספרים" },
+  { path: "/notifications",  label: "התראות",  icon: Bell,           desc: "לייקים, תגובות והתראות" },
 ];
 
 const guestLinks = [
@@ -160,7 +161,8 @@ const HamburgerMenu = () => {
               <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
                 {links.map(({ path, label, icon: Icon, desc }) => {
                   const active = isActive(path);
-                  const showBadge = path === "/friends" && pendingCount > 0;
+                  const showBadge =
+                    path === "/friends" && pendingCount > 0;
                   return (
                     <button
                       key={path}

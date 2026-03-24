@@ -45,13 +45,18 @@ const UserProfilePage = () => {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchProfile(), fetchSessions(), fetchFriendStatus()]);
+      const fetchedProfile = await fetchProfile();
+      // Detect fake author: nameOverride is set and doesn't match the stored display name
+      const fake = !!nameOverride && !!fetchedProfile && nameOverride !== fetchedProfile.displayName;
+      if (!fake) {
+        await Promise.all([fetchSessions(), fetchFriendStatus()]);
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (): Promise<UserProfile | null> => {
     const { data } = await supabase
       .from("profiles")
       .select("user_id, display_name, avatar_url, is_public")
@@ -59,13 +64,14 @@ const UserProfilePage = () => {
       .maybeSingle();
 
     if (data && (data as any).display_name) {
-      setProfile({
+      const p: UserProfile = {
         userId: (data as any).user_id,
         displayName: (data as any).display_name,
         avatarUrl: (data as any).avatar_url,
         isPublic: (data as any).is_public !== false,
-      });
-      return;
+      };
+      setProfile(p);
+      return p;
     }
 
     // No profile row — build a minimal one from session_comments (display_name stored there)
@@ -89,7 +95,9 @@ const UserProfilePage = () => {
       }
     }
 
-    setProfile({ userId: userId!, displayName, isPublic: true });
+    const p: UserProfile = { userId: userId!, displayName, isPublic: true };
+    setProfile(p);
+    return p;
   };
 
   const fetchSessions = async () => {
@@ -184,6 +192,7 @@ const UserProfilePage = () => {
   }
 
   const isMe = me?.id === userId && !nameOverride;
+  const isFakeAuthor = !!nameOverride && !!profile && nameOverride !== profile.displayName;
   const displayName = nameOverride || profile.displayName;
   const initial = displayName.charAt(0).toUpperCase();
 
@@ -212,14 +221,18 @@ const UserProfilePage = () => {
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-lg leading-tight">{displayName}</h2>
-            {stats.streak > 0 && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                <Flame size={12} className="text-streak" />
-                {stats.streak} ימים ברצף
-              </p>
+            {isFakeAuthor ? (
+              <p className="text-xs text-muted-foreground mt-0.5">אוהב לקרוא 📚</p>
+            ) : (
+              stats.streak > 0 && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                  <Flame size={12} className="text-streak" />
+                  {stats.streak} ימים ברצף
+                </p>
+              )
             )}
           </div>
-          {!isMe && (
+          {!isMe && !isFakeAuthor && (
             <button
               onClick={friendStatus === "none" ? handleAddFriend : undefined}
               disabled={actionLoading || friendStatus !== "none"}
@@ -242,25 +255,29 @@ const UserProfilePage = () => {
           )}
         </div>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { icon: Flame,    label: "רצף",      value: stats.streak > 0 ? `${stats.streak}d` : "—" },
-            { icon: Clock,    label: "השבוע",     value: stats.weekMinutes > 0 ? `${stats.weekMinutes}m` : "—" },
-            { icon: BookOpen, label: "סה״כ דקות", value: stats.totalMinutes > 0 ? `${stats.totalMinutes}m` : "—" },
-          ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="rounded-xl bg-card border border-border/50 p-3 text-center">
-              <Icon size={16} strokeWidth={1.5} className="text-primary mx-auto mb-1" />
-              <p className="text-base font-bold">{value}</p>
-              <p className="text-[11px] text-muted-foreground">{label}</p>
-            </div>
-          ))}
-        </div>
+        {/* Stats row — hidden for fake authors */}
+        {!isFakeAuthor && (
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { icon: Flame,    label: "רצף",      value: stats.streak > 0 ? `${stats.streak}d` : "—" },
+              { icon: Clock,    label: "השבוע",     value: stats.weekMinutes > 0 ? `${stats.weekMinutes}m` : "—" },
+              { icon: BookOpen, label: "סה״כ דקות", value: stats.totalMinutes > 0 ? `${stats.totalMinutes}m` : "—" },
+            ].map(({ icon: Icon, label, value }) => (
+              <div key={label} className="rounded-xl bg-card border border-border/50 p-3 text-center">
+                <Icon size={16} strokeWidth={1.5} className="text-primary mx-auto mb-1" />
+                <p className="text-base font-bold">{value}</p>
+                <p className="text-[11px] text-muted-foreground">{label}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Recent sessions */}
         <div className="space-y-2">
           <h3 className="section-heading">פעילות אחרונה</h3>
-          {sessions.length === 0 ? (
+          {isFakeAuthor ? (
+            <p className="text-sm text-muted-foreground text-center py-6">חבר קהילה</p>
+          ) : sessions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">אין פעילות להציג</p>
           ) : (
             <div className="space-y-2">

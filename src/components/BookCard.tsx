@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Book } from "@/hooks/useBooks";
 import { Trash2, PlusCircle, ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -32,6 +33,7 @@ interface BookCardProps {
 }
 
 const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookCardProps) => {
+  const navigate = useNavigate();
   const [logOpen, setLogOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
   const progress = book.totalPages > 0 ? Math.round((book.currentPage / book.totalPages) * 100) : 0;
@@ -78,7 +80,10 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
           </div>
 
           <div className="flex-1 min-w-0">
-            <h4 className="font-serif font-bold text-sm truncate">{book.title}</h4>
+            <h4
+              className="font-serif font-bold text-sm truncate cursor-pointer hover:text-primary transition-colors"
+              onClick={() => navigate(`/book/${book.id}`)}
+            >{book.title}</h4>
             <p className="text-xs text-muted-foreground truncate">{book.author}</p>
             {book.status === 'reading' && (
               <div className="mt-1.5 space-y-1">
@@ -238,7 +243,10 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
         )}
 
         <div className="flex items-center justify-between gap-1">
-          <h4 className="font-serif font-bold text-xs truncate flex-1">{book.title}</h4>
+          <h4
+            className="font-serif font-bold text-xs truncate flex-1 cursor-pointer hover:text-primary transition-colors"
+            onClick={() => navigate(`/book/${book.id}`)}
+          >{book.title}</h4>
           {onStatusChange && (
             <Popover open={statusOpen} onOpenChange={setStatusOpen}>
               <PopoverTrigger asChild>

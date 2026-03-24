@@ -10,7 +10,24 @@
       "Bash(where npm:*)",
       "Bash(where npx:*)",
       "Bash(timeout /t 5 /nobreak)",
-      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173)"
+      "Bash(curl -s -o nul -w \"%{http_code}\" http://localhost:5173)",
+      "Bash(npx update-browserslist-db@latest --yes)",
+      "Bash(python3 -c \":*)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(node -e \":*)",
+      "mcp__18251c41-7aa0-42f0-adb0-cfb229e6eb44__list_teams",
+      "mcp__18251c41-7aa0-42f0-adb0-cfb229e6eb44__list_projects",
+      "mcp__18251c41-7aa0-42f0-adb0-cfb229e6eb44__list_deployments",
+      "mcp__18251c41-7aa0-42f0-adb0-cfb229e6eb44__get_deployment_build_logs",
+      "Bash(npm install:*)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(npm uninstall:*)",
+      "mcp__18251c41-7aa0-42f0-adb0-cfb229e6eb44__get_runtime_logs",
+      "Bash(echo \"EXIT:$?\")",
+      "mcp__fed27cd6-1871-43b4-b3e1-b0575b253492__list_projects",
+      "mcp__fed27cd6-1871-43b4-b3e1-b0575b253492__execute_sql",
+      "mcp__fed27cd6-1871-43b4-b3e1-b0575b253492__list_migrations"
     ]
   }
 }

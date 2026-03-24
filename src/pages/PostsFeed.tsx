@@ -85,18 +85,27 @@ const PostCard = ({
         </div>
         <span
           onClick={e => { e.stopPropagation(); onAuthorClick(); }}
-          className="text-xs font-semibold hover:text-primary transition-colors cursor-pointer"
+          className="text-xs font-semibold hover:text-primary transition-colors cursor-pointer truncate min-w-0 flex-shrink"
+          style={{ maxWidth: '80px' }}
         >{post.displayName}</span>
 
         {/* Category badge */}
         <span
-          className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
+          className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
           style={{ background: cat.bg, color: cat.color }}
         >
           {cat.emoji} {cat.label}
         </span>
 
-        <span className="text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
+        {/* Hot badge */}
+        {(post.likeCount + post.commentCount) >= 3 && (
+          <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+            style={{ background: 'hsl(22 90% 55% / 0.15)', color: 'hsl(22 90% 42%)' }}>
+            🔥 חם
+          </span>
+        )}
+
+        <span className="flex-shrink-0 text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
       </div>
 
       {/* Body */}
@@ -125,6 +134,16 @@ const PostCard = ({
   );
 };
 
+type Filter = 'all' | Category;
+
+const FILTERS: { value: Filter; emoji: string; label: string }[] = [
+  { value: 'all',            emoji: '📚', label: 'הכל' },
+  { value: 'discussion',     emoji: '💬', label: 'דיון' },
+  { value: 'review',         emoji: '📖', label: 'ביקורת' },
+  { value: 'recommendation', emoji: '✨', label: 'המלצה' },
+  { value: 'question',       emoji: '❓', label: 'שאלה' },
+];
+
 const PostsFeed = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -132,7 +151,7 @@ const PostsFeed = () => {
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState<Category>('discussion');
-  const [gateOpen, setGateOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<Filter>('all');
 
   useEffect(() => { fetchPosts(); }, []);
 
@@ -145,25 +164,29 @@ const PostsFeed = () => {
 
     if (error || !data) { setLoading(false); return; }
 
-    const postsWithCounts = await Promise.all(
-      data.map(async (p: any) => {
-        const [{ count: likeCount }, { count: commentCount }] = await Promise.all([
-          supabase.from("post_likes").select("id", { count: "exact", head: true }).eq("post_id", p.id),
-          supabase.from("post_comments").select("id", { count: "exact", head: true }).eq("post_id", p.id),
-        ]);
-        return {
-          id: p.id,
-          userId: p.user_id,
-          displayName: p.display_name || "קורא",
-          title: p.title,
-          contentPreview: p.content.length > 150 ? p.content.slice(0, 150) + "…" : p.content,
-          createdAt: p.created_at,
-          likeCount: likeCount ?? 0,
-          commentCount: commentCount ?? 0,
-          category: (p.category ?? 'discussion') as Category,
-        };
-      })
-    );
+    const postIds = (data as any[]).map((p) => p.id);
+
+    const [{ data: allLikes }, { data: allComments }] = await Promise.all([
+      supabase.from("post_likes").select("post_id").in("post_id", postIds),
+      supabase.from("post_comments").select("post_id").in("post_id", postIds),
+    ]);
+
+    const likeMap: Record<string, number> = {};
+    const commentMap: Record<string, number> = {};
+    (allLikes || []).forEach((l: any) => { likeMap[l.post_id] = (likeMap[l.post_id] || 0) + 1; });
+    (allComments || []).forEach((c: any) => { commentMap[c.post_id] = (commentMap[c.post_id] || 0) + 1; });
+
+    const postsWithCounts: PostSummary[] = (data as any[]).map((p) => ({
+      id: p.id,
+      userId: p.user_id,
+      displayName: p.display_name || "קורא",
+      title: p.title,
+      contentPreview: p.content.length > 150 ? p.content.slice(0, 150) + "…" : p.content,
+      createdAt: p.created_at,
+      likeCount: likeMap[p.id] || 0,
+      commentCount: commentMap[p.id] || 0,
+      category: (p.category ?? 'discussion') as Category,
+    }));
 
     setPosts(postsWithCounts);
     setLoading(false);
@@ -174,6 +197,8 @@ const PostsFeed = () => {
     setInitialCategory(cat);
     setCreateOpen(true);
   };
+
+  const filteredPosts = activeFilter === 'all' ? posts : posts.filter(p => p.category === activeFilter);
 
   return (
     <div className="min-h-screen pb-28">
@@ -193,6 +218,39 @@ const PostsFeed = () => {
               <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פורום הקוראים</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ── Category filter tabs ── */}
+      <div className="sticky top-[68px] z-20 px-4 py-2 overflow-x-auto"
+        style={{ background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97), hsl(44 27% 84% / 0.95))' }}>
+        <div className="flex gap-2 max-w-md mx-auto">
+          {FILTERS.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setActiveFilter(f.value)}
+              className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
+              style={
+                activeFilter === f.value
+                  ? { background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }
+                  : { background: 'hsl(44 15% 84%)', color: 'hsl(210 8% 40%)' }
+              }
+            >
+              <span>{f.emoji}</span> {f.label}
+              {f.value !== 'all' && posts.filter(p => p.category === f.value).length > 0 && (
+                <span
+                  className="text-[10px] font-bold rounded-full px-1.5 py-0.5"
+                  style={
+                    activeFilter === f.value
+                      ? { background: 'hsl(44 30% 93% / 0.3)', color: 'hsl(44 30% 93%)' }
+                      : { background: 'hsl(126 15% 28% / 0.12)', color: 'hsl(126 15% 28%)' }
+                  }
+                >
+                  {posts.filter(p => p.category === f.value).length}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -244,21 +302,38 @@ const PostsFeed = () => {
               </div>
             ))}
           </>
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <p className="text-4xl mb-3">📭</p>
-            <p className="text-sm font-semibold">הפורום עדיין ריק</p>
-            <p className="text-xs mt-1">היה ראשון לפתוח דיון!</p>
+            {posts.length === 0 ? (
+              <>
+                <p className="text-4xl mb-3">📭</p>
+                <p className="text-sm font-semibold">הפורום עדיין ריק</p>
+                <p className="text-xs mt-1">היה ראשון לפתוח דיון!</p>
+              </>
+            ) : (
+              <>
+                <p className="text-3xl mb-3">{FILTERS.find(f => f.value === activeFilter)?.emoji}</p>
+                <p className="text-sm font-semibold">אין פוסטים בקטגוריה זו עדיין</p>
+                <button
+                  onClick={() => openCreate(activeFilter === 'all' ? 'discussion' : activeFilter as Category)}
+                  className="mt-3 text-xs font-semibold text-primary hover:underline"
+                >
+                  פתח ראשון! ✍️
+                </button>
+              </>
+            )}
           </div>
         ) : (
-          posts.map(post => (
-            <PostCard
-              key={post.id}
-              post={post}
-              onClick={() => navigate(`/post/${post.id}`)}
-              onAuthorClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
-            />
-          ))
+          <>
+            {filteredPosts.map(post => (
+              <PostCard
+                key={post.id}
+                post={post}
+                onClick={() => navigate(`/post/${post.id}`)}
+                onAuthorClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
+              />
+            ))}
+          </>
         )}
       </div>
 

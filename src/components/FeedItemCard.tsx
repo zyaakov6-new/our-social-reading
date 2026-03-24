@@ -251,7 +251,10 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
           </div>
           {/* Book info */}
           <div className="flex-1 min-w-0">
-            <p className="font-serif font-bold text-base text-foreground text-right leading-snug">{item.bookTitle}</p>
+            <p
+              className="font-serif font-bold text-base text-foreground text-right leading-snug cursor-pointer hover:text-primary transition-colors"
+              onClick={() => item.bookId ? navigate(`/book/${item.bookId}`) : undefined}
+            >{item.bookTitle}</p>
             <div className="flex items-center gap-1.5 mt-1.5 justify-end flex-wrap">
               {item.minutesRead > 0 && (
                 <span className="badge-green">⏱ {item.minutesRead} דק׳</span>
@@ -262,7 +265,12 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             </div>
           </div>
           {/* Book cover thumbnail */}
-          <BookCover title={item.bookTitle} coverUrl={item.coverUrl ?? null} />
+          <div
+            className={item.bookId ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}
+            onClick={() => item.bookId ? navigate(`/book/${item.bookId}`) : undefined}
+          >
+            <BookCover title={item.bookTitle} coverUrl={item.coverUrl ?? null} />
+          </div>
         </div>
       </div>
 
