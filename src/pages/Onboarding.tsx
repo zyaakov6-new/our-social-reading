@@ -194,12 +194,17 @@ const Onboarding = () => {
 
   const handleFinish = async () => {
     setSaving(true);
+    // Set localStorage FIRST — before any async op that fires onAuthStateChange.
+    // supabase.auth.updateUser() triggers onAuthStateChange mid-await, which
+    // re-evaluates needsOnboarding in AppRoutes. If localStorage isn't set yet,
+    // the user gets bounced back to /onboarding (the double-loop bug).
+    localStorage.setItem('onboarding_complete', 'true');
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const goalMinutes = booksPerYear === '13+' ? 45 : booksPerYear === '6-12' ? 30 : 20;
         await Promise.all([
-          supabase.auth.updateUser({ data: { full_name: name.trim() || undefined } }),
+          supabase.auth.updateUser({ data: { full_name: name.trim() || undefined, onboarding_complete: true } }),
           supabase.from('profiles').upsert({
             user_id: user.id, display_name: name.trim() || null,
             reading_goal_minutes: goalMinutes, books_per_year: booksPerYear || null,
@@ -208,10 +213,6 @@ const Onboarding = () => {
         ]);
       }
     } catch (e) { console.warn('Onboarding save failed:', e); }
-    localStorage.setItem('onboarding_complete', 'true');
-    // Persist flag in user_metadata so Google OAuth users don't re-see onboarding
-    // on a new device / cleared localStorage
-    supabase.auth.updateUser({ data: { onboarding_complete: true } }).catch(() => {});
     window.dispatchEvent(new Event(ONBOARDING_STATUS_EVENT));
     navigate('/', { replace: true });
   };

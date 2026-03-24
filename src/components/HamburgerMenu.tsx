@@ -20,11 +20,6 @@ const HamburgerMenu = () => {
   const { user, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
-  const [notifCount, setNotifCount] = useState(0);
-
-  useEffect(() => {
-    setNotifCount(localStorage.getItem("notifications_last_seen") === null ? 1 : 0);
-  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -78,7 +73,7 @@ const HamburgerMenu = () => {
           ) : (
             <motion.span key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.15 }} className="relative">
               <Menu size={18} strokeWidth={1.8} />
-              {(pendingCount > 0 || notifCount > 0) && (
+              {pendingCount > 0 && (
                 <span
                   className="absolute -top-1.5 -right-1.5 h-2 w-2 rounded-full"
                   style={{ background: "hsl(0 72% 51%)" }}
@@ -141,8 +136,7 @@ const HamburgerMenu = () => {
                 {links.map(({ path, label, icon: Icon, desc }) => {
                   const active = isActive(path);
                   const showBadge =
-                    (path === "/friends" && pendingCount > 0) ||
-                    (path === "/notifications" && notifCount > 0);
+                    path === "/friends" && pendingCount > 0;
                   return (
                     <button
                       key={path}
