@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Trophy, BookOpen, Target, Medal, Star } from "lucide-react";
+import { Trophy, Medal, Star } from "lucide-react";
 
 const DEMO_LEADERBOARD = [
   { rank: 1, name: "יעל כ׳", minutes: 147 },
@@ -14,23 +14,6 @@ const RANK_ICONS = [
   <Medal size={14} strokeWidth={2} style={{ color: "hsl(22 65% 50%)" }} />,
 ];
 
-const FEATURES = [
-  {
-    icon: <Trophy size={22} strokeWidth={1.5} />,
-    title: "לוח תוצאות שבועי",
-    desc: "ראה כמה דקות קרא כל חבר השבוע — ותנצח אותו. כי תחרות עושה אותך קורא טוב יותר.",
-  },
-  {
-    icon: <BookOpen size={22} strokeWidth={1.5} />,
-    title: "ספרייה אישית",
-    desc: "רשימת רצון, ספרים שסיימת, ומה שאתה קורא עכשיו — הכל במקום אחד, בעברית.",
-  },
-  {
-    icon: <Target size={22} strokeWidth={1.5} />,
-    title: "יעד קריאה שנתי",
-    desc: "קבע כמה ספרים תקרא השנה ועקוב אחרי ההתקדמות. עם סרגל התקדמות שמחכה לך כל בוקר.",
-  },
-];
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -80,32 +63,33 @@ const LandingPage = () => {
           </div>
 
           <p className="text-sm leading-relaxed text-muted-foreground max-w-[300px] mx-auto">
-            AMUD היא האפליקציה העברית הראשונה לקריאה חברתית —
-            התחרה עם חברים, עקוב אחרי הספרים שלך,
-            והפסק לאבד מוטיבציה באמצע ספר.
+            תתחרה, תעקוב, תנצח — בעברית.
           </p>
 
           {/* CTAs — try first is primary */}
           <div className="flex flex-col items-center gap-3 pt-1">
             <button
-              onClick={() => navigate("/feed")}
+              onClick={() => navigate("/auth")}
               className="w-full max-w-[280px] h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
               style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.30)" }}
             >
-              נסה עכשיו ←
+              הצטרף לראשונים ←
             </button>
             <button
-              onClick={() => navigate("/auth")}
+              onClick={() => navigate("/feed")}
               className="text-sm font-semibold transition-colors underline-offset-2 hover:underline"
               style={{ color: "hsl(126 15% 28%)" }}
             >
-              הצטרף
+              נסה עכשיו
             </button>
           </div>
 
           {/* Demo leaderboard card */}
+          <p className="mt-6 text-[11px] font-medium text-center text-muted-foreground tracking-wide">
+            כך זה נראה בפעולה
+          </p>
           <div
-            className="mt-4 rounded-2xl overflow-hidden text-right"
+            className="mt-2 rounded-2xl overflow-hidden text-right"
             style={{
               border: "1px solid hsl(44 15% 78%)",
               background: "hsl(44 30% 97%)",
@@ -172,31 +156,10 @@ const LandingPage = () => {
         </section>
 
         {/* ── Features ────────────────────────────── */}
-        <section className="pb-10 space-y-3">
-          <h3
-            className="text-xs font-bold tracking-widest text-center mb-5"
-            style={{ color: "hsl(44 12% 55%)" }}
-          >
-            מה יש ב-AMUD
-          </h3>
-          {FEATURES.map(f => (
-            <div
-              key={f.title}
-              className="flex items-start gap-4 rounded-2xl p-4"
-              style={{ background: "hsl(44 30% 97%)", border: "1px solid hsl(44 15% 80%)" }}
-            >
-              <div
-                className="flex-shrink-0 mt-0.5 p-2 rounded-xl"
-                style={{ background: "hsl(126 15% 28% / 0.08)", color: "hsl(126 15% 28%)" }}
-              >
-                {f.icon}
-              </div>
-              <div>
-                <p className="font-bold text-sm mb-1">{f.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
-              </div>
-            </div>
-          ))}
+        <section className="pb-10">
+          <p className="text-xs text-center text-muted-foreground">
+            לוח תוצאות שבועי, ספרייה אישית, ויעדי קריאה שנתיים.
+          </p>
         </section>
 
         {/* ── Final CTA ───────────────────────────── */}
@@ -207,7 +170,7 @@ const LandingPage = () => {
           >
             <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד</h3>
             <p className="text-sm leading-relaxed" style={{ opacity: 0.82 }}>
-              הצטרף לקהילת הקוראים העברית הראשונה.
+              AMUD רק נולדה — ואתה מוזמן להיות בין הראשונים שיעצבו אותה.
             </p>
             <button
               onClick={() => navigate("/auth")}
