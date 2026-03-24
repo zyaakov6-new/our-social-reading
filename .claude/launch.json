@@ -4,7 +4,7 @@
     {
       "name": "amud-dev",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js", "run", "dev"],
+      "runtimeArgs": ["C:\\Users\\Ziv Yaakov\\our-social-reading\\node_modules\\vite\\bin\\vite.js", "--port", "8080"],
       "port": 8080
     }
   ]

@@ -83,12 +83,13 @@ const PostCard = ({
         </div>
         <span
           onClick={e => { e.stopPropagation(); onAuthorClick(); }}
-          className="text-xs font-semibold hover:text-primary transition-colors cursor-pointer"
+          className="text-xs font-semibold hover:text-primary transition-colors cursor-pointer truncate min-w-0 flex-shrink"
+          style={{ maxWidth: '80px' }}
         >{post.displayName}</span>
 
         {/* Category badge */}
         <span
-          className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
+          className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
           style={{ background: cat.bg, color: cat.color }}
         >
           {cat.emoji} {cat.label}
@@ -96,13 +97,13 @@ const PostCard = ({
 
         {/* Hot badge */}
         {(post.likeCount + post.commentCount) >= 3 && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+          <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
             style={{ background: 'hsl(22 90% 55% / 0.15)', color: 'hsl(22 90% 42%)' }}>
             🔥 חם
           </span>
         )}
 
-        <span className="text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
+        <span className="flex-shrink-0 text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
       </div>
 
       {/* Body */}

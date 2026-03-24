@@ -60,8 +60,8 @@ const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
       </div>
 
       {/* Participants footer */}
-      <div className="flex items-center gap-2 px-4 pb-3">
-        <div className="flex items-center">
+      <div className="flex items-center gap-2 px-4 pb-3 overflow-hidden">
+        <div className="flex items-center flex-shrink-0">
           {challenge.participants.slice(0, 3).map((p, i) => (
             <div
               key={i}

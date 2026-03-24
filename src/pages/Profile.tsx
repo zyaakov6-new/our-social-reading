@@ -205,10 +205,10 @@ const Profile = () => {
         }}
       >
         <div className="flex items-center justify-between max-w-md mx-auto">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <span style={{ display: 'block', width: '3px', height: '30px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
-            <div>
-              <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none">{displayName}</h1>
+            <div className="min-w-0">
+              <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none truncate">{displayName}</h1>
               <p className="font-quote text-[10px] text-muted-foreground mt-0.5">הפרופיל שלי</p>
             </div>
           </div>
