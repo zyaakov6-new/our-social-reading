@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,10 +16,15 @@ import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import BookDetailPage from "./pages/BookDetailPage";
 import NotificationsPage from "./pages/NotificationsPage";
+import LandingPage from "./pages/LandingPage";
+import LeaderboardShare from "./pages/LeaderboardShare";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
+
+// Routes guests can browse without signing up
+const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts"];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +39,7 @@ const AppLayout = () => (
   <>
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/feed" element={<Home />} />
       <Route path="/books" element={<Home />} />
       <Route path="/challenges" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
@@ -53,6 +59,16 @@ const AppLayout = () => (
   </>
 );
 
+// For unauthenticated users: show AppLayout on browseable routes, LandingPage everywhere else
+const GuestRoutes = () => {
+  const location = useLocation();
+  const browseable =
+    GUEST_BROWSEABLE.includes(location.pathname) ||
+    location.pathname.startsWith("/post/");
+  if (browseable) return <AppLayout />;
+  return <LandingPage />;
+};
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
@@ -64,13 +80,19 @@ const AppRoutes = () => {
     );
   }
 
+  // Google OAuth populates user_metadata.full_name from Google, so we can't rely on it
+  // to detect first-time users. Instead we use a dedicated onboarding_complete flag
+  // that Onboarding.tsx writes to both localStorage and user_metadata.
   const needsOnboarding =
     !!user &&
     !localStorage.getItem("onboarding_complete") &&
-    !user.user_metadata?.full_name;
+    !user.user_metadata?.onboarding_complete;
 
   return (
     <Routes>
+      {/* Public share page — no auth required */}
+      <Route path="/share/leaderboard/:userId" element={<LeaderboardShare />} />
+
       <Route
         path="/auth"
         element={user ? <Navigate to="/" replace /> : <Auth />}
@@ -83,7 +105,7 @@ const AppRoutes = () => {
         path="/*"
         element={
           !user ? (
-            <Navigate to="/auth" replace />
+            <GuestRoutes />
           ) : needsOnboarding ? (
             <Navigate to="/onboarding" replace />
           ) : (

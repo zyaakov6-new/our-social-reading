@@ -209,6 +209,9 @@ const Onboarding = () => {
       }
     } catch (e) { console.warn('Onboarding save failed:', e); }
     localStorage.setItem('onboarding_complete', 'true');
+    // Persist flag in user_metadata so Google OAuth users don't re-see onboarding
+    // on a new device / cleared localStorage
+    supabase.auth.updateUser({ data: { onboarding_complete: true } }).catch(() => {});
     window.dispatchEvent(new Event(ONBOARDING_STATUS_EVENT));
     navigate('/', { replace: true });
   };
