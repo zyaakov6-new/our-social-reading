@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import InviteModal from "./InviteModal";
 import { useStreak } from "@/hooks/useStreak";
 
-const links = [
+const authLinks = [
   { path: "/",               label: "בית",     icon: Home,          desc: "עמוד הבית" },
   { path: "/challenges",     label: "אתגרים",  icon: Trophy,         desc: "אתגרי קריאה" },
   { path: "/posts",          label: "פורום",   icon: MessageSquare,  desc: "שיחות ודיונים" },
