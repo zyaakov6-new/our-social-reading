@@ -47,40 +47,36 @@ const LandingPage = () => {
 
         {/* ── Hero ────────────────────────────────── */}
         <section className="pt-12 pb-8 text-center space-y-5">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h1
               className="font-display leading-tight tracking-[0.06em]"
-              style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(2.2rem, 9vw, 3rem)" }}
+              style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(2rem, 8.5vw, 2.8rem)" }}
             >
-              קוראים לבד?
+              עקוב על כל ספר.
+              <br />התחרה עם חברים.
+              <br />בנה הרגל שנשאר.
             </h1>
-            <h2
-              className="font-serif text-2xl font-bold leading-snug"
-              style={{ color: "hsl(126 10% 20%)" }}
-            >
-              הגיע הזמן לשנות את זה.
-            </h2>
           </div>
 
-          <p className="text-sm leading-relaxed text-muted-foreground max-w-[300px] mx-auto">
-            תתחרה, תעקוב, תנצח - בעברית.
+          <p className="text-sm leading-relaxed text-muted-foreground max-w-[280px] mx-auto">
+            AMUD - אפליקציית הקריאה החברתית הראשונה בעברית.
           </p>
 
-          {/* CTAs - try first is primary */}
+          {/* CTAs */}
           <div className="flex flex-col items-center gap-3 pt-1">
             <button
               onClick={() => navigate("/auth")}
               className="w-full max-w-[280px] h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
               style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.30)" }}
             >
-              הצטרף לראשונים ←
+              הצטרף עכשיו ←
             </button>
             <button
               onClick={() => navigate("/feed")}
               className="text-sm font-semibold transition-colors underline-offset-2 hover:underline"
               style={{ color: "hsl(126 15% 28%)" }}
             >
-              נסה עכשיו
+              נסה קודם, בלי הרשמה
             </button>
           </div>
 
@@ -157,9 +153,17 @@ const LandingPage = () => {
 
         {/* ── Features ────────────────────────────── */}
         <section className="pb-10">
-          <p className="text-xs text-center text-muted-foreground">
-            לוח תוצאות שבועי, ספרייה אישית, ויעדי קריאה שנתיים.
-          </p>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {["לוח תוצאות שבועי", "ספרייה אישית", "יעדי קריאה שנתיים"].map(f => (
+              <span
+                key={f}
+                className="text-xs font-medium px-3 py-1.5 rounded-full"
+                style={{ background: "hsl(126 15% 28% / 0.08)", color: "hsl(126 15% 28%)" }}
+              >
+                {f}
+              </span>
+            ))}
+          </div>
         </section>
 
         {/* ── Final CTA ───────────────────────────── */}
@@ -168,9 +172,9 @@ const LandingPage = () => {
             className="rounded-2xl p-8 text-center space-y-4"
             style={{ background: "hsl(126 15% 28%)", color: "white" }}
           >
-            <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד</h3>
+            <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד.</h3>
             <p className="text-sm leading-relaxed" style={{ opacity: 0.82 }}>
-              AMUD רק נולדה - ואתה מוזמן להיות בין הראשונים שיעצבו אותה.
+              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
             </p>
             <button
               onClick={() => navigate("/auth")}
