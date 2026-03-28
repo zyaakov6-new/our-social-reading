@@ -1,4 +1,4 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Camera, Bell } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Bell, Share2, UserPlus } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";

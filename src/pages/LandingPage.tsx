@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { Trophy, Medal, Star } from "lucide-react";
-import HamburgerMenu from "@/components/HamburgerMenu";
 
 const DEMO_LEADERBOARD = [
   { rank: 1, name: "יעל כ׳", minutes: 147 },
@@ -21,32 +20,45 @@ const LandingPage = () => {
 
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: "hsl(44 27% 93%)" }}>
-      <HamburgerMenu />
 
       {/* Sticky nav */}
       <header
-        className="sticky top-0 z-40 border-b backdrop-blur-sm"
+        className="sticky top-0 z-50 border-b backdrop-blur-sm"
         style={{ background: "hsl(44 27% 93% / 0.95)", borderColor: "hsl(44 15% 80%)" }}
       >
-        <div className="max-w-lg mx-auto flex items-center justify-center px-5 py-3">
+        <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-2.5">
             <span className="amud-pillar h-5" style={{ height: 20 }} />
             <span className="font-display text-xl tracking-[0.18em]" style={{ color: "hsl(126 15% 28%)" }}>
               AMUD
             </span>
           </div>
+          <button
+            onClick={() => navigate("/auth")}
+            className="text-sm font-semibold px-4 py-1.5 rounded-lg border transition-colors touch-manipulation"
+            style={{ color: "hsl(126 15% 28%)", borderColor: "hsl(126 15% 28%)" }}
+          >
+            כניסה
+          </button>
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-5">
 
         {/* ── Hero ────────────────────────────────── */}
-        <section className="pt-8 pb-8 text-center space-y-5">
+        <section className="pt-8 pb-8 text-center space-y-4">
 
-          {/* Demo leaderboard card — social proof first */}
-          <p className="text-[11px] font-medium text-center text-muted-foreground tracking-wide uppercase">
-            הקהילה קוראת - עכשיו
-          </p>
+          {/* Title first — gives context for the leaderboard below */}
+          <h1
+            className="font-display leading-tight tracking-[0.06em]"
+            style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(1.8rem, 7.5vw, 2.6rem)" }}
+          >
+            עקוב אחרי כל ספר.
+            <br />התחרה עם חברים.
+            <br />בנה הרגל שנשאר.
+          </h1>
+
+          {/* Demo leaderboard card */}
           <div
             className="mt-2 rounded-2xl overflow-hidden text-right"
             style={{
@@ -113,37 +125,14 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* Copy + CTAs below the leaderboard */}
-          <div className="space-y-3 pt-2">
-            <h1
-              className="font-display leading-tight tracking-[0.06em]"
-              style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(1.8rem, 7.5vw, 2.6rem)" }}
-            >
-              עקוב אחרי כל ספר.
-              <br />התחרה עם חברים.
-              <br />בנה הרגל שנשאר.
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              AMUD - אפליקציית הקריאה החברתית הראשונה בעברית.
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center gap-3">
-            <button
-              onClick={() => navigate("/auth")}
-              className="w-full max-w-[280px] h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
-              style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.30)" }}
-            >
-              הצטרף עכשיו ←
-            </button>
-            <button
-              onClick={() => navigate("/feed")}
-              className="text-sm font-semibold underline-offset-2 hover:underline touch-manipulation"
-              style={{ color: "hsl(126 15% 28%)" }}
-            >
-              נסה קודם, בלי הרשמה
-            </button>
-          </div>
+          {/* Single CTA below leaderboard */}
+          <button
+            onClick={() => navigate("/auth")}
+            className="w-full max-w-[280px] h-12 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mx-auto transition-all active:scale-95 touch-manipulation"
+            style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.30)" }}
+          >
+            הצטרף עכשיו ←
+          </button>
 
         </section>
 
