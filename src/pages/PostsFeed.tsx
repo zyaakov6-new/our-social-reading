@@ -152,6 +152,7 @@ const PostsFeed = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState<Category>('discussion');
   const [activeFilter, setActiveFilter] = useState<Filter>('all');
+  const [gateOpen, setGateOpen] = useState(false);
 
   useEffect(() => { fetchPosts(); }, []);
 
@@ -222,14 +223,14 @@ const PostsFeed = () => {
       </div>
 
       {/* ── Category filter tabs ── */}
-      <div className="sticky top-[68px] z-20 px-4 py-2 overflow-x-auto"
+      <div className="sticky top-[68px] z-20 px-4 py-2 overflow-x-auto scrollbar-hide"
         style={{ background: 'linear-gradient(to bottom, hsl(44 32% 88% / 0.97), hsl(44 27% 84% / 0.95))' }}>
         <div className="flex gap-2 max-w-md mx-auto">
           {FILTERS.map(f => (
             <button
               key={f.value}
               onClick={() => setActiveFilter(f.value)}
-              className="flex-shrink-0 flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150"
+              className="flex-shrink-0 flex items-center gap-1 px-3 py-2 min-h-[36px] rounded-full text-xs font-semibold transition-all duration-150 touch-manipulation"
               style={
                 activeFilter === f.value
                   ? { background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }

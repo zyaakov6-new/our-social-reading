@@ -15,6 +15,13 @@ import BookRecommendations from "@/components/BookRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Target, Pencil, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import type { ReadingSession } from "@/hooks/useReadingSessions";
+
+const GUEST_DEMO_SESSIONS: ReadingSession[] = [
+  { id: 'demo-1', userId: 'u1', bookId: '', bookTitle: 'הסופרלנד', bookAuthor: 'ניר ברם', userName: 'יעל כ׳', minutesRead: 45, pagesRead: 32, sessionDate: '', timestamp: 'לפני 2 שעות', likes: 0, comments: 0, isMe: false },
+  { id: 'demo-2', userId: 'u2', bookId: '', bookTitle: '1984', bookAuthor: "ג'ורג' אורוול", userName: 'דני ל׳', minutesRead: 30, pagesRead: 18, sessionDate: '', timestamp: 'לפני 4 שעות', likes: 0, comments: 0, isMe: false },
+  { id: 'demo-3', userId: 'u3', bookId: '', bookTitle: 'האדם מחפש משמעות', bookAuthor: 'ויקטור פרנקל', userName: 'מיכל א׳', minutesRead: 60, pagesRead: 42, sessionDate: '', timestamp: 'לפני 6 שעות', likes: 0, comments: 0, isMe: false },
+];
 
 type Tab = 'feed' | 'challenges' | 'books';
 
@@ -342,6 +349,12 @@ const Home = () => {
                   </div>
                 ))}
               </>
+            ) : !user && sessions.length === 0 ? (
+              <>
+                {GUEST_DEMO_SESSIONS.map(s => (
+                  <FeedItemCard key={s.id} item={s} />
+                ))}
+              </>
             ) : sessions.length === 0 ? (
               <>
                 <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
@@ -450,7 +463,7 @@ const Home = () => {
                         {finishedBooks.length}
                       </span>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2">
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                       {finishedBooks.map(book => (
                         <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
                       ))}
@@ -467,7 +480,7 @@ const Home = () => {
                         {wantBooks.length}
                       </span>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2">
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                       {wantBooks.map(book => (
                         <BookCard key={book.id} book={book} onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
                       ))}

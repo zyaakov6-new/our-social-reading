@@ -352,7 +352,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
                       {c.user_id === currentUserId && (
                         <button
                           onClick={() => deleteComment(c.id)}
-                          className="opacity-0 group-hover:opacity-100 flex-shrink-0 p-1 rounded text-muted-foreground/50 hover:text-red-400 transition-all"
+                          className="flex-shrink-0 p-1.5 rounded text-muted-foreground/40 active:text-red-400 hover:text-red-400 transition-colors touch-manipulation"
                           title="מחק תגובה"
                         >
                           <Trash2 size={11} strokeWidth={1.5} />

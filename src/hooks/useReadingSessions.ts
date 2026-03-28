@@ -158,6 +158,10 @@ export const useReadingSessions = () => {
   };
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     fetchSessions();
 
     const channel = supabase

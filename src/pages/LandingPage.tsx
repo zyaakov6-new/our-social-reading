@@ -52,7 +52,7 @@ const LandingPage = () => {
               className="font-display leading-tight tracking-[0.06em]"
               style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(2rem, 8.5vw, 2.8rem)" }}
             >
-              עקוב על כל ספר.
+              עקוב אחרי כל ספר.
               <br />התחרה עם חברים.
               <br />בנה הרגל שנשאר.
             </h1>

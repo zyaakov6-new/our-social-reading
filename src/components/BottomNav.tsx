@@ -21,7 +21,7 @@ const BottomNav = () => {
     return (
       <button
         onClick={() => navigate(path)}
-        className="flex flex-col items-center justify-center flex-1 pt-2 pb-3 transition-colors"
+        className="flex flex-col items-center justify-center flex-1 pt-2 pb-3 min-h-[44px] transition-colors touch-manipulation"
       >
         <span
           className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-2xl transition-all duration-200 relative"
@@ -53,6 +53,7 @@ const BottomNav = () => {
         borderTop: "1px solid hsl(44 12% 74%)",
         boxShadow:
           "0 -4px 20px -4px hsl(126 15% 15% / 0.12), 0 -1px 4px -1px hsl(210 11% 14% / 0.06)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
       {/* DOM order: Home | spacer | Challenges */}

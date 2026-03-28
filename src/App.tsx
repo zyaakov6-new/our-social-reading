@@ -19,7 +19,6 @@ import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import BookDetailPage from "./pages/BookDetailPage";
 import NotificationsPage from "./pages/NotificationsPage";
-import LandingPage from "./pages/LandingPage";
 import LeaderboardShare from "./pages/LeaderboardShare";
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";

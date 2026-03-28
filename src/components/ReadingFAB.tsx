@@ -110,7 +110,8 @@ const ReadingFAB = () => {
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="fixed bottom-4 left-0 right-0 z-50 pointer-events-none"
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
+          className="fixed left-0 right-0 z-50 pointer-events-none"
         >
           <div className="mx-auto max-w-md flex justify-center">
             <div className="h-16 w-16 rounded-full bg-card shadow-[0_-4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center pointer-events-auto">

@@ -114,7 +114,23 @@
   }
 }
 
+@layer base {
+  /* Prevent 300ms tap delay and double-tap zoom on all interactive elements */
+  button, a, [role="button"], input, select, textarea {
+    touch-action: manipulation;
+  }
+}
+
 @layer utilities {
+  /* Hide scrollbar cross-browser while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Playfair Display italic - AMUD wordmark & editorial headlines */
   .font-display {
     font-family: 'Playfair Display', Georgia, serif;
