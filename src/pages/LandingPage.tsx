@@ -134,6 +134,14 @@ const LandingPage = () => {
             הצטרף עכשיו ←
           </button>
 
+          <button
+            onClick={() => navigate("/feed")}
+            className="text-sm font-medium touch-manipulation"
+            style={{ color: "hsl(126 15% 38%)", textDecoration: "underline", textDecorationColor: "hsl(126 15% 38% / 0.4)", textUnderlineOffset: "3px" }}
+          >
+            נסה קודם, בלי הרשמה
+          </button>
+
         </section>
 
         {/* ── Features ────────────────────────────── */}
