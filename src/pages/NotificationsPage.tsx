@@ -25,7 +25,7 @@ function timeAgo(iso: string): string {
   const h = Math.floor(m / 60);
   if (h < 24) return `לפני ${h} שע׳`;
   const d = Math.floor(h / 24);
-  return `לפני ${d} יום${d > 1 ? "ות" : ""}`;
+  return `לפני ${d} יום${d > 1 ? "ים" : ""}`;
 }
 
 const ICON_MAP: Record<NotifType, React.ElementType> = {
