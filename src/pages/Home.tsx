@@ -182,9 +182,10 @@ interface PersonalStatsCardProps {
 }
 const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) => {
   const { user } = useAuth();
-  const [goal, setGoal] = useState(12);
-  const [editingGoal, setEditingGoal] = useState(false);
-  const [draft, setDraft] = useState('');
+  const [yearlyGoal, setYearlyGoal] = useState(12);
+  const [editingYearlyGoal, setEditingYearlyGoal] = useState(false);
+  const [yearlyDraft, setYearlyDraft] = useState('');
+  const [dailyGoalMinutes, setDailyGoalMinutes] = useState(20);
 
   const mySessions = useMemo(() => sessions.filter(s => s.isMe), [sessions]);
 
@@ -210,22 +211,32 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
     return mySessions.filter(s => new Date(s.sessionDate) >= weekAgo).reduce((sum, s) => sum + s.minutesRead, 0);
   }, [mySessions]);
 
+  const todayMinutes = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return mySessions.filter(s => s.sessionDate.substring(0, 10) === today).reduce((sum, s) => sum + s.minutesRead, 0);
+  }, [mySessions]);
+
   useEffect(() => {
     if (!user) return;
-    supabase.from('profiles').select('yearly_goal_books').eq('user_id', user.id).single()
-      .then(({ data }) => { if (data?.yearly_goal_books) setGoal(data.yearly_goal_books); });
+    supabase.from('profiles').select('yearly_goal_books, reading_goal_minutes').eq('user_id', user.id).single()
+      .then(({ data }) => {
+        if (data?.yearly_goal_books) setYearlyGoal(data.yearly_goal_books);
+        if (data?.reading_goal_minutes) setDailyGoalMinutes(data.reading_goal_minutes);
+      });
   }, [user?.id]);
 
-  const saveGoal = async () => {
-    const n = parseInt(draft, 10);
-    if (!n || n < 1 || !user) { setEditingGoal(false); return; }
-    setGoal(n);
-    setEditingGoal(false);
+  const saveYearlyGoal = async () => {
+    const n = parseInt(yearlyDraft, 10);
+    if (!n || n < 1 || !user) { setEditingYearlyGoal(false); return; }
+    setYearlyGoal(n);
+    setEditingYearlyGoal(false);
     await supabase.from('profiles').update({ yearly_goal_books: n }).eq('user_id', user.id);
   };
 
   const year = new Date().getFullYear();
-  const pct = Math.min(100, Math.round((finishedCount / goal) * 100));
+  const yearlyPct = Math.min(100, Math.round((finishedCount / yearlyGoal) * 100));
+  const dailyPct = Math.min(100, Math.round((todayMinutes / dailyGoalMinutes) * 100));
+  const dailyDone = todayMinutes >= dailyGoalMinutes;
 
   const fmtMinutes = (m: number) => {
     if (m < 60) return { val: String(m), unit: 'דקות' };
@@ -255,26 +266,45 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
         </div>
       </div>
 
+      {/* Daily goal */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold" style={{ color: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 45%)' }}>
+            {dailyDone ? '✓ יעד יומי הושג!' : 'יעד יומי'}
+          </span>
+          <span className="text-[11px] text-muted-foreground">{todayMinutes}/{dailyGoalMinutes} דקות היום</span>
+        </div>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${dailyPct}%`,
+              background: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 57%)',
+            }}
+          />
+        </div>
+      </div>
+
       {/* Yearly goal */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs font-bold" style={{ color: 'hsl(126 15% 28%)' }}>יעד {year}</span>
-          {!editingGoal ? (
+          {!editingYearlyGoal ? (
             <button
-              onClick={() => { setDraft(String(goal)); setEditingGoal(true); }}
+              onClick={() => { setYearlyDraft(String(yearlyGoal)); setEditingYearlyGoal(true); }}
               className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground touch-manipulation"
             >
-              <Pencil size={10} /> {finishedCount}/{goal} ספרים
+              <Pencil size={10} /> {finishedCount}/{yearlyGoal} ספרים
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
               <input
-                type="number" value={draft} onChange={e => setDraft(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && saveGoal()}
+                type="number" value={yearlyDraft} onChange={e => setYearlyDraft(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveYearlyGoal()}
                 autoFocus min={1}
                 className="w-12 rounded-lg border border-border bg-background px-2 py-0.5 text-xs text-center"
               />
-              <button onClick={saveGoal} className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center touch-manipulation">
+              <button onClick={saveYearlyGoal} className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center touch-manipulation">
                 <Check size={11} style={{ color: 'hsl(126 15% 28%)' }} />
               </button>
             </div>
@@ -283,7 +313,7 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <div
             className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${pct}%`, background: 'linear-gradient(to left, hsl(126 15% 28%), hsl(188 60% 35%))' }}
+            style={{ width: `${yearlyPct}%`, background: 'linear-gradient(to left, hsl(126 15% 28%), hsl(188 60% 35%))' }}
           />
         </div>
       </div>
