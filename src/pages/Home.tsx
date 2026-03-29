@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useBooks } from "@/hooks/useBooks";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -13,7 +13,7 @@ import CreateChallengeDialog from "@/components/CreateChallengeDialog";
 import Leaderboard from "@/components/Leaderboard";
 import BookRecommendations from "@/components/BookRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Target, Pencil, Check } from "lucide-react";
+import { Trophy, Target, Pencil, Check, Flame, Clock, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReadingSession } from "@/hooks/useReadingSessions";
 
@@ -175,6 +175,122 @@ const pathToTab: Record<string, Tab> = {
   '/books': 'books',
 };
 
+/* ── Personal Stats Card ─────────────────────────────────────────── */
+interface PersonalStatsCardProps {
+  sessions: ReadingSession[];
+  finishedCount: number;
+}
+const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) => {
+  const { user } = useAuth();
+  const [goal, setGoal] = useState(12);
+  const [editingGoal, setEditingGoal] = useState(false);
+  const [draft, setDraft] = useState('');
+
+  const mySessions = useMemo(() => sessions.filter(s => s.isMe), [sessions]);
+
+  const streak = useMemo(() => {
+    if (!mySessions.length) return 0;
+    const now = new Date();
+    const toDateStr = (d: Date) => d.toISOString().split('T')[0];
+    const today = toDateStr(now);
+    const yesterday = toDateStr(new Date(now.getTime() - 86400000));
+    const uniqueDates = new Set(mySessions.map(s => s.sessionDate.substring(0, 10)));
+    const startOffset = uniqueDates.has(today) ? 0 : uniqueDates.has(yesterday) ? 1 : -1;
+    if (startOffset === -1) return 0;
+    let count = 0;
+    for (let i = startOffset; ; i++) {
+      if (uniqueDates.has(toDateStr(new Date(now.getTime() - i * 86400000)))) count++;
+      else break;
+    }
+    return count;
+  }, [mySessions]);
+
+  const weekMinutes = useMemo(() => {
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return mySessions.filter(s => new Date(s.sessionDate) >= weekAgo).reduce((sum, s) => sum + s.minutesRead, 0);
+  }, [mySessions]);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('profiles').select('yearly_goal_books').eq('user_id', user.id).single()
+      .then(({ data }) => { if (data?.yearly_goal_books) setGoal(data.yearly_goal_books); });
+  }, [user?.id]);
+
+  const saveGoal = async () => {
+    const n = parseInt(draft, 10);
+    if (!n || n < 1 || !user) { setEditingGoal(false); return; }
+    setGoal(n);
+    setEditingGoal(false);
+    await supabase.from('profiles').update({ yearly_goal_books: n }).eq('user_id', user.id);
+  };
+
+  const year = new Date().getFullYear();
+  const pct = Math.min(100, Math.round((finishedCount / goal) * 100));
+
+  const fmtMinutes = (m: number) => {
+    if (m < 60) return { val: String(m), unit: 'דקות' };
+    const h = Math.floor(m / 60), rem = m % 60;
+    return { val: rem > 0 ? `${h}:${String(rem).padStart(2, '0')}` : `${h}`, unit: 'שעות' };
+  };
+  const week = fmtMinutes(weekMinutes);
+
+  return (
+    <div className="rounded-xl bg-card p-4 card-shadow space-y-3">
+      {/* 3-stat row */}
+      <div className="flex gap-2">
+        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(28 71% 57% / 0.10)' }}>
+          <Flame size={19} style={{ color: 'hsl(28 71% 57%)' }} />
+          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(28 71% 45%)' }}>{streak}</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">יום רצף</span>
+        </div>
+        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(188 60% 35% / 0.08)' }}>
+          <Clock size={19} style={{ color: 'hsl(188 60% 35%)' }} />
+          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(188 60% 35%)' }}>{week.val}</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">{week.unit} השבוע</span>
+        </div>
+        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(126 15% 28% / 0.08)' }}>
+          <BookOpen size={19} style={{ color: 'hsl(126 15% 28%)' }} />
+          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(126 15% 28%)' }}>{finishedCount}</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">ספרים</span>
+        </div>
+      </div>
+
+      {/* Yearly goal */}
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs font-bold" style={{ color: 'hsl(126 15% 28%)' }}>יעד {year}</span>
+          {!editingGoal ? (
+            <button
+              onClick={() => { setDraft(String(goal)); setEditingGoal(true); }}
+              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground touch-manipulation"
+            >
+              <Pencil size={10} /> {finishedCount}/{goal} ספרים
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number" value={draft} onChange={e => setDraft(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && saveGoal()}
+                autoFocus min={1}
+                className="w-12 rounded-lg border border-border bg-background px-2 py-0.5 text-xs text-center"
+              />
+              <button onClick={saveGoal} className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center touch-manipulation">
+                <Check size={11} style={{ color: 'hsl(126 15% 28%)' }} />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${pct}%`, background: 'linear-gradient(to left, hsl(126 15% 28%), hsl(188 60% 35%))' }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ── Reading Goal Banner ─────────────────────────────────────────── */
 interface GoalBannerProps {
   finishedCount: number;
@@ -330,6 +446,7 @@ const Home = () => {
                 </button>
               </div>
             )}
+            {user && <PersonalStatsCard sessions={sessions} finishedCount={finishedBooks.length} />}
             <Leaderboard />
             {sessionsLoading ? (
               <>
