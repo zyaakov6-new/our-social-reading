@@ -1,4 +1,5 @@
 const GOOGLE_BOOKS_API = 'https://www.googleapis.com/books/v1/volumes';
+const API_KEY = import.meta.env.VITE_GOOGLE_BOOKS_API_KEY;
 
 export interface BookSearchResult {
   googleBooksId: string;
@@ -17,6 +18,7 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
     q: query,
     maxResults: '8',
     orderBy: 'relevance',
+    ...(API_KEY ? { key: API_KEY } : {}),
   });
 
   try {
