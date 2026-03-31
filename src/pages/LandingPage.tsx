@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Medal, Star, Flame, Clock, Target, Users } from "lucide-react";
+import { Medal, Star, Flame, Clock, Target, Users, BookOpen, ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -12,25 +13,30 @@ import { cn } from "@/lib/utils";
 
 type Period = "week" | "month" | "year";
 
-const DATA: Record<Period, { name: string; minutes: number; color: string }[]> = {
+const DATA: Record<Period, { name: string; minutes: number; initials: string; color: string }[]> = {
   week:  [
-    { name: "יעל כ׳",  minutes: 147, color: "bg-primary" },
-    { name: "דני ל׳",  minutes: 93,  color: "bg-secondary" },
-    { name: "מיכל א׳", minutes: 71,  color: "bg-[hsl(28_71%_57%)]" },
+    { name: "יעל כ׳",  minutes: 147,  initials: "י", color: "bg-primary" },
+    { name: "דני ל׳",  minutes: 93,   initials: "ד", color: "bg-secondary" },
+    { name: "מיכל א׳", minutes: 71,   initials: "מ", color: "bg-cta" },
   ],
   month: [
-    { name: "מיכל א׳", minutes: 610, color: "bg-[hsl(28_71%_57%)]" },
-    { name: "יעל כ׳",  minutes: 540, color: "bg-primary" },
-    { name: "רון ב׳",  minutes: 388, color: "bg-secondary" },
+    { name: "מיכל א׳", minutes: 610,  initials: "מ", color: "bg-cta" },
+    { name: "יעל כ׳",  minutes: 540,  initials: "י", color: "bg-primary" },
+    { name: "רון ב׳",  minutes: 388,  initials: "ר", color: "bg-secondary" },
   ],
   year:  [
-    { name: "דני ל׳",  minutes: 4820, color: "bg-secondary" },
-    { name: "מיכל א׳", minutes: 4210, color: "bg-[hsl(28_71%_57%)]" },
-    { name: "יעל כ׳",  minutes: 3990, color: "bg-primary" },
+    { name: "דני ל׳",  minutes: 4820, initials: "ד", color: "bg-secondary" },
+    { name: "מיכל א׳", minutes: 4210, initials: "מ", color: "bg-cta" },
+    { name: "יעל כ׳",  minutes: 3990, initials: "י", color: "bg-primary" },
   ],
 };
 
-const MEDAL_COLORS = ["text-yellow-500", "text-slate-400", "text-amber-600"];
+const MEDALS = [
+  { icon: Medal, className: "text-yellow-400 fill-yellow-400/20" },
+  { icon: Medal, className: "text-slate-400 fill-slate-400/20" },
+  { icon: Medal, className: "text-amber-600 fill-amber-600/20" },
+];
+
 const PERIOD_LABEL: Record<Period, string> = { week: "השבוע", month: "החודש", year: "השנה" };
 
 const fmtMinutes = (m: number) => {
@@ -39,212 +45,227 @@ const fmtMinutes = (m: number) => {
   return rem ? `${h}:${String(rem).padStart(2, "0")} שע׳` : `${h} שע׳`;
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.45, ease: "easeOut" } }),
+};
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>("week");
   const rows = DATA[period];
+  const leader = rows[0];
 
   return (
     <div dir="rtl" className="min-h-screen bg-background">
 
-      {/* ── Header ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
-        <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-3">
+      {/* ── Sticky header ─────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
+        <div className="max-w-lg mx-auto flex items-center justify-between px-5 h-14">
           <div className="flex items-center gap-2.5">
-            <span className="block w-[3px] h-[22px] rounded-sm bg-primary flex-shrink-0" />
+            <span className="block w-[3px] h-6 rounded-full bg-primary flex-shrink-0" />
             <span className="font-display text-xl tracking-[0.18em] text-primary">AMUD</span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="touch-manipulation">
+          <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="touch-manipulation font-semibold">
             כניסה
           </Button>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-5 py-8 space-y-6">
+      <main className="max-w-lg mx-auto px-4 pt-8 pb-4 space-y-5">
 
-        {/* ── Hero ───────────────────────────────────────────────────── */}
-        <div className="text-center space-y-4">
-          <Badge variant="outline" className="text-xs font-bold tracking-widest uppercase px-3 py-1">
+        {/* ── Hero ──────────────────────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="text-center space-y-3 pt-2">
+          <Badge variant="outline" className="font-bold tracking-widest uppercase text-[10px] px-3 py-1 border-primary/30 text-primary">
             אפליקציית מעקב קריאה חברתית
           </Badge>
-          <h1
-            className="font-display leading-tight tracking-[0.06em] text-primary"
-            style={{ fontSize: "clamp(1.8rem, 7.5vw, 2.6rem)" }}
-          >
-            עקוב אחרי כל ספר.
-            <br />התחרה עם חברים.
-            <br />בנה הרגל שנשאר.
+          <h1 className="font-display leading-[1.15] tracking-[0.05em]" style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)" }}>
+            <span className="text-primary">עקוב אחרי כל ספר.</span>
+            <br />
+            <span className="text-[hsl(28_71%_50%)]">התחרה עם חברים.</span>
+            <br />
+            <span className="text-primary">בנה הרגל שנשאר.</span>
           </h1>
-        </div>
+        </motion.div>
 
-        {/* ── Leaderboard Card ───────────────────────────────────────── */}
-        <Card className="overflow-hidden">
-          <CardHeader className="p-0">
-            <div className="flex items-center justify-between px-4 pt-3 pb-2">
-              <span className="text-xs font-bold text-muted-foreground">
-                לוח תוצאות — {PERIOD_LABEL[period]}
-              </span>
-              <Badge className="text-[10px] font-bold bg-secondary/15 text-secondary hover:bg-secondary/20 border-0">
-                אתגר: 52 ספרים ב-2026
-              </Badge>
-            </div>
-
-            <Tabs value={period} onValueChange={v => setPeriod(v as Period)}>
-              <TabsList className="w-full rounded-none border-t border-b h-9 bg-muted/40 gap-0">
-                {(["week", "month", "year"] as Period[]).map(p => (
-                  <TabsTrigger
-                    key={p}
-                    value={p}
-                    className="flex-1 rounded-none text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none touch-manipulation"
-                  >
-                    {PERIOD_LABEL[p]}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </CardHeader>
-
-          <CardContent className="p-0">
-            {rows.map((r, i) => (
-              <div key={r.name}>
-                <div className="flex items-center gap-3 px-4 py-3">
-                  <span className="w-5 text-center text-sm font-bold text-muted-foreground flex-shrink-0">
-                    {i + 1}
-                  </span>
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarFallback className={cn("text-[11px] font-bold text-white", r.color)}>
-                      {r.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="flex-1 text-sm font-semibold">{r.name}</span>
-                  <Medal size={14} className={cn("flex-shrink-0", MEDAL_COLORS[i])} />
-                  <span className="text-xs font-bold text-secondary">{fmtMinutes(r.minutes)}</span>
+        {/* ── Leaderboard card ──────────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1}>
+          <Card className="overflow-hidden shadow-lg border-border/60">
+            {/* Dark header */}
+            <div className="bg-primary px-4 pt-4 pb-0">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                  <span className="text-sm font-bold text-primary-foreground">לוח תוצאות</span>
                 </div>
-                <Separator />
+                <Badge className="bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/20 border-0 text-[10px] font-bold">
+                  אתגר: 52 ספרים ב-2026
+                </Badge>
               </div>
-            ))}
 
-            {/* "You could be here" row */}
-            <div className="flex items-center gap-3 px-4 py-3 bg-primary">
-              <span className="w-5 text-center text-sm font-bold text-primary-foreground/50 flex-shrink-0">?</span>
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-primary-foreground/15 text-primary-foreground/60 text-sm font-bold">?</AvatarFallback>
-              </Avatar>
-              <span className="flex-1 text-sm font-semibold text-primary-foreground/85">
-                את/ה יכול/ה להיות כאן
-              </span>
-              <Button
-                size="sm"
-                onClick={() => navigate("/auth")}
-                className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 h-7 px-3 text-xs touch-manipulation"
-              >
-                הצטרף
-              </Button>
+              <Tabs value={period} onValueChange={v => setPeriod(v as Period)}>
+                <TabsList className="w-full bg-primary-foreground/10 rounded-t-lg rounded-b-none border-0 h-9 p-0.5 gap-0.5">
+                  {(["week", "month", "year"] as Period[]).map(p => (
+                    <TabsTrigger
+                      key={p}
+                      value={p}
+                      className="flex-1 text-sm text-primary-foreground/70 data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:font-bold data-[state=active]:shadow-sm touch-manipulation rounded-md transition-all"
+                    >
+                      {PERIOD_LABEL[p]}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
 
-            {/* Motivational footer */}
-            <div className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[hsl(28_71%_57%/0.06)]">
-              <Star size={11} className="text-[hsl(28_71%_50%)] fill-current flex-shrink-0" />
-              <span className="text-[11px] font-semibold text-[hsl(28_71%_45%)]">
-                {rows[0].name} קרא/ה {fmtMinutes(rows[0].minutes)} — אתה יכול לנצח {PERIOD_LABEL[period]}!
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+            {/* Rows */}
+            <CardContent className="p-0">
+              {rows.map((r, i) => {
+                const M = MEDALS[i];
+                return (
+                  <div key={r.name}>
+                    <div className="flex items-center gap-3 px-4 py-3.5">
+                      <span className="w-5 text-center text-xs font-bold text-muted-foreground/60 flex-shrink-0 tabular-nums">
+                        {i + 1}
+                      </span>
+                      <Avatar className="h-9 w-9 flex-shrink-0 ring-2 ring-background shadow-sm">
+                        <AvatarFallback className={cn("text-xs font-bold text-white", r.color)}>
+                          {r.initials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="flex-1 text-sm font-semibold">{r.name}</span>
+                      <M.icon size={16} className={cn("flex-shrink-0", M.className)} strokeWidth={1.5} />
+                      <span className="text-sm font-bold text-secondary tabular-nums">{fmtMinutes(r.minutes)}</span>
+                    </div>
+                    {i < rows.length - 1 && <Separator className="mx-4 w-auto" />}
+                  </div>
+                );
+              })}
 
-        {/* ── App preview — 3 stat mini-cards ───────────────────────── */}
-        <div className="grid grid-cols-3 gap-2">
-          <Card>
-            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
-              <Flame size={18} className="text-[hsl(28_71%_57%)]" />
-              <span className="text-xl font-extrabold text-[hsl(28_71%_45%)] leading-none">12</span>
-              <span className="text-[9px] text-muted-foreground text-center">יום רצף</span>
+              {/* You row */}
+              <div className="mx-3 mb-3 mt-2 rounded-xl overflow-hidden"
+                style={{ background: "linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(188 60% 30%) 100%)" }}>
+                <div className="flex items-center gap-3 px-3 py-3">
+                  <span className="w-5 text-center text-xs font-bold text-white/40 flex-shrink-0">?</span>
+                  <Avatar className="h-9 w-9 flex-shrink-0 ring-2 ring-white/20">
+                    <AvatarFallback className="bg-white/15 text-white/60 text-sm font-bold">?</AvatarFallback>
+                  </Avatar>
+                  <span className="flex-1 text-sm font-semibold text-white/90">את/ה יכול/ה להיות כאן</span>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate("/auth")}
+                    className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 h-8 px-4 text-xs font-bold shadow-md touch-manipulation"
+                  >
+                    הצטרף
+                  </Button>
+                </div>
+              </div>
+
+              {/* Motivational line */}
+              <div className="flex items-center justify-center gap-1.5 px-4 pb-3">
+                <Star size={11} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                <span className="text-[11px] font-medium text-muted-foreground">
+                  {leader.name} קרא/ה {fmtMinutes(leader.minutes)} — אתה יכול לנצח {PERIOD_LABEL[period]}!
+                </span>
+              </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
-              <Clock size={18} className="text-secondary" />
-              <span className="text-xl font-extrabold text-secondary leading-none">3:20</span>
-              <span className="text-[9px] text-muted-foreground text-center">שעות השבוע</span>
+        </motion.div>
+
+        {/* ── Stat mini-cards ───────────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="grid grid-cols-3 gap-2.5">
+          {[
+            { icon: Flame, value: "12", label: "יום רצף", accent: "hsl(28 71% 57%)", accentBg: "hsl(28 71% 57% / 0.08)" },
+            { icon: Clock, value: "3:20", label: "שע׳ השבוע", accent: "hsl(188 60% 35%)", accentBg: "hsl(188 60% 35% / 0.08)" },
+            { icon: BookOpen, value: "7", label: "ספרים", accent: "hsl(126 15% 28%)", accentBg: "hsl(126 15% 28% / 0.08)" },
+          ].map(({ icon: Icon, value, label, accent, accentBg }) => (
+            <Card key={label} className="overflow-hidden border-border/60">
+              <div className="h-1" style={{ background: accent }} />
+              <CardContent className="flex flex-col items-center pt-3 pb-3 px-1 gap-0.5">
+                <Icon size={16} style={{ color: accent }} />
+                <span className="text-2xl font-extrabold leading-tight tabular-nums" style={{ color: accent }}>{value}</span>
+                <span className="text-[9px] text-muted-foreground text-center leading-tight">{label}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+
+        {/* ── Goal progress card ────────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
+          <Card className="border-border/60">
+            <CardContent className="py-4 px-4 space-y-3.5">
+              <div className="flex items-center gap-2 mb-0.5">
+                <Target size={14} className="text-primary" />
+                <span className="text-xs font-bold text-primary">יעדים</span>
+              </div>
+              {[
+                { label: "יעד יומי", sub: "25/30 דקות", value: 83 },
+                { label: "יעד 2026", sub: "7/24 ספרים",  value: 29 },
+              ].map(g => (
+                <div key={g.label} className="space-y-1.5">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs font-semibold text-foreground/80">{g.label}</span>
+                    <span className="text-[10px] text-muted-foreground">{g.sub}</span>
+                  </div>
+                  <Progress value={g.value} className="h-2" />
+                </div>
+              ))}
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
-              <Target size={18} className="text-primary" />
-              <span className="text-xl font-extrabold text-primary leading-none">7</span>
-              <span className="text-[9px] text-muted-foreground text-center">ספרים</span>
-            </CardContent>
-          </Card>
-        </div>
+        </motion.div>
 
-        {/* Goal progress bars */}
-        <Card>
-          <CardContent className="py-3 px-4 space-y-3">
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-primary">יעד יומי</span>
-                <span className="text-[10px] text-muted-foreground">25/30 דקות</span>
-              </div>
-              <Progress value={83} className="h-1.5" />
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <span className="text-xs font-bold text-primary">יעד 2026</span>
-                <span className="text-[10px] text-muted-foreground">7/24 ספרים</span>
-              </div>
-              <Progress value={29} className="h-1.5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── CTAs ───────────────────────────────────────────────────── */}
-        <div className="space-y-2.5">
+        {/* ── CTAs ──────────────────────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4} className="space-y-2.5 pb-2">
           <Button
             size="lg"
-            className="w-full touch-manipulation"
+            className="w-full touch-manipulation font-bold text-base shadow-md shadow-primary/20 gap-2"
             onClick={() => navigate("/feed")}
           >
-            נסה בלי הרשמה ←
+            נסה בלי הרשמה
+            <ArrowLeft size={16} />
           </Button>
           <Button
             size="lg"
             variant="outline"
-            className="w-full touch-manipulation"
+            className="w-full touch-manipulation font-semibold border-primary/40 text-primary hover:bg-primary/5"
             onClick={() => navigate("/auth")}
           >
             הצטרף עכשיו
           </Button>
-        </div>
+        </motion.div>
 
       </main>
 
-      {/* ── Final CTA ──────────────────────────────────────────────── */}
-      <section className="px-5 pb-16 max-w-lg mx-auto">
-        <Card className="bg-primary text-primary-foreground text-center overflow-hidden">
-          <CardContent className="py-10 px-6 space-y-4">
-            <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד.</h3>
-            <p className="text-sm leading-relaxed opacity-80">
-              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
-            </p>
-            <div className="flex items-center justify-center gap-2 text-xs opacity-70">
+      {/* ── Final CTA ─────────────────────────────────────────────── */}
+      <motion.section
+        variants={fadeUp} initial="hidden" animate="visible" custom={5}
+        className="px-4 pb-16 max-w-lg mx-auto"
+      >
+        <Card className="overflow-hidden border-0 shadow-xl">
+          <div className="bg-primary px-6 py-10 text-center space-y-4">
+            <div className="flex items-center justify-center gap-2 text-primary-foreground/60 text-xs mb-1">
               <Users size={13} />
-              <span>847 קוראים כבר הצטרפו</span>
+              <span>847 קוראים כבר בפנים</span>
             </div>
+            <h3 className="font-display text-3xl tracking-wide text-primary-foreground leading-tight">
+              הפסק לקרוא לבד.
+            </h3>
+            <p className="text-sm leading-relaxed text-primary-foreground/75 max-w-xs mx-auto">
+              הצטרף לראשונים שבונים הרגל קריאה שנשאר — ספר אחרי ספר.
+            </p>
             <Button
               size="lg"
-              variant="secondary"
-              className="bg-background text-primary hover:bg-background/90 touch-manipulation"
               onClick={() => navigate("/auth")}
+              className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 font-bold shadow-lg shadow-black/20 touch-manipulation mt-2"
             >
               הצטרף עכשיו ←
             </Button>
-          </CardContent>
+          </div>
         </Card>
-      </section>
+      </motion.section>
 
-      {/* ── Footer ─────────────────────────────────────────────────── */}
       <footer className="border-t py-6 text-center">
-        <p className="text-xs text-muted-foreground">AMUD - קריאה חברתית בעברית</p>
+        <p className="text-xs text-muted-foreground">AMUD — קריאה חברתית בעברית</p>
       </footer>
 
     </div>
