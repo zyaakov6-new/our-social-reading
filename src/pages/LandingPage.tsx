@@ -1,249 +1,252 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Medal, Star } from "lucide-react";
+import { Medal, Star, Flame, Clock, Target, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 type Period = "week" | "month" | "year";
 
-const TABS: { id: Period; label: string }[] = [
-  { id: "week",  label: "השבוע" },
-  { id: "month", label: "החודש" },
-  { id: "year",  label: "השנה" },
-];
-
-const DATA: Record<Period, { name: string; minutes: number }[]> = {
-  week:  [{ name: "יעל כ׳", minutes: 147 }, { name: "דני ל׳", minutes: 93 }, { name: "מיכל א׳", minutes: 71 }],
-  month: [{ name: "מיכל א׳", minutes: 610 }, { name: "יעל כ׳", minutes: 540 }, { name: "רון ב׳", minutes: 388 }],
-  year:  [{ name: "דני ל׳", minutes: 4820 }, { name: "מיכל א׳", minutes: 4210 }, { name: "יעל כ׳", minutes: 3990 }],
+const DATA: Record<Period, { name: string; minutes: number; color: string }[]> = {
+  week:  [
+    { name: "יעל כ׳",  minutes: 147, color: "bg-primary" },
+    { name: "דני ל׳",  minutes: 93,  color: "bg-secondary" },
+    { name: "מיכל א׳", minutes: 71,  color: "bg-[hsl(28_71%_57%)]" },
+  ],
+  month: [
+    { name: "מיכל א׳", minutes: 610, color: "bg-[hsl(28_71%_57%)]" },
+    { name: "יעל כ׳",  minutes: 540, color: "bg-primary" },
+    { name: "רון ב׳",  minutes: 388, color: "bg-secondary" },
+  ],
+  year:  [
+    { name: "דני ל׳",  minutes: 4820, color: "bg-secondary" },
+    { name: "מיכל א׳", minutes: 4210, color: "bg-[hsl(28_71%_57%)]" },
+    { name: "יעל כ׳",  minutes: 3990, color: "bg-primary" },
+  ],
 };
 
-const PERIOD_LABEL: Record<Period, string> = {
-  week: "השבוע",
-  month: "החודש",
-  year: "השנה",
-};
-
-const MEDAL_COLORS = [
-  "hsl(43 74% 49%)",   // gold
-  "hsl(210 14% 65%)",  // silver
-  "hsl(22 65% 50%)",   // bronze
-];
-
-const AVATAR_COLORS = [
-  "hsl(126 15% 28%)",
-  "hsl(188 60% 35%)",
-  "hsl(28 71% 50%)",
-];
+const MEDAL_COLORS = ["text-yellow-500", "text-slate-400", "text-amber-600"];
+const PERIOD_LABEL: Record<Period, string> = { week: "השבוע", month: "החודש", year: "השנה" };
 
 const fmtMinutes = (m: number) => {
   if (m < 60) return `${m} דק׳`;
   const h = Math.floor(m / 60), rem = m % 60;
-  return rem > 0 ? `${h}:${String(rem).padStart(2, "0")} שע׳` : `${h} שע׳`;
+  return rem ? `${h}:${String(rem).padStart(2, "0")} שע׳` : `${h} שע׳`;
 };
 
-const LandingPage = () => {
+export default function LandingPage() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState<Period>("week");
   const rows = DATA[period];
 
   return (
-    <div dir="rtl" className="min-h-screen" style={{ background: "hsl(44 27% 93%)" }}>
+    <div dir="rtl" className="min-h-screen bg-background">
 
-      {/* Sticky nav */}
-      <header
-        className="sticky top-0 z-50 border-b backdrop-blur-sm"
-        style={{ background: "hsl(44 27% 93% / 0.95)", borderColor: "hsl(44 15% 80%)" }}
-      >
+      {/* ── Header ─────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-sm">
         <div className="max-w-lg mx-auto flex items-center justify-between px-5 py-3">
           <div className="flex items-center gap-2.5">
-            <span className="amud-pillar h-5" style={{ height: 20 }} />
-            <span className="font-display text-xl tracking-[0.18em]" style={{ color: "hsl(126 15% 28%)" }}>
-              AMUD
-            </span>
+            <span className="block w-[3px] h-[22px] rounded-sm bg-primary flex-shrink-0" />
+            <span className="font-display text-xl tracking-[0.18em] text-primary">AMUD</span>
           </div>
-          <button
-            onClick={() => navigate("/auth")}
-            className="text-sm font-semibold px-4 py-1.5 rounded-lg border transition-colors touch-manipulation"
-            style={{ color: "hsl(126 15% 28%)", borderColor: "hsl(126 15% 28%)" }}
-          >
+          <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="touch-manipulation">
             כניסה
-          </button>
+          </Button>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-5">
-        <section className="pt-8 pb-10 space-y-5">
+      <main className="max-w-lg mx-auto px-5 py-8 space-y-6">
 
-          {/* Descriptor */}
-          <div className="text-center">
-            <span
-              className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
-              style={{ background: "hsl(126 15% 28% / 0.10)", color: "hsl(126 15% 28%)" }}
-            >
-              אפליקציית מעקב קריאה חברתית
-            </span>
-          </div>
-
-          {/* Tagline */}
+        {/* ── Hero ───────────────────────────────────────────────────── */}
+        <div className="text-center space-y-4">
+          <Badge variant="outline" className="text-xs font-bold tracking-widest uppercase px-3 py-1">
+            אפליקציית מעקב קריאה חברתית
+          </Badge>
           <h1
-            className="font-display leading-tight tracking-[0.06em] text-center"
-            style={{ color: "hsl(126 15% 28%)", fontSize: "clamp(1.8rem, 7.5vw, 2.6rem)" }}
+            className="font-display leading-tight tracking-[0.06em] text-primary"
+            style={{ fontSize: "clamp(1.8rem, 7.5vw, 2.6rem)" }}
           >
             עקוב אחרי כל ספר.
             <br />התחרה עם חברים.
             <br />בנה הרגל שנשאר.
           </h1>
+        </div>
 
-          {/* Leaderboard card */}
-          <div
-            className="rounded-2xl overflow-hidden"
-            style={{
-              border: "1px solid hsl(44 15% 78%)",
-              background: "hsl(44 30% 97%)",
-              boxShadow: "0 6px 24px hsl(126 15% 28% / 0.08)",
-            }}
-          >
-            {/* Tabs */}
-            <div className="flex" style={{ borderBottom: "1px solid hsl(44 15% 80%)" }}>
-              {TABS.map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setPeriod(t.id)}
-                  className="flex-1 py-2.5 text-sm font-bold transition-colors touch-manipulation"
-                  style={{
-                    color: period === t.id ? "hsl(126 15% 28%)" : "hsl(44 12% 55%)",
-                    borderBottom: period === t.id ? "2px solid hsl(126 15% 28%)" : "2px solid transparent",
-                    background: "transparent",
-                  }}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Header row */}
-            <div
-              className="px-4 py-2 flex items-center justify-between"
-              style={{ borderBottom: "1px solid hsl(44 15% 82%)" }}
-            >
-              <span className="text-[11px] font-bold" style={{ color: "hsl(126 15% 28% / 0.55)" }}>
+        {/* ── Leaderboard Card ───────────────────────────────────────── */}
+        <Card className="overflow-hidden">
+          <CardHeader className="p-0">
+            <div className="flex items-center justify-between px-4 pt-3 pb-2">
+              <span className="text-xs font-bold text-muted-foreground">
                 לוח תוצאות — {PERIOD_LABEL[period]}
               </span>
-              <span
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                style={{ background: "hsl(188 60% 35% / 0.12)", color: "hsl(188 60% 35%)" }}
-              >
+              <Badge className="text-[10px] font-bold bg-secondary/15 text-secondary hover:bg-secondary/20 border-0">
                 אתגר: 52 ספרים ב-2026
-              </span>
+              </Badge>
             </div>
 
-            {/* Rows */}
+            <Tabs value={period} onValueChange={v => setPeriod(v as Period)}>
+              <TabsList className="w-full rounded-none border-t border-b h-9 bg-muted/40 gap-0">
+                {(["week", "month", "year"] as Period[]).map(p => (
+                  <TabsTrigger
+                    key={p}
+                    value={p}
+                    className="flex-1 rounded-none text-sm data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none touch-manipulation"
+                  >
+                    {PERIOD_LABEL[p]}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </CardHeader>
+
+          <CardContent className="p-0">
             {rows.map((r, i) => (
-              <div
-                key={r.name}
-                className="flex items-center gap-3 px-4 py-3"
-                style={{ borderBottom: "1px solid hsl(44 15% 84%)" }}
-              >
-                <span className="text-sm font-bold w-5 text-center flex-shrink-0" style={{ color: "hsl(44 12% 55%)" }}>
-                  {i + 1}
-                </span>
-                <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0"
-                  style={{ background: AVATAR_COLORS[i], color: "white" }}
-                >
-                  {r.name[0]}
+              <div key={r.name}>
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <span className="w-5 text-center text-sm font-bold text-muted-foreground flex-shrink-0">
+                    {i + 1}
+                  </span>
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarFallback className={cn("text-[11px] font-bold text-white", r.color)}>
+                      {r.name[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="flex-1 text-sm font-semibold">{r.name}</span>
+                  <Medal size={14} className={cn("flex-shrink-0", MEDAL_COLORS[i])} />
+                  <span className="text-xs font-bold text-secondary">{fmtMinutes(r.minutes)}</span>
                 </div>
-                <span className="flex-1 text-sm font-semibold" style={{ color: "hsl(126 15% 22%)" }}>
-                  {r.name}
-                </span>
-                <Medal size={14} strokeWidth={2} style={{ color: MEDAL_COLORS[i] }} />
-                <span className="text-xs font-bold" style={{ color: "hsl(188 60% 35%)" }}>
-                  {fmtMinutes(r.minutes)}
-                </span>
+                <Separator />
               </div>
             ))}
 
             {/* "You could be here" row */}
-            <div
-              className="flex items-center gap-3 px-4 py-3"
-              style={{ background: "hsl(126 15% 28%)", borderBottom: "1px solid hsl(126 15% 22%)" }}
-            >
-              <span className="text-sm font-bold w-5 text-center flex-shrink-0" style={{ color: "hsl(44 27% 93% / 0.5)" }}>?</span>
-              <div
-                className="h-8 w-8 rounded-full flex items-center justify-center text-[12px] font-bold flex-shrink-0"
-                style={{ background: "hsl(44 27% 93% / 0.15)", color: "hsl(44 27% 93% / 0.6)" }}
-              >
-                ?
-              </div>
-              <span className="flex-1 text-sm font-semibold" style={{ color: "hsl(44 27% 93% / 0.85)" }}>
+            <div className="flex items-center gap-3 px-4 py-3 bg-primary">
+              <span className="w-5 text-center text-sm font-bold text-primary-foreground/50 flex-shrink-0">?</span>
+              <Avatar className="h-8 w-8 flex-shrink-0">
+                <AvatarFallback className="bg-primary-foreground/15 text-primary-foreground/60 text-sm font-bold">?</AvatarFallback>
+              </Avatar>
+              <span className="flex-1 text-sm font-semibold text-primary-foreground/85">
                 את/ה יכול/ה להיות כאן
               </span>
-              <button
+              <Button
+                size="sm"
                 onClick={() => navigate("/auth")}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95 touch-manipulation"
-                style={{ background: "hsl(28 71% 57%)", color: "white" }}
+                className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 h-7 px-3 text-xs touch-manipulation"
               >
                 הצטרף
-              </button>
+              </Button>
             </div>
 
             {/* Motivational footer */}
-            <div
-              className="px-4 py-2.5 text-center text-[11px] font-semibold flex items-center justify-center gap-1.5"
-              style={{ color: "hsl(28 71% 50%)", background: "hsl(28 71% 57% / 0.06)" }}
-            >
-              <Star size={11} strokeWidth={2} fill="currentColor" />
-              {rows[0].name} קרא/ה {fmtMinutes(rows[0].minutes)} — אתה יכול לנצח {PERIOD_LABEL[period]}!
+            <div className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[hsl(28_71%_57%/0.06)]">
+              <Star size={11} className="text-[hsl(28_71%_50%)] fill-current flex-shrink-0" />
+              <span className="text-[11px] font-semibold text-[hsl(28_71%_45%)]">
+                {rows[0].name} קרא/ה {fmtMinutes(rows[0].minutes)} — אתה יכול לנצח {PERIOD_LABEL[period]}!
+              </span>
             </div>
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* CTAs */}
-          <div className="space-y-2.5">
-            <button
-              onClick={() => navigate("/auth")}
-              className="w-full h-12 rounded-xl text-sm font-bold transition-all active:scale-95 touch-manipulation"
-              style={{ background: "hsl(126 15% 28%)", color: "white", boxShadow: "0 4px 14px hsl(126 15% 28% / 0.28)" }}
-            >
-              הצטרף עכשיו ←
-            </button>
-            <button
-              onClick={() => navigate("/feed")}
-              className="w-full h-12 rounded-xl text-sm font-bold border transition-all active:scale-95 touch-manipulation"
-              style={{ color: "hsl(126 15% 28%)", borderColor: "hsl(126 15% 28% / 0.4)", background: "transparent" }}
-            >
-              נסה קודם, בלי הרשמה ←
-            </button>
-          </div>
+        {/* ── App preview — 3 stat mini-cards ───────────────────────── */}
+        <div className="grid grid-cols-3 gap-2">
+          <Card>
+            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
+              <Flame size={18} className="text-[hsl(28_71%_57%)]" />
+              <span className="text-xl font-extrabold text-[hsl(28_71%_45%)] leading-none">12</span>
+              <span className="text-[9px] text-muted-foreground text-center">יום רצף</span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
+              <Clock size={18} className="text-secondary" />
+              <span className="text-xl font-extrabold text-secondary leading-none">3:20</span>
+              <span className="text-[9px] text-muted-foreground text-center">שעות השבוע</span>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex flex-col items-center py-3 px-2 gap-1">
+              <Target size={18} className="text-primary" />
+              <span className="text-xl font-extrabold text-primary leading-none">7</span>
+              <span className="text-[9px] text-muted-foreground text-center">ספרים</span>
+            </CardContent>
+          </Card>
+        </div>
 
-        </section>
+        {/* Goal progress bars */}
+        <Card>
+          <CardContent className="py-3 px-4 space-y-3">
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-primary">יעד יומי</span>
+                <span className="text-[10px] text-muted-foreground">25/30 דקות</span>
+              </div>
+              <Progress value={83} className="h-1.5" />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-bold text-primary">יעד 2026</span>
+                <span className="text-[10px] text-muted-foreground">7/24 ספרים</span>
+              </div>
+              <Progress value={29} className="h-1.5" />
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Final CTA */}
-        <section className="pb-16">
-          <div
-            className="rounded-2xl p-8 text-center space-y-4"
-            style={{ background: "hsl(126 15% 28%)", color: "white" }}
+        {/* ── CTAs ───────────────────────────────────────────────────── */}
+        <div className="space-y-2.5">
+          <Button
+            size="lg"
+            className="w-full touch-manipulation"
+            onClick={() => navigate("/feed")}
           >
-            <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד.</h3>
-            <p className="text-sm leading-relaxed" style={{ opacity: 0.82 }}>
-              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
-            </p>
-            <button
-              onClick={() => navigate("/auth")}
-              className="inline-flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold transition-all active:scale-95 touch-manipulation"
-              style={{ background: "white", color: "hsl(126 15% 28%)" }}
-            >
-              הצטרף עכשיו ←
-            </button>
-          </div>
-        </section>
+            נסה בלי הרשמה ←
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full touch-manipulation"
+            onClick={() => navigate("/auth")}
+          >
+            הצטרף עכשיו
+          </Button>
+        </div>
 
       </main>
 
-      <footer className="border-t py-6 text-center" style={{ borderColor: "hsl(44 15% 80%)" }}>
+      {/* ── Final CTA ──────────────────────────────────────────────── */}
+      <section className="px-5 pb-16 max-w-lg mx-auto">
+        <Card className="bg-primary text-primary-foreground text-center overflow-hidden">
+          <CardContent className="py-10 px-6 space-y-4">
+            <h3 className="font-display text-2xl tracking-wide">הפסק לקרוא לבד.</h3>
+            <p className="text-sm leading-relaxed opacity-80">
+              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
+            </p>
+            <div className="flex items-center justify-center gap-2 text-xs opacity-70">
+              <Users size={13} />
+              <span>847 קוראים כבר הצטרפו</span>
+            </div>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="bg-background text-primary hover:bg-background/90 touch-manipulation"
+              onClick={() => navigate("/auth")}
+            >
+              הצטרף עכשיו ←
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────── */}
+      <footer className="border-t py-6 text-center">
         <p className="text-xs text-muted-foreground">AMUD - קריאה חברתית בעברית</p>
       </footer>
 
     </div>
   );
-};
-
-export default LandingPage;
+}
