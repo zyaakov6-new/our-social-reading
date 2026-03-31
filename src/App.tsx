@@ -24,6 +24,8 @@ import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
+import PWAInstallBanner from "./components/PWAInstallBanner";
+import PushNotificationPrompt from "./components/PushNotificationPrompt";
 
 // Routes guests can browse without signing up
 const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts"];
@@ -58,6 +60,8 @@ const AppLayout = () => (
     <ReadingFAB />
     <HamburgerMenu />
     <BottomNav />
+    <PWAInstallBanner />
+    <PushNotificationPrompt />
   </>
 );
 
