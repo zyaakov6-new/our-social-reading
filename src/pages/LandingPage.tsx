@@ -88,8 +88,28 @@ export default function LandingPage() {
           </h1>
         </motion.div>
 
+        {/* ── CTAs - above the fold ─────────────────────────────────── */}
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1} className="space-y-2.5">
+          <Button
+            size="lg"
+            className="w-full touch-manipulation font-bold text-base shadow-md shadow-primary/20 gap-2"
+            onClick={() => navigate("/feed")}
+          >
+            נסה בלי הרשמה
+            <ArrowLeft size={16} />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full touch-manipulation font-semibold border-primary/40 text-primary hover:bg-primary/5"
+            onClick={() => navigate("/auth")}
+          >
+            הצטרף עכשיו
+          </Button>
+        </motion.div>
+
         {/* ── Leaderboard card ──────────────────────────────────────── */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1}>
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2}>
           <Card className="overflow-hidden shadow-lg border-border/60">
             {/* Dark header */}
             <div className="bg-primary px-4 pt-4 pb-0">
@@ -165,7 +185,7 @@ export default function LandingPage() {
               <div className="flex items-center justify-center gap-1.5 px-4 pb-3">
                 <Star size={11} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  {leader.name} קרא/ה {fmtMinutes(leader.minutes)} — אתה יכול לנצח {PERIOD_LABEL[period]}!
+                  {leader.name} קרא/ה {fmtMinutes(leader.minutes)} - אתה יכול לנצח {PERIOD_LABEL[period]}!
                 </span>
               </div>
             </CardContent>
@@ -173,7 +193,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* ── Stat mini-cards ───────────────────────────────────────── */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="grid grid-cols-3 gap-2.5">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="grid grid-cols-3 gap-2.5">
           {[
             { icon: Flame, value: "12", label: "יום רצף", accent: "hsl(28 71% 57%)", accentBg: "hsl(28 71% 57% / 0.08)" },
             { icon: Clock, value: "3:20", label: "שע׳ השבוע", accent: "hsl(188 60% 35%)", accentBg: "hsl(188 60% 35% / 0.08)" },
@@ -191,7 +211,7 @@ export default function LandingPage() {
         </motion.div>
 
         {/* ── Goal progress card ────────────────────────────────────── */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3}>
+        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4}>
           <Card className="border-border/60">
             <CardContent className="py-4 px-4 space-y-3.5">
               <div className="flex items-center gap-2 mb-0.5">
@@ -214,25 +234,6 @@ export default function LandingPage() {
           </Card>
         </motion.div>
 
-        {/* ── CTAs ──────────────────────────────────────────────────── */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4} className="space-y-2.5 pb-2">
-          <Button
-            size="lg"
-            className="w-full touch-manipulation font-bold text-base shadow-md shadow-primary/20 gap-2"
-            onClick={() => navigate("/feed")}
-          >
-            נסה בלי הרשמה
-            <ArrowLeft size={16} />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full touch-manipulation font-semibold border-primary/40 text-primary hover:bg-primary/5"
-            onClick={() => navigate("/auth")}
-          >
-            הצטרף עכשיו
-          </Button>
-        </motion.div>
 
       </main>
 
@@ -240,6 +241,7 @@ export default function LandingPage() {
       <motion.section
         variants={fadeUp} initial="hidden" animate="visible" custom={5}
         className="px-4 pb-16 max-w-lg mx-auto"
+
       >
         <Card className="overflow-hidden border-0 shadow-xl">
           <div className="bg-primary px-6 py-10 text-center space-y-4">
@@ -251,7 +253,7 @@ export default function LandingPage() {
               הפסק לקרוא לבד.
             </h3>
             <p className="text-sm leading-relaxed text-primary-foreground/75 max-w-xs mx-auto">
-              הצטרף לראשונים שבונים הרגל קריאה שנשאר — ספר אחרי ספר.
+              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
             </p>
             <Button
               size="lg"
@@ -265,7 +267,7 @@ export default function LandingPage() {
       </motion.section>
 
       <footer className="border-t py-6 text-center">
-        <p className="text-xs text-muted-foreground">AMUD — קריאה חברתית בעברית</p>
+        <p className="text-xs text-muted-foreground">AMUD - קריאה חברתית בעברית</p>
       </footer>
 
     </div>
