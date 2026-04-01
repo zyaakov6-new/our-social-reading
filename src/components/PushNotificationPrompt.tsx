@@ -2,8 +2,10 @@ import { Bell, X } from 'lucide-react';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function PushNotificationPrompt() {
+  const { user } = useAuth();
   const { supported, permission, subscribed, subscribe } = usePushNotifications();
   const [dismissed, setDismissed] = useState(
     () => localStorage.getItem('push-prompt-dismissed') === '1'
@@ -11,6 +13,7 @@ export default function PushNotificationPrompt() {
   const [loading, setLoading] = useState(false);
 
   const visible =
+    !!user &&
     supported &&
     permission !== 'denied' &&
     !subscribed &&
@@ -18,8 +21,9 @@ export default function PushNotificationPrompt() {
 
   const handleSubscribe = async () => {
     setLoading(true);
-    await subscribe();
+    const ok = await subscribe();
     setLoading(false);
+    if (ok) setDismissed(true);
   };
 
   const handleDismiss = () => {
