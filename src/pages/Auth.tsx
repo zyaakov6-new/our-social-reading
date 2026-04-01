@@ -106,7 +106,7 @@ export default function Auth() {
             <img
               src="/logo.png"
               alt="AMUD"
-              className="h-14 w-14 object-contain"
+              className="h-24 w-24 object-contain"
               onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
             />
             <span className="block w-[3px] h-10 rounded-full bg-primary" />
