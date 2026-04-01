@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ??
   'BBu5lR72P2GEB8K0qDtgo-h2EHVHAiemxoYHMPniiOeI2ODlyxlkVtiMOTAYfYaxRz71h5oYZNFbdgWiNF0ZRqU';
@@ -40,18 +41,23 @@ export function usePushNotifications() {
       });
 
       const subJson = sub.toJSON();
-      await supabase.from('push_subscriptions').upsert({
+      const { error } = await supabase.from('push_subscriptions').upsert({
         user_id: user.id,
         endpoint: sub.endpoint,
         p256dh: subJson.keys?.p256dh ?? '',
         auth: subJson.keys?.auth ?? '',
       }, { onConflict: 'user_id' });
 
+      if (error) {
+        toast.error('שגיאה בשמירת ההרשמה: ' + error.message);
+        return false;
+      }
+
       setSubscribed(true);
       localStorage.setItem('push-subscribed', '1');
       return true;
-    } catch (e) {
-      console.error('Push subscribe error:', e);
+    } catch (e: any) {
+      toast.error('שגיאה בהפעלת התזכורות: ' + (e?.message ?? String(e)));
       return false;
     }
   };
