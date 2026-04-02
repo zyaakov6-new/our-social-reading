@@ -46,10 +46,23 @@ export const useReadingSessions = () => {
   );
   const [loading, setLoading] = useState(!isCacheValid);
 
+  const [friendIds, setFriendIds] = useState<string[]>([]);
+
   const fetchSessions = async () => {
     if (!user) return;
     try {
-      // Get all profiles (global feed — everyone sees everyone's activity)
+      // Get accepted friend IDs for toggle filtering
+      const { data: friendships } = await supabase
+        .from("friendships")
+        .select("requester_id, addressee_id")
+        .eq("status", "accepted")
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+      const ids = (friendships || []).map((f: any) =>
+        f.requester_id === user.id ? f.addressee_id : f.requester_id
+      );
+      setFriendIds(ids);
+
+      // Get all profiles (global feed)
       const { data: profilesData } = await supabase
         .from("profiles")
         .select("user_id, display_name, avatar_url");
@@ -169,5 +182,5 @@ export const useReadingSessions = () => {
     };
   }, []);
 
-  return { sessions, loading, refetch: fetchSessions };
+  return { sessions, loading, refetch: fetchSessions, friendIds };
 };

@@ -415,7 +415,8 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
   const [addBookGateOpen, setAddBookGateOpen] = useState(false);
   const { books, refetch: refetchBooks, deleteBook, updateStatus } = useBooks();
-  const { sessions, loading: sessionsLoading, refetch: refetchSessions } = useReadingSessions();
+  const { sessions, loading: sessionsLoading, refetch: refetchSessions, friendIds } = useReadingSessions();
+  const [feedFilter, setFeedFilter] = useState<'all' | 'friends'>('all');
 
   const handleLogSaved = () => {
     refetchBooks();
@@ -478,6 +479,23 @@ const Home = () => {
             )}
             {user && <PersonalStatsCard sessions={sessions} finishedCount={finishedBooks.length} />}
             <Leaderboard />
+            {user && (
+              <div className="flex gap-2" dir="rtl">
+                {(['all', 'friends'] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFeedFilter(f)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={feedFilter === f
+                      ? { background: 'hsl(126 15% 28%)', color: 'white' }
+                      : { background: 'hsl(44 15% 84%)', color: 'hsl(44 12% 40%)' }
+                    }
+                  >
+                    {f === 'all' ? 'כולם' : 'חברים'}
+                  </button>
+                ))}
+              </div>
+            )}
             {sessionsLoading ? (
               <>
                 {[1, 2, 3].map(i => (
@@ -528,10 +546,12 @@ const Home = () => {
               </>
             ) : (
               <>
-                {sessions.map(session => (
-                  <FeedItemCard key={session.id} item={session} />
-                ))}
-              {sessions.every(s => s.isMe) && (
+                {sessions
+                  .filter(s => feedFilter === 'all' || s.isMe || friendIds.includes(s.userId))
+                  .map(session => (
+                    <FeedItemCard key={session.id} item={session} />
+                  ))}
+              {sessions.every(s => s.isMe) && feedFilter === 'all' && (
                 <button
                   onClick={() => {
                     const url = window.location.origin;
