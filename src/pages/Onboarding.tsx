@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchBooks, BookSearchResult } from "@/services/googleBooks";
-import { Search, ArrowLeft, Flame, Trophy } from "lucide-react";
+import { Search, ArrowLeft, Flame, Trophy, Bell } from "lucide-react";
 
 const C = {
   green:  'hsl(126 15% 28%)',
@@ -36,6 +36,10 @@ const Onboarding = () => {
   const [savingSession, setSavingSession] = useState(false);
   const [sessionSaved, setSessionSaved] = useState(false);
 
+  // Step 3 — push notifications
+  const [pushStep, setPushStep] = useState(false);
+  const [pushLoading, setPushLoading] = useState(false);
+
   const [saving, setSaving] = useState(false);
 
   // Pre-fill name from Google/existing profile
@@ -43,7 +47,6 @@ const Onboarding = () => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      // Try profile first, then Google metadata
       const { data: profile } = await supabase.from('profiles').select('display_name').eq('user_id', user.id).maybeSingle();
       const prefilled = profile?.display_name || user.user_metadata?.full_name || '';
       if (prefilled) setName(prefilled);
@@ -79,16 +82,16 @@ const Onboarding = () => {
 
   const handleSaveSession = async () => {
     const mins = minutes ?? parseInt(customMinutes || '0', 10);
-    if (!mins || mins <= 0) { setStep(1); return; } // shouldn't happen but safety
+    if (!mins || mins <= 0) { setStep(1); return; }
 
     setSavingSession(true);
     const { data: { user } } = await supabase.auth.getUser();
-    if (user && addedBookId) {
+    if (user) {
       const today = new Date();
       const sessionDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
       await supabase.from('reading_sessions').insert({
         user_id: user.id,
-        book_id: addedBookId,
+        book_id: addedBookId,   // null is fine if no book was added
         minutes_read: mins,
         pages_read: 0,
         session_date: sessionDate,
@@ -96,7 +99,45 @@ const Onboarding = () => {
     }
     setSavingSession(false);
     setSessionSaved(true);
-    setTimeout(handleFinish, 2200);
+    // After celebration, move to push notifications step
+    setTimeout(() => setPushStep(true), 2200);
+  };
+
+  const handleRequestPush = async () => {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      handleFinish();
+      return;
+    }
+    setPushLoading(true);
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') {
+        const reg = await navigator.serviceWorker.ready;
+        const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ??
+          'BBu5lR72P2GEB8K0qDtgo-h2EHVHAiemxoYHMPniiOeI2ODlyxlkVtiMOTAYfYaxRz71h5oYZNFbdgWiNF0ZRqU';
+        const padding = '='.repeat((4 - (VAPID_PUBLIC_KEY.length % 4)) % 4);
+        const base64 = (VAPID_PUBLIC_KEY + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = atob(base64);
+        const applicationServerKey = Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+        const existing = await reg.pushManager.getSubscription();
+        const sub = existing ?? await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey });
+        const subJson = sub.toJSON();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('push_subscriptions').upsert({
+            user_id: user.id,
+            endpoint: sub.endpoint,
+            p256dh: subJson.keys?.p256dh ?? '',
+            auth: subJson.keys?.auth ?? '',
+          }, { onConflict: 'user_id' });
+          localStorage.setItem('push-subscribed', '1');
+        }
+      }
+    } catch (e) {
+      console.warn('Push subscribe failed:', e);
+    }
+    setPushLoading(false);
+    handleFinish();
   };
 
   const handleFinish = async () => {
@@ -133,8 +174,45 @@ const Onboarding = () => {
       <div className="flex-1 overflow-y-auto px-5">
         <AnimatePresence mode="wait">
 
+          {/* ── Push notifications step (after session saved) ────── */}
+          {pushStep && (
+            <motion.div key="push"
+              initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-col pt-10 pb-4 gap-6 max-w-sm mx-auto text-center"
+            >
+              <div className="space-y-2">
+                <div className="h-16 w-16 rounded-2xl flex items-center justify-center mx-auto"
+                  style={{ background: 'hsl(28 71% 57% / 0.12)' }}>
+                  <Bell size={32} style={{ color: C.orange }} />
+                </div>
+                <h2 className="font-serif text-xl font-bold">לא לשבור את הרצף 🔥</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  נשלח לך תזכורת ב-22:00 בכל יום שלא קראת — כדי שתשמור על הרצף שלך
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleRequestPush}
+                  disabled={pushLoading}
+                  className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-60"
+                  style={{ background: C.green, color: 'white' }}
+                >
+                  {pushLoading ? 'מפעיל...' : 'הפעל תזכורות יומיות ←'}
+                </button>
+                <button
+                  onClick={handleFinish}
+                  className="w-full py-3 text-sm text-muted-foreground"
+                >
+                  לא עכשיו
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* ── Step 0: Add first book ───────────────────────────── */}
-          {step === 0 && (
+          {!pushStep && step === 0 && (
             <motion.div key="book"
               initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.22 }}
@@ -201,7 +279,7 @@ const Onboarding = () => {
           )}
 
           {/* ── Step 1: Name ─────────────────────────────────────── */}
-          {step === 1 && (
+          {!pushStep && step === 1 && (
             <motion.div key="name"
               initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.22 }}
@@ -252,7 +330,7 @@ const Onboarding = () => {
           )}
 
           {/* ── Step 2: First reading session ────────────────────── */}
-          {step === 2 && (
+          {!pushStep && step === 2 && (
             <motion.div key="session"
               initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.22 }}
@@ -349,7 +427,7 @@ const Onboarding = () => {
                     </div>
                   </motion.div>
 
-                  <p className="text-xs text-muted-foreground animate-pulse">מעביר לאפליקציה…</p>
+                  <p className="text-xs text-muted-foreground animate-pulse">רגע אחד…</p>
                 </motion.div>
               )}
             </motion.div>
@@ -359,7 +437,7 @@ const Onboarding = () => {
       </div>
 
       {/* Bottom actions */}
-      {!sessionSaved && (
+      {!sessionSaved && !pushStep && (
         <div className="px-5 pb-10 pt-3 flex items-center gap-3 max-w-sm mx-auto w-full flex-shrink-0">
           {step > 0 && !addedBook && (
             <button onClick={() => setStep(s => s - 1)}
