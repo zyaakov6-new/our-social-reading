@@ -49,24 +49,10 @@ export const useReadingSessions = () => {
   const fetchSessions = async () => {
     if (!user) return;
     try {
-      // Get accepted friend IDs
-      const { data: friendships } = await supabase
-        .from("friendships")
-        .select("requester_id, addressee_id")
-        .eq("status", "accepted")
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
-
-      const friendIds = (friendships || []).map((f: any) =>
-        f.requester_id === user.id ? f.addressee_id : f.requester_id
-      );
-
-      const allIds = [user.id, ...friendIds];
-
-      // Get profiles for all users in one round-trip
+      // Get all profiles (global feed — everyone sees everyone's activity)
       const { data: profilesData } = await supabase
         .from("profiles")
-        .select("user_id, display_name, avatar_url")
-        .in("user_id", allIds);
+        .select("user_id, display_name, avatar_url");
 
       const profileMap: Record<string, { displayName: string; avatarUrl?: string }> = {};
       (profilesData || []).forEach((p: any) => {
@@ -86,7 +72,7 @@ export const useReadingSessions = () => {
         profileMap[user.id] = { displayName: myFallbackName };
       }
 
-      // Fetch reading sessions for current user + all friends
+      // Fetch all reading sessions globally
       const { data, error } = await supabase
         .from("reading_sessions")
         .select(`
@@ -103,7 +89,6 @@ export const useReadingSessions = () => {
             cover_url
           )
         `)
-        .in("user_id", allIds)
         .order("created_at", { ascending: false })
         .limit(100);
 
