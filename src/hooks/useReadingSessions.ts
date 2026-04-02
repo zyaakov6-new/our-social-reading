@@ -106,7 +106,6 @@ export const useReadingSessions = () => {
         .limit(100);
 
       if (error) throw error;
-      console.log('[feed] raw sessions from DB:', data?.length, data?.map((s: any) => s.user_id));
 
       const mappedSessions: ReadingSession[] = (data || []).map((session: any) => {
         const now = new Date();
