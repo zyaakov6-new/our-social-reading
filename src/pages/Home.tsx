@@ -14,7 +14,12 @@ import CreateChallengeDialog from "@/components/CreateChallengeDialog";
 import Leaderboard from "@/components/Leaderboard";
 import BookRecommendations from "@/components/BookRecommendations";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Trophy, Target, Pencil, Check, Flame, Clock, BookOpen } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
+import { Trophy, Target, Pencil, Check, Flame, Clock, BookOpen, Users, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ReadingSession } from "@/hooks/useReadingSessions";
 
@@ -250,78 +255,71 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
   const week = fmtMinutes(weekMinutes);
 
   return (
-    <div className="rounded-xl bg-card p-4 card-shadow space-y-3">
-      {/* 3-stat row */}
-      <div className="flex gap-2">
-        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(28 71% 57% / 0.10)' }}>
-          <Flame size={19} style={{ color: 'hsl(28 71% 57%)' }} />
-          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(28 71% 45%)' }}>{streak}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.streak}</span>
+    <Card className="card-shadow border-border/60">
+      <CardContent className="p-4 space-y-3">
+        {/* 3-stat row */}
+        <div className="flex gap-2">
+          <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl bg-[hsl(28_71%_57%/0.10)]">
+            <Flame size={17} className="text-[hsl(28_71%_57%)]" />
+            <span className="text-2xl font-extrabold leading-none mt-1 text-[hsl(28_71%_45%)]">{streak}</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.streak}</span>
+          </div>
+          <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl bg-[hsl(188_60%_35%/0.08)]">
+            <Clock size={17} className="text-[hsl(188_60%_35%)]" />
+            <span className="text-2xl font-extrabold leading-none mt-1 text-[hsl(188_60%_35%)]">{week.val}</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">{week.unit} {t.common.week}</span>
+          </div>
+          <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl bg-primary/[0.08]">
+            <BookOpen size={17} className="text-primary" />
+            <span className="text-2xl font-extrabold leading-none mt-1 text-primary">{finishedCount}</span>
+            <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.books}</span>
+          </div>
         </div>
-        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(188 60% 35% / 0.08)' }}>
-          <Clock size={19} style={{ color: 'hsl(188 60% 35%)' }} />
-          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(188 60% 35%)' }}>{week.val}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">{week.unit} {t.common.week}</span>
-        </div>
-        <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(126 15% 28% / 0.08)' }}>
-          <BookOpen size={19} style={{ color: 'hsl(126 15% 28%)' }} />
-          <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(126 15% 28%)' }}>{finishedCount}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.books}</span>
-        </div>
-      </div>
 
-      {/* Daily goal */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-bold" style={{ color: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 45%)' }}>
-            {dailyDone ? t.home.dailyGoalMet : t.home.dailyGoal}
-          </span>
-          <span className="text-[11px] text-muted-foreground">{todayMinutes}/{dailyGoalMinutes} {t.home.minutesToday}</span>
-        </div>
-        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${dailyPct}%`,
-              background: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 57%)',
-            }}
-          />
-        </div>
-      </div>
+        <Separator />
 
-      {/* Yearly goal */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-bold" style={{ color: 'hsl(126 15% 28%)' }}>{t.common.yearly} {year}</span>
-          {!editingYearlyGoal ? (
-            <button
-              onClick={() => { setYearlyDraft(String(yearlyGoal)); setEditingYearlyGoal(true); }}
-              className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground touch-manipulation"
-            >
-              <Pencil size={10} /> {finishedCount}/{yearlyGoal} {t.common.books}
-            </button>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <input
-                type="number" value={yearlyDraft} onChange={e => setYearlyDraft(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && saveYearlyGoal()}
-                autoFocus min={1}
-                className="w-12 rounded-lg border border-border bg-background px-2 py-0.5 text-xs text-center"
-              />
-              <button onClick={saveYearlyGoal} className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center touch-manipulation">
-                <Check size={11} style={{ color: 'hsl(126 15% 28%)' }} />
+        {/* Daily goal */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold" style={{ color: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 45%)' }}>
+              {dailyDone ? t.home.dailyGoalMet : t.home.dailyGoal}
+            </span>
+            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-normal">
+              {todayMinutes}/{dailyGoalMinutes} {t.home.minutesToday}
+            </Badge>
+          </div>
+          <Progress value={dailyPct} className="h-1.5" />
+        </div>
+
+        {/* Yearly goal */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-primary">{t.common.yearly} {year}</span>
+            {!editingYearlyGoal ? (
+              <button
+                onClick={() => { setYearlyDraft(String(yearlyGoal)); setEditingYearlyGoal(true); }}
+                className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground touch-manipulation"
+              >
+                <Pencil size={10} /> {finishedCount}/{yearlyGoal} {t.common.books}
               </button>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="number" value={yearlyDraft} onChange={e => setYearlyDraft(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && saveYearlyGoal()}
+                  autoFocus min={1}
+                  className="w-12 rounded-lg border border-border bg-background px-2 py-0.5 text-xs text-center"
+                />
+                <button onClick={saveYearlyGoal} className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center touch-manipulation">
+                  <Check size={11} className="text-primary" />
+                </button>
+              </div>
+            )}
+          </div>
+          <Progress value={yearlyPct} className="h-1.5" />
         </div>
-        <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${yearlyPct}%`, background: 'linear-gradient(to left, hsl(126 15% 28%), hsl(188 60% 35%))' }}
-          />
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -468,116 +466,134 @@ const Home = () => {
       <div className="px-4 py-4 max-w-md mx-auto">
         {activeTab === 'feed' && (
           <div className="space-y-3">
-            {/* Guest preview banner */}
+
+            {/* Guest banner */}
             {!user && (
-              <div className="rounded-xl p-4 text-center space-y-2"
-                style={{ background: 'hsl(126 15% 28% / 0.07)', border: '1px solid hsl(126 15% 28% / 0.15)' }}>
-                <p className="text-sm font-bold">{t.home.guestBanner}</p>
-                <p className="text-xs text-muted-foreground">{t.home.guestSub}</p>
-                <button
-                  onClick={() => navigate("/auth")}
-                  className="mt-1 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-opacity hover:opacity-90"
-                  style={{ background: 'hsl(126 15% 28%)' }}
-                >
-                  {t.home.guestJoin}
-                </button>
-              </div>
+              <Card className="border-primary/20 bg-primary/[0.04]">
+                <CardContent className="p-4 text-center space-y-2">
+                  <div className="flex items-center justify-center gap-2 text-primary">
+                    <Users size={15} />
+                    <p className="text-sm font-bold">{t.home.guestBanner}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{t.home.guestSub}</p>
+                  <Button size="sm" onClick={() => navigate("/auth")} className="mt-1">
+                    {t.home.guestJoin}
+                  </Button>
+                </CardContent>
+              </Card>
             )}
+
             {user && <PersonalStatsCard sessions={sessions} finishedCount={finishedBooks.length} />}
             <Leaderboard />
+
+            {/* Feed filter */}
             {user && (
               <div className="flex gap-2" dir={dir}>
                 {(['all', 'friends'] as const).map(f => (
-                  <button
+                  <Button
                     key={f}
+                    size="sm"
+                    variant={feedFilter === f ? 'default' : 'secondary'}
                     onClick={() => setFeedFilter(f)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-                    style={feedFilter === f
-                      ? { background: 'hsl(126 15% 28%)', color: 'white' }
-                      : { background: 'hsl(44 15% 84%)', color: 'hsl(44 12% 40%)' }
-                    }
+                    className="text-xs h-7 px-3"
                   >
                     {f === 'all' ? t.common.everyone : t.common.friends}
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
+
+            {/* Loading skeletons */}
             {sessionsLoading ? (
               <>
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="bg-card border border-border/50 rounded-xl p-4 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
-                      <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-3/4 rounded" />
-                        <Skeleton className="h-3 w-1/3 rounded" />
+                  <Card key={i} className="border-border/50">
+                    <CardContent className="p-4 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <Skeleton className="h-9 w-9 rounded-full flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-3/4 rounded" />
+                          <Skeleton className="h-3 w-1/3 rounded" />
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2 pt-1 border-t border-border/40">
-                      <Skeleton className="h-7 w-12 rounded-lg" />
-                      <Skeleton className="h-7 w-12 rounded-lg" />
-                    </div>
-                  </div>
+                      <Separator />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-7 w-14 rounded-lg" />
+                        <Skeleton className="h-7 w-14 rounded-lg" />
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </>
+
             ) : !user && sessions.length === 0 ? (
+              /* Guest demo feed */
               <>
                 {GUEST_DEMO_SESSIONS.map(s => (
                   <FeedItemCard key={s.id} item={s} />
                 ))}
               </>
+
             ) : sessions.length === 0 ? (
+              /* Empty state for new users */
               <>
-                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-secondary">{t.home.readNow}</p>
-                  <p className="text-sm font-hebrew-serif font-bold">{t.home.firstSessionTitle}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.home.firstSessionSub}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-primary">{t.home.challengeSuggestion}</p>
-                  <p className="text-sm font-hebrew-serif font-bold">{t.home.challengeText}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.home.challengeSub}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">{t.home.readingTip}</p>
-                  <p className="text-sm font-hebrew-serif font-bold">{t.home.tipTitle}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {t.home.tipText}
-                  </p>
-                </div>
+                <Card className="border-border/60 card-shadow">
+                  <CardContent className="p-4 text-right space-y-1">
+                    <Badge variant="secondary" className="text-xs mb-1">{t.home.readNow}</Badge>
+                    <p className="text-sm font-bold">{t.home.firstSessionTitle}</p>
+                    <p className="text-xs text-muted-foreground">{t.home.firstSessionSub}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border/60 card-shadow">
+                  <CardContent className="p-4 text-right space-y-1">
+                    <Badge className="text-xs mb-1 bg-primary/10 text-primary hover:bg-primary/10">{t.home.challengeSuggestion}</Badge>
+                    <p className="text-sm font-bold">{t.home.challengeText}</p>
+                    <p className="text-xs text-muted-foreground">{t.home.challengeSub}</p>
+                  </CardContent>
+                </Card>
+                <Card className="border-border/60 card-shadow">
+                  <CardContent className="p-4 text-right space-y-1">
+                    <Badge variant="outline" className="text-xs mb-1">{t.home.readingTip}</Badge>
+                    <p className="text-sm font-bold">{t.home.tipTitle}</p>
+                    <p className="text-xs text-muted-foreground">{t.home.tipText}</p>
+                  </CardContent>
+                </Card>
               </>
+
             ) : (
+              /* Live feed */
               <>
                 {sessions
                   .filter(s => feedFilter === 'all' || s.isMe || friendIds.includes(s.userId))
                   .map(session => (
                     <FeedItemCard key={session.id} item={session} />
                   ))}
-              {sessions.every(s => s.isMe) && feedFilter === 'all' && (
-                <button
-                  onClick={() => {
-                    const url = window.location.origin;
-                    const text = "הצטרפ/י לAMUD - האפליקציה שעוזרת לנו לקרוא יותר ביחד! 📚";
-                    if (navigator.share) {
-                      navigator.share({ title: "AMUD - קריאה חברתית", text, url }).catch(() => {});
-                    } else {
-                      navigator.clipboard.writeText(`${text}\n${url}`);
-                      import("sonner").then(({ toast }) => toast.success("הקישור הועתק ללוח!"));
-                    }
-                  }}
-                  className="w-full rounded-xl p-4 text-center space-y-1 transition-all hover:opacity-90 active:scale-[0.98]"
-                  style={{ background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }}
-                >
-                  <p className="text-sm font-bold">{t.home.inviteFriend}</p>
-                  <p className="text-xs opacity-80">{t.home.inviteSub}</p>
-                </button>
-              )}
+                {sessions.every(s => s.isMe) && feedFilter === 'all' && (
+                  <Card
+                    className="border-0 cursor-pointer transition-opacity hover:opacity-90 active:scale-[0.98]"
+                    style={{ background: 'hsl(126 15% 28%)' }}
+                    onClick={() => {
+                      const url = window.location.origin;
+                      const text = t.home.inviteFriend;
+                      if (navigator.share) {
+                        navigator.share({ title: "AMUD", text, url }).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(`${text}\n${url}`);
+                        import("sonner").then(({ toast }) => toast.success(t.home.linkCopied ?? "הקישור הועתק!"));
+                      }
+                    }}
+                  >
+                    <CardContent className="p-4 text-center space-y-1">
+                      <div className="flex items-center justify-center gap-2" style={{ color: 'hsl(44 30% 93%)' }}>
+                        <Share2 size={15} />
+                        <p className="text-sm font-bold">{t.home.inviteFriend}</p>
+                      </div>
+                      <p className="text-xs opacity-80" style={{ color: 'hsl(44 30% 93%)' }}>{t.home.inviteSub}</p>
+                    </CardContent>
+                  </Card>
+                )}
               </>
-            )/* end sessionsLoading ternary */}
+            )}
           </div>
         )}
 
