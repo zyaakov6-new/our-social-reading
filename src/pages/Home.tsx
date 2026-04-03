@@ -18,10 +18,11 @@ import { Trophy, Target, Pencil, Check, Flame, Clock, BookOpen } from "lucide-re
 import { supabase } from "@/integrations/supabase/client";
 import type { ReadingSession } from "@/hooks/useReadingSessions";
 
+const _demoNow = Date.now();
 const GUEST_DEMO_SESSIONS: ReadingSession[] = [
-  { id: 'demo-1', userId: 'u1', bookId: '', bookTitle: 'הסופרלנד', bookAuthor: 'ניר ברם', userName: 'יעל כ׳', minutesRead: 45, pagesRead: 32, sessionDate: '', timestamp: 'לפני 2 שעות', likes: 0, comments: 0, isMe: false },
-  { id: 'demo-2', userId: 'u2', bookId: '', bookTitle: '1984', bookAuthor: "ג'ורג' אורוול", userName: 'דני ל׳', minutesRead: 30, pagesRead: 18, sessionDate: '', timestamp: 'לפני 4 שעות', likes: 0, comments: 0, isMe: false },
-  { id: 'demo-3', userId: 'u3', bookId: '', bookTitle: 'האדם מחפש משמעות', bookAuthor: 'ויקטור פרנקל', userName: 'מיכל א׳', minutesRead: 60, pagesRead: 42, sessionDate: '', timestamp: 'לפני 6 שעות', likes: 0, comments: 0, isMe: false },
+  { id: 'demo-1', userId: 'u1', bookId: '', bookTitle: 'הסופרלנד', bookAuthor: 'ניר ברם', userName: 'יעל כ׳', minutesRead: 45, pagesRead: 32, sessionDate: '', timestamp: new Date(_demoNow - 2 * 3600000).toISOString(), likes: 0, comments: 0, isMe: false },
+  { id: 'demo-2', userId: 'u2', bookId: '', bookTitle: '1984', bookAuthor: "ג'ורג' אורוול", userName: 'דני ל׳', minutesRead: 30, pagesRead: 18, sessionDate: '', timestamp: new Date(_demoNow - 4 * 3600000).toISOString(), likes: 0, comments: 0, isMe: false },
+  { id: 'demo-3', userId: 'u3', bookId: '', bookTitle: 'האדם מחפש משמעות', bookAuthor: 'ויקטור פרנקל', userName: 'מיכל א׳', minutesRead: 60, pagesRead: 42, sessionDate: '', timestamp: new Date(_demoNow - 6 * 3600000).toISOString(), likes: 0, comments: 0, isMe: false },
 ];
 
 type Tab = 'feed' | 'challenges' | 'books';
@@ -244,7 +245,7 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
   const fmtMinutes = (m: number) => {
     if (m < 60) return { val: String(m), unit: t.common.minutes };
     const h = Math.floor(m / 60), rem = m % 60;
-    return { val: rem > 0 ? `${h}:${String(rem).padStart(2, '0')}` : `${h}`, unit: 'שעות' };
+    return { val: rem > 0 ? `${h}:${String(rem).padStart(2, '0')}` : `${h}`, unit: t.common.hours };
   };
   const week = fmtMinutes(weekMinutes);
 

@@ -194,14 +194,14 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
       className="flex items-center justify-between px-4 py-3 mx-3 my-2 rounded-xl"
       style={{ border: '1px dashed hsl(44 15% 75%)', background: 'hsl(44 20% 97%)' }}
     >
-      <span className="text-xs text-muted-foreground">הזמן חברים להתחרות</span>
+      <span className="text-xs text-muted-foreground">{t.leaderboard.inviteText}</span>
       <button
         onClick={() => onAddFriendsClick ? onAddFriendsClick() : navigate("/friends")}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
         style={{ background: 'hsl(126 15% 28%)' }}
       >
         <UserPlus size={13} strokeWidth={1.5} />
-        הוסף חברים
+        {t.leaderboard.addFriends}
       </button>
     </div>
   );
@@ -229,7 +229,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-semibold truncate text-primary">אני</span>
+                <span className="text-sm font-semibold truncate text-primary">{t.common.me}</span>
                 <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
                   {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} ${t.leaderboard.minutesShort}` : "-"}
                 </span>
@@ -272,7 +272,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold truncate text-primary">אני</span>
+                <span className="text-sm font-semibold truncate text-primary">{t.common.me}</span>
                 <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">-</span>
               </div>
               <p className="text-[11px] text-muted-foreground mt-0.5">{t.common.week}</p>
@@ -291,7 +291,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
       <div className="flex items-center gap-2 px-4 py-3"
         style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
         <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
-        <h3 className="font-bold text-sm">מובילי השבוע</h3>
+        <h3 className="font-bold text-sm">{t.leaderboard.title}</h3>
       </div>
       <div className="divide-y divide-border/40">
         {entries.map((entry, i) => {

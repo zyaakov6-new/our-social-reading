@@ -16,13 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import LogReadingDialog from "./LogReadingDialog";
-
-const STATUS_OPTIONS: { value: 'reading' | 'finished' | 'want' | 'abandoned'; label: string }[] = [
-  { value: 'reading', label: 'קורא עכשיו' },
-  { value: 'want', label: 'רוצה לקרוא' },
-  { value: 'finished', label: 'סיימתי' },
-  { value: 'abandoned', label: 'לא סיימתי' },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BookCardProps {
   book: Book;
@@ -34,13 +28,21 @@ interface BookCardProps {
 
 const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookCardProps) => {
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
   const [logOpen, setLogOpen] = useState(false);
   const [statusOpen, setStatusOpen] = useState(false);
   const progress = book.totalPages > 0 ? Math.round((book.currentPage / book.totalPages) * 100) : 0;
 
+  const STATUS_OPTIONS: { value: 'reading' | 'finished' | 'want' | 'abandoned'; label: string }[] = [
+    { value: 'reading', label: t.books.statusReading },
+    { value: 'want', label: t.books.statusWant },
+    { value: 'finished', label: t.books.statusFinished },
+    { value: 'abandoned', label: t.books.statusAbandoned },
+  ];
+
   const handleDelete = () => {
     onDelete?.(book.id);
-    toast.success("הספר נמחק");
+    toast.success(t.books.deleted);
   };
 
   const colors = [
@@ -98,14 +100,14 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
                 </div>
                 {book.currentPage > 0 && (
                   <p className="text-[11px] text-muted-foreground">
-                    עמוד {book.currentPage}{book.totalPages > 0 ? ` מתוך ${book.totalPages}` : ''}
+                    {book.totalPages > 0 ? t.books.pageOf(book.currentPage, book.totalPages) : t.books.pageNum(book.currentPage)}
                   </p>
                 )}
               </div>
             )}
             {book.status !== 'reading' && book.currentPage > 0 && (
               <p className="text-[11px] text-muted-foreground mt-0.5">
-                עמוד {book.currentPage}{book.totalPages > 0 ? ` / ${book.totalPages}` : ''}
+                {book.totalPages > 0 ? t.books.pageSlash(book.currentPage, book.totalPages) : t.books.pageNum(book.currentPage)}
               </p>
             )}
           </div>
@@ -114,7 +116,6 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
           <button
             onClick={() => setLogOpen(true)}
             className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0"
-            title="תעד קריאה"
           >
             <PlusCircle size={16} className="text-primary" />
           </button>
@@ -125,12 +126,11 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
               <PopoverTrigger asChild>
                 <button
                   className="h-8 w-8 rounded-full bg-muted flex items-center justify-center hover:bg-accent transition-colors flex-shrink-0"
-                  title="שנה סטטוס"
                 >
                   <ChevronDown size={14} className="text-muted-foreground" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-44 p-1" align="end" dir="rtl">
+              <PopoverContent className="w-44 p-1" align="end" dir={dir}>
                 {STATUS_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
@@ -156,17 +156,17 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
                   <Trash2 size={14} className="text-destructive" />
                 </button>
               </AlertDialogTrigger>
-              <AlertDialogContent dir="rtl">
+              <AlertDialogContent dir={dir}>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>מחיקת ספר</AlertDialogTitle>
+                  <AlertDialogTitle>{t.books.deleteTitle}</AlertDialogTitle>
                   <AlertDialogDescription className="text-right">
-                    האם אתה בטוח שברצונך למחוק את "{book.title}"? פעולה זו לא ניתנת לביטול.
+                    {t.books.deleteDesc(book.title)}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="sm:justify-start">
-                  <AlertDialogCancel>ביטול</AlertDialogCancel>
+                  <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                   <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                    מחק
+                    {t.books.delete}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -211,7 +211,6 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
           <button
             onClick={() => setLogOpen(true)}
             className="absolute bottom-3 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-            title="תעד קריאה"
           >
             <PlusCircle size={15} className="text-white" />
           </button>
@@ -225,17 +224,17 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
                 <Trash2 size={14} className="text-destructive" />
               </button>
             </AlertDialogTrigger>
-            <AlertDialogContent dir="rtl">
+            <AlertDialogContent dir={dir}>
               <AlertDialogHeader>
-                <AlertDialogTitle>מחיקת ספר</AlertDialogTitle>
+                <AlertDialogTitle>{t.books.deleteTitle}</AlertDialogTitle>
                 <AlertDialogDescription className="text-right">
-                  האם אתה בטוח שברצונך למחוק את "{book.title}"? פעולה זו לא ניתנת לביטול.
+                  {t.books.deleteDesc(book.title)}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="sm:justify-start">
-                <AlertDialogCancel>ביטול</AlertDialogCancel>
+                <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-                  מחק
+                  {t.books.delete}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -254,7 +253,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
                   <ChevronDown size={12} className="text-muted-foreground" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-44 p-1" align="end" dir="rtl">
+              <PopoverContent className="w-44 p-1" align="end" dir={dir}>
                 {STATUS_OPTIONS.map(opt => (
                   <button
                     key={opt.value}
@@ -275,7 +274,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
         <p className="text-[11px] text-muted-foreground truncate">{book.author}</p>
         {book.currentPage > 0 && (
           <p className="text-[10px] text-muted-foreground mt-0.5">
-            עמוד {book.currentPage}{book.totalPages > 0 ? ` / ${book.totalPages}` : ''}
+            {book.totalPages > 0 ? t.books.pageSlash(book.currentPage, book.totalPages) : t.books.pageNum(book.currentPage)}
           </p>
         )}
         {book.status === 'reading' && progress > 0 && (

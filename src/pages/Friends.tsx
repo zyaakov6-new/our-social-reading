@@ -1,7 +1,9 @@
 import FriendsSection from "@/components/FriendsSection";
 import Leaderboard from "@/components/Leaderboard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const Friends = () => {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen pb-28">
       {/* Header - matches the app-wide sticky header pattern */}
@@ -16,7 +18,7 @@ const Friends = () => {
           <span style={{ display: 'block', width: '3px', height: '30px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
           <div>
             <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none">FRIENDS</h1>
-            <p className="font-quote text-[10px] text-muted-foreground mt-0.5">חברים וקהילה</p>
+            <p className="font-quote text-[10px] text-muted-foreground mt-0.5">{t.friends.pageSubheader}</p>
           </div>
         </div>
       </div>

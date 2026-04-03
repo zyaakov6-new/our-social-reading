@@ -1,11 +1,13 @@
 import { Trophy, ChevronLeft } from "lucide-react";
 import { Challenge } from "@/lib/mockData";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const progress = Math.round((challenge.currentProgress / challenge.goalValue) * 100);
-  const unit = challenge.goalType === 'minutes' ? 'דקות' : 'ספרים';
+  const unit = challenge.goalType === 'minutes' ? t.challenges.minutes : t.challenges.books;
 
   const endDate = new Date(challenge.endDate);
   const now = new Date();
@@ -35,7 +37,7 @@ const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
       >
         <div className="flex items-center gap-1.5">
           <ChevronLeft size={16} className="text-muted-foreground" />
-          <span className="text-xs text-muted-foreground">{daysLeft} ימים נותרו</span>
+          <span className="text-xs text-muted-foreground">{t.challenges.daysLeft(daysLeft)}</span>
         </div>
         <div className="flex items-center gap-2">
           <h3 className="font-serif font-bold text-sm">{challenge.name}</h3>
@@ -73,7 +75,7 @@ const ChallengeCard = ({ challenge }: { challenge: Challenge }) => {
           ))}
         </div>
         {challenge.isParticipant !== false && (
-          <span className="text-xs text-muted-foreground mr-3">מיקומך: <strong className="text-foreground">#{challenge.myRank}</strong></span>
+          <span className="text-xs text-muted-foreground mr-3">{t.challenges.yourRank} <strong className="text-foreground">#{challenge.myRank}</strong></span>
         )}
       </div>
     </button>

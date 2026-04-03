@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { searchBooks, BookSearchResult } from "@/services/googleBooks";
-import { Search, BookOpen, X } from "lucide-react";
+import { Search, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 
 interface AddBookDialogProps {
@@ -15,6 +16,7 @@ interface AddBookDialogProps {
 }
 
 const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
+  const { t, dir } = useLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -82,14 +84,14 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
     const coverUrl = selected ? selected.coverUrl : null;
 
     if (!bookTitle || !bookAuthor) {
-      toast.error("יש למלא שם ומחבר");
+      toast.error(t.common.error);
       return;
     }
 
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("לא מחובר");
+      if (!user) throw new Error(t.common.error);
 
       const { error } = await supabase.from("books").insert({
         user_id: user.id,
@@ -103,12 +105,12 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
 
       if (error) throw error;
 
-      toast.success("הספר נוסף!");
+      toast.success(t.books.addBtn);
       setOpen(false);
       resetForm();
       onBookAdded?.();
     } catch (e: any) {
-      toast.error(e.message || "שגיאה בהוספת הספר");
+      toast.error(e.message || t.common.error);
     } finally {
       setLoading(false);
     }
@@ -120,12 +122,12 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
       <DialogTrigger asChild>
         <button className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors">
-          + הוסף ספר
+          {t.books.addBook}
         </button>
       </DialogTrigger>
-      <DialogContent dir="rtl">
+      <DialogContent dir={dir}>
         <DialogHeader>
-          <DialogTitle className="text-center font-serif text-xl">הוספת ספר</DialogTitle>
+          <DialogTitle className="text-center font-serif text-xl">{t.books.addBookTitle}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
@@ -134,7 +136,7 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
             <div className="relative">
               <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
-                placeholder="חפש ספר לפי שם או מחבר..."
+                placeholder={t.books.searchPlaceholder}
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 className="pr-9 text-right"
@@ -165,7 +167,7 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate">{book.title}</p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {book.author}{book.totalPages > 0 && ` · ${book.totalPages} עמ׳`}
+                          {book.author}{book.totalPages > 0 && ` · ${t.books.pagesCount(book.totalPages)}`}
                         </p>
                       </div>
                     </button>
@@ -188,14 +190,13 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
                 <p className="font-serif font-bold text-sm">{selected.title}</p>
                 <p className="text-xs text-muted-foreground">{selected.author}</p>
                 {selected.totalPages > 0 && (
-                  <p className="text-xs text-muted-foreground">{selected.totalPages} עמודים</p>
+                  <p className="text-xs text-muted-foreground">{t.books.pagesCount(selected.totalPages)}</p>
                 )}
               </div>
               <button
                 type="button"
                 onClick={handleClearSelection}
                 className="flex-shrink-0 h-6 w-6 rounded-full bg-background flex items-center justify-center hover:bg-accent transition-colors"
-                title="חפש שוב"
               >
                 <X size={12} />
               </button>
@@ -206,10 +207,10 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
           {manualMode && (
             <div className="space-y-3">
               <div className="space-y-1.5">
-                <Label htmlFor="title">שם הספר</Label>
+                <Label htmlFor="title">{t.books.titleLabel}</Label>
                 <Input
                   id="title"
-                  placeholder="שם הספר"
+                  placeholder={t.books.titleLabel}
                   value={title}
                   onChange={e => setTitle(e.target.value)}
                   className="text-right"
@@ -217,17 +218,17 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="author">מחבר</Label>
+                <Label htmlFor="author">{t.books.authorLabel}</Label>
                 <Input
                   id="author"
-                  placeholder="שם המחבר"
+                  placeholder={t.books.authorLabel}
                   value={author}
                   onChange={e => setAuthor(e.target.value)}
                   className="text-right"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="pages">מספר עמודים (אופציונלי)</Label>
+                <Label htmlFor="pages">{t.books.pagesLabel}</Label>
                 <Input
                   id="pages"
                   type="number"
@@ -248,31 +249,31 @@ const AddBookDialog = ({ onBookAdded }: AddBookDialogProps) => {
               onClick={() => { setManualMode(!manualMode); setQuery(""); setResults([]); }}
               className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
             >
-              {manualMode ? "← חזרה לחיפוש" : "לא מצאת? הזן ידנית"}
+              {manualMode ? t.books.backToSearch : t.books.notFound}
             </button>
           )}
 
           {/* ── Status selector ── */}
           <div className="space-y-1.5">
-            <Label>סטטוס</Label>
+            <Label>{t.books.statusLabel}</Label>
             <Select value={status} onValueChange={v => setStatus(v as any)}>
               <SelectTrigger className="text-right">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="want">רוצה לקרוא</SelectItem>
-                <SelectItem value="reading">קורא עכשיו</SelectItem>
-                <SelectItem value="finished">סיימתי</SelectItem>
+                <SelectItem value="want">{t.books.statusWant}</SelectItem>
+                <SelectItem value="reading">{t.books.statusReading}</SelectItem>
+                <SelectItem value="finished">{t.books.statusFinished}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex gap-3 pt-1">
             <Button type="button" variant="outline" onClick={() => setOpen(false)} className="flex-1">
-              ביטול
+              {t.common.cancel}
             </Button>
             <Button onClick={handleSubmit} disabled={!canSubmit || loading} className="flex-1">
-              {loading ? "שומר..." : "הוסף"}
+              {loading ? t.common.saving : t.books.addBtn}
             </Button>
           </div>
         </div>

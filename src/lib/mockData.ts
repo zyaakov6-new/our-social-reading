@@ -51,11 +51,12 @@ export const mockBooks: Book[] = [
   { id: '6', title: 'אל תגידי לילה', author: 'אמוס עוז', totalPages: 290, currentPage: 290, status: 'finished' },
 ];
 
+const _now = Date.now();
 export const mockFeed: FeedItem[] = [
-  { id: '1', userName: 'נועה כהן', bookTitle: 'עיר ושם', minutesRead: 45, timestamp: 'לפני 20 דקות', likes: 3, comments: 1 },
-  { id: '2', userName: 'יוסי לוי', bookTitle: 'סאפיינס', minutesRead: 30, timestamp: 'לפני שעה', likes: 5, comments: 2 },
-  { id: '3', userName: 'מיכל אברהם', bookTitle: 'ההיסטוריה של הכל', minutesRead: 60, timestamp: 'לפני 2 שעות', likes: 8, comments: 0 },
-  { id: '4', userName: 'דני גולד', bookTitle: 'הנסיך הקטן', minutesRead: 15, timestamp: 'לפני 3 שעות', likes: 2, comments: 1 },
+  { id: '1', userName: 'נועה כהן', bookTitle: 'עיר ושם', minutesRead: 45, timestamp: new Date(_now - 20 * 60000).toISOString(), likes: 3, comments: 1 },
+  { id: '2', userName: 'יוסי לוי', bookTitle: 'סאפיינס', minutesRead: 30, timestamp: new Date(_now - 60 * 60000).toISOString(), likes: 5, comments: 2 },
+  { id: '3', userName: 'מיכל אברהם', bookTitle: 'ההיסטוריה של הכל', minutesRead: 60, timestamp: new Date(_now - 2 * 3600000).toISOString(), likes: 8, comments: 0 },
+  { id: '4', userName: 'דני גולד', bookTitle: 'הנסיך הקטן', minutesRead: 15, timestamp: new Date(_now - 3 * 3600000).toISOString(), likes: 2, comments: 1 },
 ];
 
 export const mockChallenges: Challenge[] = [
