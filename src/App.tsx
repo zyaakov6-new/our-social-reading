@@ -1,4 +1,5 @@
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
@@ -136,6 +137,7 @@ const App = () => (
               <AppRoutes />
             </BrowserRouter>
             <Analytics />
+            <SpeedInsights />
           </AuthProvider>
         </TooltipProvider>
       </QueryClientProvider>
