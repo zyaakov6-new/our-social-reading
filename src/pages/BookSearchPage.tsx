@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, BookOpen, Search } from "lucide-react";
 import { toast } from "sonner";
 import AuthGateModal from "@/components/AuthGateModal";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,17 +11,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import { searchBooks, type BookSearchResult } from "@/services/googleBooks";
 
 type ShelfStatus = "want" | "reading" | "finished";
 
 const BookSearchPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t, dir } = useLanguage();
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const initialQuery = searchParams.get("q") ?? "";
+  const source = searchParams.get("source") ?? "search_page";
+  const variant = searchParams.get("variant") ?? "unknown";
+  const showLandingGuide = source === "landing";
 
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<BookSearchResult[]>([]);
@@ -28,6 +34,14 @@ const BookSearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
+
+  useEffect(() => {
+    trackEvent("book_search_viewed", {
+      source,
+      variant,
+      hasQuery: initialQuery.trim().length > 0,
+    });
+  }, [initialQuery, source, variant]);
 
   useEffect(() => {
     setQuery(initialQuery);
@@ -65,6 +79,11 @@ const BookSearchPage = () => {
     } = await supabase.auth.getUser();
 
     if (!user) {
+      trackEvent("book_save_blocked", {
+        source,
+        variant,
+        action: "save_book",
+      });
       setGateOpen(true);
       return;
     }
@@ -110,7 +129,14 @@ const BookSearchPage = () => {
 
   return (
     <div className="min-h-screen pb-28 bg-background" dir={dir}>
-      <AuthGateModal open={gateOpen} onClose={() => setGateOpen(false)} action={t.home.addBook} />
+      <AuthGateModal
+        open={gateOpen}
+        onClose={() => setGateOpen(false)}
+        action={t.books.saveBookAction}
+        nextPath={`${location.pathname}${location.search}`}
+        source={source}
+        variant={variant}
+      />
 
       <div
         className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-4 pt-3 pb-2.5"
@@ -132,6 +158,16 @@ const BookSearchPage = () => {
       </div>
 
       <div className="px-4 py-4 max-w-md mx-auto space-y-4">
+        {showLandingGuide && (
+          <Alert className="border-primary/20 bg-primary/5">
+            <AlertTitle>{t.books.trialTitle}</AlertTitle>
+            <AlertDescription className="space-y-1 text-xs leading-relaxed">
+              <p>{t.books.trialBody}</p>
+              <p>{t.books.trialFootnote}</p>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Card className="border-border/60 card-shadow">
           <CardContent className="p-4 space-y-4">
             <div className="relative">
@@ -185,7 +221,7 @@ const BookSearchPage = () => {
         {!loading && hasQuery && results.length === 0 && (
           <Card className="border-border/60">
             <CardContent className="p-8 text-center space-y-2">
-              <p className="text-sm font-semibold">{t.posts.categoryEmpty}</p>
+              <p className="text-sm font-semibold">{t.books.noResultsTitle}</p>
               <p className="text-xs text-muted-foreground">{t.books.notFound}</p>
             </CardContent>
           </Card>

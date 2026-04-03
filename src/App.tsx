@@ -29,6 +29,8 @@ import HamburgerMenu from "./components/HamburgerMenu";
 import ErrorBoundary from "./components/ErrorBoundary";
 import PWAInstallBanner from "./components/PWAInstallBanner";
 import PushNotificationPrompt from "./components/PushNotificationPrompt";
+import { trackEvent } from "@/lib/analytics";
+import { clearAuthIntent, readAuthIntent, sanitizeReturnTo } from "@/lib/auth-flow";
 
 // Routes guests can browse without signing up
 const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts", "/search"];
@@ -79,6 +81,35 @@ const GuestRoutes = () => {
   return <LandingPage />;
 };
 
+const AuthRoute = () => {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    return <Auth />;
+  }
+
+  const searchParams = new URLSearchParams(location.search);
+  const pendingIntent = readAuthIntent();
+  const nextPath =
+    sanitizeReturnTo(searchParams.get("next")) ??
+    sanitizeReturnTo(pendingIntent?.next) ??
+    "/";
+
+  if (pendingIntent) {
+    trackEvent("auth_completed", {
+      source: pendingIntent.source ?? "unknown",
+      variant: pendingIntent.variant ?? "unknown",
+      mode: pendingIntent.mode ?? "unknown",
+      action: pendingIntent.action ?? "unknown",
+      destination: nextPath,
+    });
+    clearAuthIntent();
+  }
+
+  return <Navigate to={nextPath} replace />;
+};
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
@@ -105,7 +136,7 @@ const AppRoutes = () => {
 
       <Route
         path="/auth"
-        element={user ? <Navigate to="/" replace /> : <Auth />}
+        element={<AuthRoute />}
       />
       <Route
         path="/onboarding"

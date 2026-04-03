@@ -1,62 +1,108 @@
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { BookOpen } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackEvent } from "@/lib/analytics";
+import { buildAuthPath, storeAuthIntent } from "@/lib/auth-flow";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface AuthGateModalProps {
   open: boolean;
   onClose: () => void;
-  /** Short phrase describing the blocked action, e.g. "לרשום קריאה" */
   action?: string;
+  nextPath?: string | null;
+  source?: string;
+  variant?: string;
 }
 
-const AuthGateModal = ({ open, onClose, action }: AuthGateModalProps) => {
+const AuthGateModal = ({
+  open,
+  onClose,
+  action,
+  nextPath = "/",
+  source = "gate",
+  variant = "unknown",
+}: AuthGateModalProps) => {
   const navigate = useNavigate();
   const { t, dir } = useLanguage();
 
-  const goSignup = () => { onClose(); navigate("/auth"); };
-  const goLogin  = () => { onClose(); navigate("/auth"); };
+  const goToAuth = (mode: "signup" | "login") => {
+    storeAuthIntent({
+      source,
+      variant,
+      mode,
+      next: nextPath,
+      action,
+    });
+
+    trackEvent("auth_gate_clicked", {
+      source,
+      variant,
+      mode,
+      action: action ?? "none",
+      next: nextPath,
+    });
+
+    onClose();
+    navigate(
+      buildAuthPath(mode, {
+        next: nextPath,
+        source,
+        variant,
+        action,
+      }),
+    );
+  };
 
   return (
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent dir={dir} className="max-w-xs rounded-2xl p-0 overflow-hidden">
-        {/* Top accent bar */}
-        <div style={{ height: 4, background: 'linear-gradient(to left, hsl(28 71% 57%), hsl(126 15% 28%))' }} />
+    <Dialog open={open} onOpenChange={(value) => !value && onClose()}>
+      <DialogContent dir={dir} className="max-w-sm overflow-hidden rounded-2xl p-0">
+        <div
+          className="h-1"
+          style={{
+            background:
+              "linear-gradient(to left, hsl(28 71% 57%), hsl(126 15% 28%))",
+          }}
+        />
 
-        <div className="px-6 pb-7 pt-5 text-center space-y-5">
-          {/* Icon */}
+        <div className="space-y-5 px-6 pb-7 pt-6 text-center">
           <div
-            className="w-14 h-14 rounded-full mx-auto flex items-center justify-center"
-            style={{ background: 'hsl(126 15% 28% / 0.10)' }}
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
+            style={{ background: "hsl(126 15% 28% / 0.10)" }}
           >
-            <BookOpen size={26} strokeWidth={1.5} style={{ color: 'hsl(126 15% 28%)' }} />
+            <BookOpen size={26} strokeWidth={1.5} style={{ color: "hsl(126 15% 28%)" }} />
           </div>
 
-          {/* Copy */}
-          <div className="space-y-1.5">
-            <h2 className="font-serif text-[1.15rem] font-bold leading-snug">
+          <div className="space-y-2">
+            <DialogTitle className="font-serif text-[1.15rem] font-bold leading-snug">
               {action ? `${t.auth_gate.toContinue} ${action}` : t.auth_gate.toContinue}
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            </DialogTitle>
+            <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
               {t.auth_gate.joinAmud}
-            </p>
+            </DialogDescription>
           </div>
 
-          {/* CTAs */}
           <div className="space-y-2.5 pt-1">
-            <button
-              onClick={goSignup}
-              className="w-full py-3 rounded-xl font-bold text-sm transition-opacity hover:opacity-90"
-              style={{ background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }}
+            <Button
+              type="button"
+              className="w-full rounded-xl bg-[hsl(126_15%_28%)] py-3 text-sm font-bold text-[hsl(44_30%_93%)] hover:bg-[hsl(126_15%_24%)]"
+              onClick={() => goToAuth("signup")}
             >
               {t.auth_gate.joinFree}
-            </button>
-            <button
-              onClick={goLogin}
-              className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => goToAuth("login")}
             >
               {t.auth_gate.alreadyRegistered}
-            </button>
+            </Button>
           </div>
         </div>
       </DialogContent>
