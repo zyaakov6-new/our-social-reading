@@ -1,9 +1,11 @@
 import { Download, X } from 'lucide-react';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PWAInstallBanner() {
   const { canInstall, install, dismiss } = usePWAInstall();
+  const { t, dir } = useLanguage();
 
   return (
     <AnimatePresence>
@@ -27,7 +29,7 @@ export default function PWAInstallBanner() {
               <X size={16} />
             </button>
 
-            <div className="flex items-center gap-3" dir="rtl">
+            <div className="flex items-center gap-3" dir={dir}>
               <div
                 className="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: 'white / 0.15' , backgroundColor: 'rgba(255,255,255,0.15)' }}
@@ -35,9 +37,9 @@ export default function PWAInstallBanner() {
                 <Download size={22} style={{ color: 'white' }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-bold text-sm leading-snug">הוסף את AMUD למסך הבית</p>
+                <p className="font-bold text-sm leading-snug">{t.pwa.title}</p>
                 <p className="text-xs mt-0.5" style={{ opacity: 0.8 }}>
-                  קבל תזכורות קריאה יומיות ופתח מהר יותר
+                  {t.pwa.subtitle}
                 </p>
               </div>
             </div>
@@ -47,7 +49,7 @@ export default function PWAInstallBanner() {
               className="mt-3 w-full py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 touch-manipulation"
               style={{ background: 'white', color: 'hsl(126 15% 28%)' }}
             >
-              התקן עכשיו ←
+              {t.pwa.install}
             </button>
           </div>
         </motion.div>

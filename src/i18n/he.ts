@@ -31,6 +31,8 @@ const he = {
     goal: 'יעד',
     daily: 'יומי',
     yearly: 'שנתי',
+    me: 'אני',
+    pagesShort: 'עמ׳',
     dir: 'rtl' as const,
   },
 
@@ -163,6 +165,11 @@ const he = {
   nav: {
     home: 'בית',
     challenges: 'אתגרים',
+    books: 'ספרים',
+    feed: 'פיד',
+    forum: 'פורום',
+    friends: 'חברים',
+    notifications: 'התראות',
   },
 
   // Push Notification Prompt
@@ -179,8 +186,8 @@ const he = {
   // PWA Banner
   pwa: {
     title: 'הוסף את AMUD למסך הבית',
-    subtitle: 'גישה מהירה, כמו אפליקציה אמיתית',
-    install: 'הוסף ←',
+    subtitle: 'קבל תזכורות קריאה יומיות ופתח מהר יותר',
+    install: 'התקן עכשיו ←',
   },
 
   // Leaderboard
@@ -226,6 +233,8 @@ const he = {
     minutesRead: 'דקות קריאה',
     pagesOptional: 'עמודים (אופציונלי)',
     saveChange: 'שמור שינוי',
+    monthMinutes: 'דקות החודש',
+    heatmapDays: ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'] as readonly string[],
   },
 
   // Notifications
@@ -238,6 +247,61 @@ const he = {
     reject: 'דחייה',
     accepted: 'בקשת חברות אושרה!',
     rejected: 'בקשה נדחתה',
+    subheader: 'התראות',
+    someone: 'מישהו',
+    commentedOn: (name: string, title: string) => `${name} הגיב/ה על הפוסט שלך: ${title}`,
+    likedPost: (name: string, title: string) => `${name} אהב/ה את הפוסט שלך: ${title}`,
+    friendRequest: (name: string) => `${name} שלח/ה לך בקשת חברות`,
+  },
+
+  auth_gate: {
+    joinFree: 'הצטרף בחינם ←',
+    alreadyRegistered: 'כבר רשום? התחבר',
+    joinAmud: 'הצטרף ל-AMUD - חינמי לגמרי, לוקח דקה',
+    toContinue: 'כדי להמשיך',
+  },
+
+  friends: {
+    title: 'חברים',
+    addFriend: 'הוסף חבר',
+    pendingRequests: 'בקשות ממתינות',
+    searchPlaceholder: 'חפש לפי שם משתמש...',
+    loading: 'טוען...',
+    noUsers: 'שתף את האפליקציה עם חברים כדי שיצטרפו',
+    noResults: 'לא נמצאו משתמשים',
+    noFriends: 'עדיין אין חברים - לחץ "הוסף חבר" כדי למצוא',
+    add: 'הוסף',
+    sent: 'נשלח ✓',
+    pending: 'ממתין',
+    friend: 'חבר ✓',
+    subheader: 'חברים ודירוג',
+  },
+
+  feed_item: {
+    addToLib: 'הוסף',
+    want: 'רוצה',
+    reading: 'קורא',
+    finished: 'סיימתי',
+    beFirstComment: 'היה ראשון להגיב',
+    addComment: 'הוסף תגובה...',
+    alreadyInLib: 'הספר כבר בספרייה שלך',
+    addedToLib: 'הספר נוסף לספרייה! 📚',
+  },
+
+  // Hamburger Menu
+  menu: {
+    viewProfile: 'הצג פרופיל ←',
+    platformTagline: 'פלטפורמת הקריאה החברתית',
+    signOut: 'יציאה',
+    signOutSub: 'התנתקות מהחשבון',
+    inviteFriendsSub: 'שתף קישור ייחודי',
+    homeDesc: 'עמוד הבית',
+    challengesDesc: 'אתגרי קריאה',
+    forumDesc: 'שיחות ודיונים',
+    friendsDesc: 'חברים ודירוג',
+    booksDesc: 'ספריית הספרים',
+    notificationsDesc: 'לייקים, תגובות והתראות',
+    feedDesc: 'מה הקהילה קוראת',
   },
 
   // Posts Feed

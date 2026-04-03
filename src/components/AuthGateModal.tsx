@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { BookOpen } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface AuthGateModalProps {
   open: boolean;
@@ -11,13 +12,14 @@ interface AuthGateModalProps {
 
 const AuthGateModal = ({ open, onClose, action }: AuthGateModalProps) => {
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
 
   const goSignup = () => { onClose(); navigate("/auth"); };
   const goLogin  = () => { onClose(); navigate("/auth"); };
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent dir="rtl" className="max-w-xs rounded-2xl p-0 overflow-hidden">
+      <DialogContent dir={dir} className="max-w-xs rounded-2xl p-0 overflow-hidden">
         {/* Top accent bar */}
         <div style={{ height: 4, background: 'linear-gradient(to left, hsl(28 71% 57%), hsl(126 15% 28%))' }} />
 
@@ -33,10 +35,10 @@ const AuthGateModal = ({ open, onClose, action }: AuthGateModalProps) => {
           {/* Copy */}
           <div className="space-y-1.5">
             <h2 className="font-serif text-[1.15rem] font-bold leading-snug">
-              {action ? `כדי ${action}` : "כדי להמשיך"}
+              {action ? `${t.auth_gate.toContinue} ${action}` : t.auth_gate.toContinue}
             </h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              הצטרף ל-AMUD - חינמי לגמרי, לוקח דקה
+              {t.auth_gate.joinAmud}
             </p>
           </div>
 
@@ -47,13 +49,13 @@ const AuthGateModal = ({ open, onClose, action }: AuthGateModalProps) => {
               className="w-full py-3 rounded-xl font-bold text-sm transition-opacity hover:opacity-90"
               style={{ background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }}
             >
-              הצטרף בחינם ←
+              {t.auth_gate.joinFree}
             </button>
             <button
               onClick={goLogin}
               className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              כבר רשום? התחבר
+              {t.auth_gate.alreadyRegistered}
             </button>
           </div>
         </div>

@@ -4,9 +4,11 @@ import { useFriends, UserSearchResult } from '@/hooks/useFriends';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const FriendsSection = () => {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const { friends, incomingRequests, outgoingRequests, sendRequest, acceptRequest, rejectRequest, unfriend, searchUsers } = useFriends();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
@@ -113,7 +115,7 @@ const FriendsSection = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Users size={16} className="text-primary" />
-          <h3 className="font-serif font-bold text-sm">חברים</h3>
+          <h3 className="font-serif font-bold text-sm">{t.friends.title}</h3>
           {friends.length > 0 && (
             <span className="text-xs bg-primary/10 text-primary rounded-full px-2 py-0.5 font-medium">{friends.length}</span>
           )}
@@ -132,7 +134,7 @@ const FriendsSection = () => {
             style={showSearch ? { background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' } : { background: 'hsl(126 15% 28% / 0.10)', color: 'hsl(126 15% 22%)' }}
           >
             <UserPlus size={13} />
-            הוסף חבר
+            {t.friends.addFriend}
           </button>
         </div>
       </div>
@@ -140,7 +142,7 @@ const FriendsSection = () => {
       {/* Pending incoming requests */}
       {incomingRequests.length > 0 && (
         <div className="mb-3 space-y-2">
-          <p className="text-xs text-muted-foreground font-medium">בקשות ממתינות</p>
+          <p className="text-xs text-muted-foreground font-medium">{t.friends.pendingRequests}</p>
           {incomingRequests.map(({ friendship, profile }) => (
             <div key={friendship.id} className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2">
               <div className="h-7 w-7 rounded-full bg-accent flex items-center justify-center text-xs font-bold flex-shrink-0">
@@ -167,13 +169,13 @@ const FriendsSection = () => {
               type="text"
               value={searchQuery}
               onChange={e => handleSearch(e.target.value)}
-              placeholder="חפש לפי שם משתמש..."
-              dir="rtl"
+              placeholder={t.friends.searchPlaceholder}
+              dir={dir}
               className="w-full pr-9 pl-3 py-2 text-sm rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
               autoFocus
             />
           </div>
-          {(searching || loadingAll) && <p className="text-xs text-muted-foreground text-center py-2">טוען...</p>}
+          {(searching || loadingAll) && <p className="text-xs text-muted-foreground text-center py-2">{t.friends.loading}</p>}
           {displayList.length > 0 && (
             <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
               {displayList.map(result => (
@@ -189,33 +191,33 @@ const FriendsSection = () => {
                       style={{ background: 'hsl(126 15% 28%)' }}
                     >
                       <UserPlus size={12} />
-                      הוסף
+                      {t.friends.add}
                     </button>
                   )}
                   {result.friendshipStatus === 'pending' && (
                     <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-lg">
-                      {result.isRequester ? 'נשלח ✓' : 'ממתין'}
+                      {result.isRequester ? t.friends.sent : t.friends.pending}
                     </span>
                   )}
                   {result.friendshipStatus === 'accepted' && (
-                    <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-1 rounded-lg">חבר ✓</span>
+                    <span className="text-xs text-primary font-medium bg-primary/10 px-2 py-1 rounded-lg">{t.friends.friend}</span>
                   )}
                 </div>
               ))}
             </div>
           )}
           {searchQuery && !searching && searchResults.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-2">לא נמצאו משתמשים</p>
+            <p className="text-xs text-muted-foreground text-center py-2">{t.friends.noResults}</p>
           )}
           {!searchQuery && !loadingAll && allUsers.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-2">שתף את האפליקציה עם חברים כדי שיצטרפו</p>
+            <p className="text-xs text-muted-foreground text-center py-2">{t.friends.noUsers}</p>
           )}
         </div>
       )}
 
       {/* Friends list */}
       {friends.length === 0 && !showSearch && incomingRequests.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-3">עדיין אין חברים - לחץ "הוסף חבר" כדי למצוא</p>
+        <p className="text-sm text-muted-foreground text-center py-3">{t.friends.noFriends}</p>
       )}
       {friends.length > 0 && (
         <div className="space-y-2">

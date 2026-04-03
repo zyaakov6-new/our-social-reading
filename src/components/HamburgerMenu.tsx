@@ -9,30 +9,32 @@ import InviteModal from "./InviteModal";
 import { useStreak } from "@/hooks/useStreak";
 import LanguageToggle from "./LanguageToggle";
 
-const authLinks = [
-  { path: "/",               label: "בית",     icon: Home,          desc: "עמוד הבית" },
-  { path: "/challenges",     label: "אתגרים",  icon: Trophy,         desc: "אתגרי קריאה" },
-  { path: "/posts",          label: "פורום",   icon: MessageSquare,  desc: "שיחות ודיונים" },
-  { path: "/friends",        label: "חברים",   icon: Users,          desc: "חברים ודירוג" },
-  { path: "/books",          label: "ספרים",   icon: BookOpen,       desc: "ספריית הספרים" },
-  { path: "/notifications",  label: "התראות",  icon: Bell,           desc: "לייקים, תגובות והתראות" },
-];
-
-const guestLinks = [
-  { path: "/feed",       label: "פיד",    icon: Home,          desc: "מה הקהילה קוראת" },
-  { path: "/posts",      label: "פורום",  icon: MessageSquare, desc: "שיחות ודיונים" },
-  { path: "/books",      label: "ספרים",  icon: BookOpen,      desc: "ספריית הספרים" },
-  { path: "/challenges", label: "אתגרים", icon: Trophy,        desc: "אתגרי קריאה" },
-];
 
 const HamburgerMenu = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
   const { streak } = useStreak();
+
+  const authLinks = [
+    { path: "/",               label: t.nav.home,          icon: Home,          desc: t.menu.homeDesc },
+    { path: "/challenges",     label: t.nav.challenges,    icon: Trophy,        desc: t.menu.challengesDesc },
+    { path: "/posts",          label: t.nav.forum,         icon: MessageSquare, desc: t.menu.forumDesc },
+    { path: "/friends",        label: t.nav.friends,       icon: Users,         desc: t.menu.friendsDesc },
+    { path: "/books",          label: t.nav.books,         icon: BookOpen,      desc: t.menu.booksDesc },
+    { path: "/notifications",  label: t.nav.notifications, icon: Bell,          desc: t.menu.notificationsDesc },
+  ];
+
+  const guestLinks = [
+    { path: "/feed",       label: t.nav.feed,        icon: Home,          desc: t.menu.feedDesc },
+    { path: "/posts",      label: t.nav.forum,       icon: MessageSquare, desc: t.menu.forumDesc },
+    { path: "/books",      label: t.nav.books,       icon: BookOpen,      desc: t.menu.booksDesc },
+    { path: "/challenges", label: t.nav.challenges,  icon: Trophy,        desc: t.menu.challengesDesc },
+  ];
 
   useEffect(() => {
     if (!user) return;
@@ -143,7 +145,7 @@ const HamburgerMenu = () => {
                   <div className="text-right flex-1 min-w-0">
                     <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <p className="text-xs text-muted-foreground">הצג פרופיל ←</p>
+                      <p className="text-xs text-muted-foreground">{t.menu.viewProfile}</p>
                       {streak > 0 && (
                         <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: "hsl(28 71% 57%)" }}>
                           🔥{streak}
@@ -155,7 +157,7 @@ const HamburgerMenu = () => {
               ) : (
                 <div className="px-5 pt-12 pb-5" style={{ borderBottom: "1px solid hsl(44 12% 76%)" }}>
                   <p className="font-display text-2xl tracking-widest mb-0.5">AMUD</p>
-                  <p className="text-xs text-muted-foreground">פלטפורמת הקריאה החברתית</p>
+                  <p className="text-xs text-muted-foreground">{t.menu.platformTagline}</p>
                 </div>
               )}
 
@@ -228,8 +230,8 @@ const HamburgerMenu = () => {
                     >
                       <Share2 size={18} strokeWidth={1.8} />
                       <div className="text-right">
-                        <p className="text-sm font-bold">הזמן חברים</p>
-                        <p className="text-[11px] opacity-70">שתף קישור ייחודי</p>
+                        <p className="text-sm font-bold">{t.profile.inviteFriends}</p>
+                        <p className="text-[11px] opacity-70">{t.menu.inviteFriendsSub}</p>
                       </div>
                     </button>
                   </div>
@@ -248,8 +250,8 @@ const HamburgerMenu = () => {
                     >
                       <LogOut size={20} strokeWidth={1.5} />
                       <div className="text-right">
-                        <p className="text-sm font-medium">יציאה</p>
-                        <p className="text-[11px] text-muted-foreground">התנתקות מהחשבון</p>
+                        <p className="text-sm font-medium">{t.menu.signOut}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.menu.signOutSub}</p>
                       </div>
                     </button>
                   </div>
@@ -265,13 +267,13 @@ const HamburgerMenu = () => {
                     style={{ background: "hsl(126 15% 28%)" }}
                   >
                     <UserPlus size={16} strokeWidth={2} />
-                    הצטרף בחינם
+                    {t.auth_gate.joinFree}
                   </button>
                   <button
                     onClick={() => { setOpen(false); navigate("/auth"); }}
                     className="w-full py-2 text-xs text-muted-foreground hover:text-foreground transition-colors text-center"
                   >
-                    כבר רשום? התחבר
+                    {t.auth_gate.alreadyRegistered}
                   </button>
                 </div>
               )}

@@ -6,6 +6,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CreatePostDialog from "@/components/CreatePostDialog";
 import AuthGateModal from "@/components/AuthGateModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatTimeAgo } from "@/utils/formatTimeAgo";
 
 type Category = 'review' | 'discussion' | 'question' | 'recommendation';
 
@@ -21,19 +23,16 @@ interface PostSummary {
   category: Category;
 }
 
-const CATEGORY_META: Record<Category, { emoji: string; label: string; color: string; bg: string }> = {
-  review:         { emoji: '📖', label: 'ביקורת',  color: 'hsl(188 60% 30%)',           bg: 'hsl(188 60% 92%)' },
-  discussion:     { emoji: '💬', label: 'דיון',    color: 'hsl(126 15% 28%)',           bg: 'hsl(126 15% 91%)' },
-  recommendation: { emoji: '✨', label: 'המלצה',   color: 'hsl(28 71% 40%)',            bg: 'hsl(28 71% 92%)' },
-  question:       { emoji: '❓', label: 'שאלה',    color: 'hsl(260 40% 40%)',           bg: 'hsl(260 40% 93%)' },
+const CATEGORY_COLORS: Record<Category, { color: string; bg: string }> = {
+  review:         { color: 'hsl(188 60% 30%)', bg: 'hsl(188 60% 92%)' },
+  discussion:     { color: 'hsl(126 15% 28%)', bg: 'hsl(126 15% 91%)' },
+  recommendation: { color: 'hsl(28 71% 40%)',  bg: 'hsl(28 71% 92%)' },
+  question:       { color: 'hsl(260 40% 40%)', bg: 'hsl(260 40% 93%)' },
 };
 
-const PROMPT_CATS: { value: Category; emoji: string; label: string }[] = [
-  { value: 'review',         emoji: '📖', label: 'ביקורת' },
-  { value: 'discussion',     emoji: '💬', label: 'דיון' },
-  { value: 'recommendation', emoji: '✨', label: 'המלצה' },
-  { value: 'question',       emoji: '❓', label: 'שאלה' },
-];
+const CATEGORY_EMOJIS: Record<Category, string> = {
+  review: '📖', discussion: '💬', recommendation: '✨', question: '❓',
+};
 
 const AVATAR_COLORS: Record<string, string> = {
   א: 'hsl(126 15% 28%)', ב: 'hsl(188 100% 27%)', ג: 'hsl(28 71% 57%)',
@@ -46,26 +45,20 @@ const AVATAR_COLORS: Record<string, string> = {
   ת: 'hsl(126 20% 32%)',
 };
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 60) return `לפני ${m || 1} דק׳`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `לפני ${h} שע׳`;
-  const d = Math.floor(h / 24);
-  return `לפני ${d} ${d > 1 ? 'ימים' : 'יום'}`;
-}
-
 const PostCard = ({
   post,
   onClick,
   onAuthorClick,
+  t,
 }: {
   post: PostSummary;
   onClick: () => void;
   onAuthorClick: () => void;
+  t: ReturnType<typeof useLanguage>['t'];
 }) => {
-  const cat = CATEGORY_META[post.category] ?? CATEGORY_META.discussion;
+  const catColors = CATEGORY_COLORS[post.category] ?? CATEGORY_COLORS.discussion;
+  const catEmoji = CATEGORY_EMOJIS[post.category] ?? CATEGORY_EMOJIS.discussion;
+  const catLabel = t.posts[post.category];
   const initial = post.displayName.charAt(0);
   return (
     <button
@@ -92,20 +85,20 @@ const PostCard = ({
         {/* Category badge */}
         <span
           className="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-0.5"
-          style={{ background: cat.bg, color: cat.color }}
+          style={{ background: catColors.bg, color: catColors.color }}
         >
-          {cat.emoji} {cat.label}
+          {catEmoji} {catLabel}
         </span>
 
         {/* Hot badge */}
         {(post.likeCount + post.commentCount) >= 3 && (
           <span className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
             style={{ background: 'hsl(22 90% 55% / 0.15)', color: 'hsl(22 90% 42%)' }}>
-            🔥 חם
+            {t.posts.hot}
           </span>
         )}
 
-        <span className="flex-shrink-0 text-xs text-muted-foreground mr-auto">{timeAgo(post.createdAt)}</span>
+        <span className="flex-shrink-0 text-xs text-muted-foreground mr-auto">{formatTimeAgo(post.createdAt, t.common)}</span>
       </div>
 
       {/* Body */}
@@ -127,7 +120,7 @@ const PostCard = ({
           </span>
         ) : null}
         {post.likeCount === 0 && post.commentCount === 0 && (
-          <span className="text-xs text-muted-foreground">היה ראשון להגיב ✍️</span>
+          <span className="text-xs text-muted-foreground">{t.posts.beFirst}</span>
         )}
       </div>
     </button>
@@ -136,23 +129,31 @@ const PostCard = ({
 
 type Filter = 'all' | Category;
 
-const FILTERS: { value: Filter; emoji: string; label: string }[] = [
-  { value: 'all',            emoji: '📚', label: 'הכל' },
-  { value: 'discussion',     emoji: '💬', label: 'דיון' },
-  { value: 'review',         emoji: '📖', label: 'ביקורת' },
-  { value: 'recommendation', emoji: '✨', label: 'המלצה' },
-  { value: 'question',       emoji: '❓', label: 'שאלה' },
-];
-
 const PostsFeed = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState<PostSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [initialCategory, setInitialCategory] = useState<Category>('discussion');
   const [activeFilter, setActiveFilter] = useState<Filter>('all');
   const [gateOpen, setGateOpen] = useState(false);
+
+  const FILTERS: { value: Filter; emoji: string; label: string }[] = [
+    { value: 'all',            emoji: '📚', label: t.posts.all },
+    { value: 'discussion',     emoji: '💬', label: t.posts.discussion },
+    { value: 'review',         emoji: '📖', label: t.posts.review },
+    { value: 'recommendation', emoji: '✨', label: t.posts.recommendation },
+    { value: 'question',       emoji: '❓', label: t.posts.question },
+  ];
+
+  const PROMPT_CATS: { value: Category; emoji: string; label: string }[] = [
+    { value: 'review',         emoji: '📖', label: t.posts.review },
+    { value: 'discussion',     emoji: '💬', label: t.posts.discussion },
+    { value: 'recommendation', emoji: '✨', label: t.posts.recommendation },
+    { value: 'question',       emoji: '❓', label: t.posts.question },
+  ];
 
   useEffect(() => { fetchPosts(); }, []);
 
@@ -216,7 +217,7 @@ const PostsFeed = () => {
             <span style={{ display: 'block', width: '3px', height: '30px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
             <div>
               <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none">AMUD</h1>
-              <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פורום הקוראים</p>
+              <p className="font-quote text-[10px] text-muted-foreground mt-0.5">{t.posts.title}</p>
             </div>
           </div>
         </div>
@@ -263,10 +264,10 @@ const PostsFeed = () => {
           style={{ border: '1px solid hsl(44 15% 80%)', boxShadow: '0 1px 4px hsl(44 20% 70% / 0.25)' }}
         >
           <p className="text-sm font-semibold text-center text-foreground">
-            📚 מה על הלב הספרותי שלך?
+            {t.posts.placeholder}
           </p>
           <p className="text-xs text-muted-foreground text-center leading-relaxed">
-            שתף ביקורת, פתח דיון, המלץ על ספר, או שאל את הקהילה
+            {t.posts.placeholderSub}
           </p>
           <div className="grid grid-cols-4 gap-2">
             {PROMPT_CATS.map(cat => (
@@ -308,18 +309,18 @@ const PostsFeed = () => {
             {posts.length === 0 ? (
               <>
                 <p className="text-4xl mb-3">📭</p>
-                <p className="text-sm font-semibold">הפורום עדיין ריק</p>
-                <p className="text-xs mt-1">היה ראשון לפתוח דיון!</p>
+                <p className="text-sm font-semibold">{t.posts.empty}</p>
+                <p className="text-xs mt-1">{t.posts.emptyAction}</p>
               </>
             ) : (
               <>
                 <p className="text-3xl mb-3">{FILTERS.find(f => f.value === activeFilter)?.emoji}</p>
-                <p className="text-sm font-semibold">אין פוסטים בקטגוריה זו עדיין</p>
+                <p className="text-sm font-semibold">{t.posts.categoryEmpty}</p>
                 <button
                   onClick={() => openCreate(activeFilter === 'all' ? 'discussion' : activeFilter as Category)}
                   className="mt-3 text-xs font-semibold text-primary hover:underline"
                 >
-                  פתח ראשון! ✍️
+                  {t.posts.categoryAction}
                 </button>
               </>
             )}
@@ -332,6 +333,7 @@ const PostsFeed = () => {
                 post={post}
                 onClick={() => navigate(`/post/${post.id}`)}
                 onAuthorClick={() => navigate(`/user/${post.userId}?name=${encodeURIComponent(post.displayName)}`)}
+                t={t}
               />
             ))}
           </>

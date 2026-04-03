@@ -30,6 +30,8 @@ const en = {
     goal: 'goal',
     daily: 'daily',
     yearly: 'yearly',
+    me: 'Me',
+    pagesShort: 'p.',
     dir: 'ltr' as const,
   },
 
@@ -157,6 +159,11 @@ const en = {
   nav: {
     home: 'Home',
     challenges: 'Challenges',
+    books: 'Books',
+    feed: 'Feed',
+    forum: 'Forum',
+    friends: 'Friends',
+    notifications: 'Notifications',
   },
 
   push: {
@@ -171,8 +178,8 @@ const en = {
 
   pwa: {
     title: 'Add AMUD to your home screen',
-    subtitle: 'Quick access, just like a real app',
-    install: 'Add →',
+    subtitle: 'Get daily reading reminders and open faster',
+    install: 'Install now →',
   },
 
   leaderboard: {
@@ -215,6 +222,8 @@ const en = {
     minutesRead: 'Minutes read',
     pagesOptional: 'Pages (optional)',
     saveChange: 'Save changes',
+    monthMinutes: 'minutes this month',
+    heatmapDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as readonly string[],
   },
 
   notifications: {
@@ -226,6 +235,60 @@ const en = {
     reject: 'Decline',
     accepted: 'Friend request accepted!',
     rejected: 'Request declined',
+    subheader: 'Notifications',
+    someone: 'Someone',
+    commentedOn: (name: string, title: string) => `${name} commented on your post: ${title}`,
+    likedPost: (name: string, title: string) => `${name} liked your post: ${title}`,
+    friendRequest: (name: string) => `${name} sent you a friend request`,
+  },
+
+  auth_gate: {
+    joinFree: 'Join free →',
+    alreadyRegistered: 'Already registered? Log in',
+    joinAmud: 'Join AMUD — completely free, takes a minute',
+    toContinue: 'to continue',
+  },
+
+  friends: {
+    title: 'Friends',
+    addFriend: 'Add friend',
+    pendingRequests: 'Pending requests',
+    searchPlaceholder: 'Search by username...',
+    loading: 'Loading...',
+    noUsers: 'Share the app with friends to get them to join',
+    noResults: 'No users found',
+    noFriends: 'No friends yet — click "Add friend" to find some',
+    add: 'Add',
+    sent: 'Sent ✓',
+    pending: 'Pending',
+    friend: 'Friend ✓',
+    subheader: 'Friends & rankings',
+  },
+
+  feed_item: {
+    addToLib: 'Add',
+    want: 'Want',
+    reading: 'Reading',
+    finished: 'Finished',
+    beFirstComment: 'Be first to reply',
+    addComment: 'Add a comment...',
+    alreadyInLib: 'Book already in your library',
+    addedToLib: 'Book added to library! 📚',
+  },
+
+  menu: {
+    viewProfile: 'View profile →',
+    platformTagline: 'Social reading platform',
+    signOut: 'Sign out',
+    signOutSub: 'Sign out of account',
+    inviteFriendsSub: 'Share a unique link',
+    homeDesc: 'Home page',
+    challengesDesc: 'Reading challenges',
+    forumDesc: 'Discussions',
+    friendsDesc: 'Friends & rankings',
+    booksDesc: 'Book library',
+    notificationsDesc: 'Likes, comments, alerts',
+    feedDesc: 'What the community is reading',
   },
 
   posts: {

@@ -4,6 +4,8 @@ import { MessageCircle, Heart, UserPlus, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatTimeAgo } from "@/utils/formatTimeAgo";
 
 type NotifType = "comment" | "like" | "friend_request";
 
@@ -15,17 +17,6 @@ interface Notification {
   postId?: string;
   friendshipId?: string;
   requesterId?: string;
-}
-
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const m = Math.floor(diff / 60000);
-  if (m < 1) return "עכשיו";
-  if (m < 60) return `לפני ${m} דק׳`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `לפני ${h} שע׳`;
-  const d = Math.floor(h / 24);
-  return `לפני ${d} ${d > 1 ? "ימים" : "יום"}`;
 }
 
 const ICON_MAP: Record<NotifType, React.ElementType> = {
@@ -48,6 +39,7 @@ const ICON_BG: Record<NotifType, string> = {
 
 const NotificationsPage = () => {
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -109,7 +101,7 @@ const NotificationsPage = () => {
       .map((row) => ({
         id: `comment-${row.id}`,
         type: "comment" as NotifType,
-        text: `${row.display_name || "מישהו"} הגיב/ה על הפוסט שלך: ${row.posts?.title ?? ""}`,
+        text: t.notifications.commentedOn(row.display_name || t.notifications.someone, row.posts?.title ?? ""),
         createdAt: row.created_at,
         postId: row.post_id,
       }));
@@ -146,7 +138,7 @@ const NotificationsPage = () => {
     return filtered.map((row) => ({
       id: `like-${row.id}`,
       type: "like" as NotifType,
-      text: `${profileMap[row.user_id] ?? "מישהו"} אהב/ה את הפוסט שלך: ${row.posts?.title ?? ""}`,
+      text: t.notifications.likedPost(profileMap[row.user_id] ?? t.notifications.someone, row.posts?.title ?? ""),
       createdAt: row.created_at,
       postId: row.post_id,
     }));
@@ -182,7 +174,7 @@ const NotificationsPage = () => {
     return (data as any[]).map((row) => ({
       id: `friend-${row.id}`,
       type: "friend_request" as NotifType,
-      text: `${profileMap[row.requester_id] ?? "מישהו"} שלח/ה לך בקשת חברות`,
+      text: t.notifications.friendRequest(profileMap[row.requester_id] ?? t.notifications.someone),
       createdAt: row.created_at,
       friendshipId: row.id,
       requesterId: row.requester_id,
@@ -200,7 +192,7 @@ const NotificationsPage = () => {
         .update({ status: action })
         .eq("id", friendshipId);
       if (error) throw error;
-      toast.success(action === "accepted" ? "בקשת חברות אושרה!" : "בקשה נדחתה");
+      toast.success(action === "accepted" ? t.notifications.accepted : t.notifications.rejected);
       // Remove from list
       setNotifications((prev) =>
         prev.filter((n) => n.friendshipId !== friendshipId)
@@ -217,7 +209,7 @@ const NotificationsPage = () => {
   ).length;
 
   return (
-    <div className="min-h-screen pb-28 bg-background" dir="rtl">
+    <div className="min-h-screen pb-28 bg-background" dir={dir}>
       {/* Header */}
       <div
         className="sticky top-0 z-30 backdrop-blur-md pr-5 pl-16 pt-3 pb-2.5"
@@ -244,7 +236,7 @@ const NotificationsPage = () => {
                 AMUD
               </h1>
               <p className="font-quote text-[10px] text-muted-foreground mt-0.5">
-                התראות
+                {t.notifications.subheader}
               </p>
             </div>
           </div>
@@ -280,10 +272,10 @@ const NotificationsPage = () => {
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
             <Bell size={40} className="text-muted-foreground/40" strokeWidth={1} />
             <p className="text-sm font-semibold text-muted-foreground">
-              אין התראות עדיין 🔔
+              {t.notifications.empty}
             </p>
             <p className="text-xs text-muted-foreground/70">
-              כאן יופיעו תגובות, לייקים ובקשות חברות
+              {t.notifications.emptySub}
             </p>
           </div>
         ) : (
@@ -329,7 +321,7 @@ const NotificationsPage = () => {
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    {timeAgo(notif.createdAt)}
+                    {formatTimeAgo(notif.createdAt, t.common)}
                   </p>
 
                   {/* Post link */}
@@ -339,7 +331,7 @@ const NotificationsPage = () => {
                       className="text-xs font-medium mt-1 transition-colors"
                       style={{ color: "hsl(188 60% 35%)" }}
                     >
-                      צפה בפוסט ←
+                      {t.notifications.viewPost}
                     </button>
                   )}
 
@@ -354,7 +346,7 @@ const NotificationsPage = () => {
                         className="flex-1 rounded-lg py-1.5 text-xs font-bold text-white transition-opacity disabled:opacity-60"
                         style={{ background: "hsl(126 15% 28%)" }}
                       >
-                        אישור
+                        {t.notifications.accept}
                       </button>
                       <button
                         disabled={processingId === notif.friendshipId}
@@ -367,7 +359,7 @@ const NotificationsPage = () => {
                           color: "hsl(210 11% 30%)",
                         }}
                       >
-                        דחייה
+                        {t.notifications.reject}
                       </button>
                     </div>
                   )}

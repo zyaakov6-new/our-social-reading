@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatTimeAgo } from "@/utils/formatTimeAgo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,6 +22,7 @@ import { Input } from "@/components/ui/input";
 const Profile = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { t, dir } = useLanguage();
   const { sessions, refetch } = useReadingSessions();
   const mySessions = sessions.filter(s => s.isMe);
   const [stats, setStats] = useState({
@@ -211,7 +214,7 @@ const Profile = () => {
             <span style={{ display: 'block', width: '3px', height: '30px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
             <div className="min-w-0">
               <h1 className="font-display text-[1.75rem] tracking-[0.14em] leading-none truncate">{displayName}</h1>
-              <p className="font-quote text-[10px] text-muted-foreground mt-0.5">הפרופיל שלי</p>
+              <p className="font-quote text-[10px] text-muted-foreground mt-0.5">{t.profile.title}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -280,9 +283,9 @@ const Profile = () => {
               <>
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <Flame size={22} className="text-secondary-foreground" />
-                  <span className="text-lg font-semibold text-secondary-foreground">עדיין אין רצף</span>
+                  <span className="text-lg font-semibold text-secondary-foreground">{t.profile.noStreak}</span>
                 </div>
-                <p className="text-sm text-secondary-foreground/90">התחל לקרוא היום כדי לבנות רצף ראשון 🔥</p>
+                <p className="text-sm text-secondary-foreground/90">{t.profile.noStreakSub}</p>
               </>
             ) : (
               <>
@@ -290,7 +293,7 @@ const Profile = () => {
                   <Flame size={24} className="text-secondary-foreground" />
                   <span className="text-4xl font-extrabold text-secondary-foreground leading-none font-numbers">{stats.currentStreak}</span>
                 </div>
-                <p className="text-sm text-secondary-foreground/90">ימים ברציפות</p>
+                <p className="text-sm text-secondary-foreground/90">{t.profile.streakDays}</p>
               </>
             )}
           </div>
@@ -301,13 +304,13 @@ const Profile = () => {
             <Clock size={20} className="text-primary mx-auto mb-1" />
             {stats.weekMinutes === 0 ? (
               <>
-                <p className="text-sm font-semibold text-foreground">עוד לא קראת השבוע</p>
-                <p className="text-xs text-muted-foreground mt-1">סשן קצר היום יספיק 🌱</p>
+                <p className="text-sm font-semibold text-foreground">{t.profile.noWeek}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.profile.noWeekSub}</p>
               </>
             ) : (
               <>
                 <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">דקות השבוע</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.weekMinutes}</p>
               </>
             )}
           </div>
@@ -315,13 +318,13 @@ const Profile = () => {
             <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
             {stats.monthMinutes === 0 ? (
               <>
-                <p className="text-sm font-semibold text-foreground">החודש עוד לפניך</p>
-                <p className="text-xs text-muted-foreground mt-1">בחר ספר והתחל 📚</p>
+                <p className="text-sm font-semibold text-foreground">{t.profile.noMonth}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.profile.noMonthSub}</p>
               </>
             ) : (
               <>
                 <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">דקות החודש</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.monthMinutes}</p>
               </>
             )}
           </div>
@@ -329,13 +332,13 @@ const Profile = () => {
             <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
             {stats.allTimeMinutes === 0 ? (
               <>
-                <p className="text-sm font-semibold text-foreground">הכול מחכה לקריאה הראשונה</p>
-                <p className="text-xs text-muted-foreground mt-1">סשן אחד קטן ואתה על המפה 📚</p>
+                <p className="text-sm font-semibold text-foreground">{t.profile.noBooksRead}</p>
+                <p className="text-xs text-muted-foreground mt-1">{t.profile.noActivity}</p>
               </>
             ) : (
               <>
                 <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">סה״כ דקות קריאה</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.totalMinutes}</p>
               </>
             )}
           </div>
@@ -344,11 +347,11 @@ const Profile = () => {
         <div className="rounded-xl bg-card p-4 card-shadow">
           <div className="flex items-center gap-2 mb-3">
             <Calendar size={16} className="text-primary" />
-            <h3 className="font-serif font-bold text-sm">לוח קריאה</h3>
+            <h3 className="font-serif font-bold text-sm">{t.profile.activityMap}</h3>
           </div>
           <div className="grid grid-cols-7 gap-1.5">
-            {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map(day => (
-              <div key={day} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
+            {(t.profile.heatmapDays as readonly string[]).map((day, idx) => (
+              <div key={idx} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
             ))}
             {heatmapDays.map((day, i) => (
               <div
@@ -362,7 +365,7 @@ const Profile = () => {
 
         <div className="rounded-xl bg-card p-4 card-shadow">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-serif font-bold text-sm">פעילות אחרונה</h3>
+            <h3 className="font-serif font-bold text-sm">{t.profile.recentActivity}</h3>
             {latestSession && (
               <button
                 type="button"
@@ -370,24 +373,24 @@ const Profile = () => {
                 className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
               >
                 <Pencil size={12} />
-                עריכת סשן אחרון
+                {t.profile.editSession}
               </button>
             )}
           </div>
           {mySessions.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4">
-              כשתתחיל לקרוא, נראה כאן את סשני הקריאה האחרונים שלך
+              {t.profile.noSessionsYet}
             </p>
           ) : (
             <div className="space-y-3">
               {mySessions.slice(0, 5).map(session => (
                 <div key={session.id} className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground text-xs">
-                    {session.timestamp}
+                    {formatTimeAgo(session.timestamp, t.common)}
                   </span>
                   <div className="flex items-center gap-3 text-right">
                     <span className="font-serif font-medium text-xs truncate max-w-[150px]">{session.bookTitle}</span>
-                    <span className="text-xs text-primary font-semibold">{session.minutesRead} דק׳</span>
+                    <span className="text-xs text-primary font-semibold">{session.minutesRead} {t.profile.minutesShort}</span>
                   </div>
                 </div>
               ))}
@@ -402,22 +405,22 @@ const Profile = () => {
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent dir="rtl">
+        <DialogContent dir={dir}>
           <DialogHeader>
             <DialogTitle className="text-center font-serif text-lg">
-              עריכת סשן אחרון
+              {t.profile.editSessionTitle}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-2">
             {latestSession && (
               <p className="text-xs text-muted-foreground text-center">
-                {latestSession.bookTitle} • {latestSession.timestamp}
+                {latestSession.bookTitle} • {formatTimeAgo(latestSession.timestamp, t.common)}
               </p>
             )}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="edit-minutes" className="text-xs">
-                  דקות קריאה
+                  {t.profile.minutesRead}
                 </Label>
                 <Input
                   id="edit-minutes"
@@ -430,7 +433,7 @@ const Profile = () => {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="edit-pages" className="text-xs">
-                  עמודים (אופציונלי)
+                  {t.profile.pagesOptional}
                 </Label>
                 <Input
                   id="edit-pages"
@@ -449,7 +452,7 @@ const Profile = () => {
                 className="flex-1"
                 onClick={() => setEditOpen(false)}
               >
-                ביטול
+                {t.common.cancel}
               </Button>
               <Button
                 type="button"
@@ -457,7 +460,7 @@ const Profile = () => {
                 disabled={savingEdit}
                 onClick={handleSaveEdit}
               >
-                {savingEdit ? "שומר..." : "שמור שינוי"}
+                {savingEdit ? t.common.saving : t.profile.saveChange}
               </Button>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY")!;
-const FROM_EMAIL = "AMUD <noreply@amud.app>";
+const FROM_EMAIL = "AMUD <noreply@amudapp.com>";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
@@ -60,11 +60,11 @@ Deno.serve(async () => {
                 <p style="line-height: 1.6; margin-bottom: 24px;">
                   5 דקות קריאה היום יוצרות רצף של יומיים. רצף של שבוע משנה הרגלים.
                 </p>
-                <a href="https://amud.app" style="display: inline-block; background: #2d4a30; color: white; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 15px;">
+                <a href="https://amud.vercel.app" style="display: inline-block; background: #2d4a30; color: white; padding: 12px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 15px;">
                   פתח את AMUD ←
                 </a>
                 <p style="margin-top: 32px; font-size: 12px; color: #888;">
-                  להסרה מהרשימה — <a href="mailto:support@amud.app" style="color: #888;">שלח מייל</a>
+                  להסרה מהרשימה — <a href="mailto:z.yaakov6@gmail.com" style="color: #888;">שלח מייל</a>
                 </p>
               </div>
             `,

@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import AuthGateModal from "./AuthGateModal";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { formatTimeAgo } from "@/utils/formatTimeAgo";
 
 const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null }) => {
   const [idx, setIdx] = useState(0);
@@ -31,25 +33,25 @@ const BookCover = ({ title, coverUrl }: { title: string; coverUrl: string | null
 };
 
 const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl, onGate }: { bookId: string; bookTitle: string; bookAuthor: string; coverUrl?: string; onGate?: () => void }) => {
+  const { t } = useLanguage();
   const [added, setAdded] = useState(false);
   const [open, setOpen] = useState(false);
 
   const addBook = async (status: 'want' | 'reading' | 'finished') => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { onGate?.(); return; }
-    // Check if already in library
     const { data: existing } = await supabase.from('books').select('id').eq('user_id', user.id).eq('title', bookTitle).maybeSingle();
-    if (existing) { toast.success('הספר כבר בספרייה שלך'); setOpen(false); return; }
+    if (existing) { toast.success(t.feed_item.alreadyInLib); setOpen(false); return; }
     const { error } = await supabase.from('books').insert({ user_id: user.id, title: bookTitle, author: bookAuthor || 'לא ידוע', status, cover_url: coverUrl || null });
     if (!error) {
-      toast.success('הספר נוסף לספרייה! 📚');
+      toast.success(t.feed_item.addedToLib);
       setAdded(true);
       window.dispatchEvent(new CustomEvent('bookAdded'));
     }
     setOpen(false);
   };
 
-  if (added) return <span className="text-xs text-primary mr-auto font-medium">נוסף ✓</span>;
+  if (added) return <span className="text-xs text-primary mr-auto font-medium">{t.feed_item.addToLib} ✓</span>;
 
   return (
     <div className="mr-auto relative">
@@ -59,13 +61,13 @@ const AddToLibraryButton = ({ bookId, bookTitle, bookAuthor, coverUrl, onGate }:
           className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
         >
           <BookOpen size={13} strokeWidth={1.5} />
-          <span>הוסף</span>
+          <span>{t.feed_item.addToLib}</span>
         </button>
       ) : (
         <div className="flex items-center gap-1">
-          <button onClick={() => addBook('want')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">רוצה</button>
-          <button onClick={() => addBook('reading')} className="text-[11px] px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">קורא</button>
-          <button onClick={() => addBook('finished')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">סיימתי</button>
+          <button onClick={() => addBook('want')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">{t.feed_item.want}</button>
+          <button onClick={() => addBook('reading')} className="text-[11px] px-2 py-1 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">{t.feed_item.reading}</button>
+          <button onClick={() => addBook('finished')} className="text-[11px] px-2 py-1 rounded-lg bg-muted hover:bg-accent transition-colors">{t.feed_item.finished}</button>
           <button onClick={() => setOpen(false)} className="text-[11px] text-muted-foreground">✕</button>
         </div>
       )}
@@ -83,6 +85,7 @@ interface Comment {
 
 const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const navigate = useNavigate();
+  const { t, dir } = useLanguage();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
@@ -231,9 +234,9 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
 
       {/* ── User + timestamp header band ── */}
       <div className="activity-band px-4 py-2 flex items-center justify-between gap-3">
-        <span className="text-xs text-muted-foreground flex-shrink-0">{item.timestamp}</span>
+        <span className="text-xs text-muted-foreground flex-shrink-0">{formatTimeAgo(item.timestamp, t.common)}</span>
         {item.isMe ? (
-          <span className="text-xs font-bold" style={{ color: 'hsl(28 71% 57%)' }}>אני</span>
+          <span className="text-xs font-bold" style={{ color: 'hsl(28 71% 57%)' }}>{t.common.me}</span>
         ) : (
           <span className="text-xs font-semibold text-foreground truncate">{item.userName}</span>
         )}
@@ -257,10 +260,10 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
             >{item.bookTitle}</p>
             <div className="flex items-center gap-1.5 mt-1.5 justify-end flex-wrap">
               {item.minutesRead > 0 && (
-                <span className="badge-green">⏱ {item.minutesRead} דק׳</span>
+                <span className="badge-green">⏱ {item.minutesRead} {t.profile.minutesShort}</span>
               )}
               {item.pagesRead > 0 && (
-                <span className="badge-teal">📖 {item.pagesRead} עמ׳</span>
+                <span className="badge-teal">📖 {item.pagesRead} {t.common.pagesShort}</span>
               )}
             </div>
           </div>
@@ -363,7 +366,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
                 </div>
               )}
               {comments.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-3">היה ראשון להגיב</p>
+                <p className="text-xs text-muted-foreground text-center py-3">{t.feed_item.beFirstComment}</p>
               )}
             </>
           )}
@@ -373,8 +376,8 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               value={commentText}
               onChange={e => setCommentText(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submitComment(); } }}
-              placeholder="הוסף תגובה..."
-              dir="rtl"
+              placeholder={t.feed_item.addComment}
+              dir={dir}
               className="flex-1 text-sm bg-muted/50 border border-border/50 rounded-lg px-3 py-2 outline-none focus:border-primary/50 transition-colors placeholder:text-muted-foreground/60 text-right"
             />
             <button

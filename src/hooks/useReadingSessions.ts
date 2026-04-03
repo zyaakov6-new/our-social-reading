@@ -15,7 +15,7 @@ export interface ReadingSession {
   pagesRead: number;
   /** ISO date string (YYYY-MM-DD) used for streaks/heatmap */
   sessionDate: string;
-  /** Human-friendly relative time (e.g. "לפני 3 דקות") */
+  /** ISO timestamp of the session (created_at) — format in components via formatTimeAgo */
   timestamp: string;
   likes: number;
   comments: number;
@@ -108,19 +108,6 @@ export const useReadingSessions = () => {
       if (error) throw error;
 
       const mappedSessions: ReadingSession[] = (data || []).map((session: any) => {
-        const now = new Date();
-        const sessionDate = new Date(session.created_at);
-        const diffMs = now.getTime() - sessionDate.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMins / 60);
-        const diffDays = Math.floor(diffHours / 24);
-
-        let timestamp = "";
-        if (diffMins < 1) timestamp = "עכשיו";
-        else if (diffMins < 60) timestamp = `לפני ${diffMins} דקות`;
-        else if (diffHours < 24) timestamp = `לפני ${diffHours} שעות`;
-        else timestamp = `לפני ${diffDays} ימים`;
-
         const isMe = session.user_id === user.id;
         const profile = profileMap[session.user_id];
         const userName = isMe
@@ -139,7 +126,7 @@ export const useReadingSessions = () => {
           minutesRead: session.minutes_read,
           pagesRead: session.pages_read,
           sessionDate: session.session_date || session.created_at,
-          timestamp,
+          timestamp: session.created_at,
           likes: 0,
           comments: 0,
           isMe,
