@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Medal, Star, Flame, Clock, Target, Users, BookOpen, ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { Medal, Star, Flame, Clock, Target, Users, BookOpen, ArrowLeft, ArrowRight, Check, Trophy, BarChart2, BookMarked } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -127,10 +127,10 @@ export default function LandingPage() {
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
             {t.landing.socialProof}
           </span>
-          <span className="hidden sm:block text-border">·</span>
-          <span>{t.landing.proofMinutes}</span>
-          <span className="hidden sm:block text-border">·</span>
-          <span className="flex items-center gap-1">🔥 {t.landing.proofStreak}</span>
+          <span className="text-border">·</span>
+          <span className="flex items-center gap-1"><Clock size={11} className="text-muted-foreground/60" /> {t.landing.proofMinutes}</span>
+          <span className="text-border">·</span>
+          <span className="flex items-center gap-1"><Flame size={11} className="text-muted-foreground/60" /> {t.landing.proofStreak}</span>
         </motion.div>
 
         {/* ── CTAs ──────────────────────────────────────────────────── */}
@@ -226,8 +226,8 @@ export default function LandingPage() {
                 <Star size={11} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
                 <span className="text-[11px] font-medium text-muted-foreground">
                   {lang === "he"
-                    ? `${leader.name} קרא/ה ${fmtMinutes(leader.minutes, "he")} — אתה יכול לנצח ${PERIOD_LABEL[period]}!`
-                    : `${leader.name} read ${fmtMinutes(leader.minutes, "en")} — you can beat them ${PERIOD_LABEL[period].toLowerCase()}!`
+                    ? `${leader.name} קרא/ה ${fmtMinutes(leader.minutes, "he")} - אתה יכול לנצח ${PERIOD_LABEL[period]}!`
+                    : `${leader.name} read ${fmtMinutes(leader.minutes, "en")} - you can beat them ${PERIOD_LABEL[period].toLowerCase()}!`
                   }
                 </span>
               </div>
@@ -267,13 +267,14 @@ export default function LandingPage() {
           </h2>
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { title: t.landing.feat1Title, desc: t.landing.feat1Desc },
-              { title: t.landing.feat2Title, desc: t.landing.feat2Desc },
-              { title: t.landing.feat3Title, desc: t.landing.feat3Desc },
-              { title: t.landing.feat4Title, desc: t.landing.feat4Desc },
-            ].map(({ title, desc }) => (
+              { icon: Flame,      title: t.landing.feat1Title, desc: t.landing.feat1Desc },
+              { icon: Trophy,     title: t.landing.feat2Title, desc: t.landing.feat2Desc },
+              { icon: BookMarked, title: t.landing.feat3Title, desc: t.landing.feat3Desc },
+              { icon: BarChart2,  title: t.landing.feat4Title, desc: t.landing.feat4Desc },
+            ].map(({ icon: Icon, title, desc }) => (
               <Card key={title} className="border-border/60">
-                <CardContent className="p-3.5 space-y-1">
+                <CardContent className="p-3.5 space-y-1.5">
+                  <Icon size={15} className="text-primary/70" />
                   <p className="text-sm font-bold leading-snug">{title}</p>
                   <p className="text-[11px] text-muted-foreground leading-snug">{desc}</p>
                 </CardContent>
