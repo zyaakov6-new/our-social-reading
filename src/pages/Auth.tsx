@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import LanguageToggle from "@/components/LanguageToggle";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
-import LanguageToggle from "@/components/LanguageToggle";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" aria-hidden="true">
@@ -20,6 +20,9 @@ const GoogleIcon = () => (
   </svg>
 );
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
+
 export default function Auth() {
   const { t, dir } = useLanguage();
   const [isSignUp, setIsSignUp] = useState(false);
@@ -29,7 +32,7 @@ export default function Auth() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
 
-  const FEATURES = [
+  const features = [
     { emoji: "📚", label: t.auth.feature1 },
     { emoji: "🏆", label: t.auth.feature2 },
     { emoji: "🔥", label: t.auth.feature3 },
@@ -47,8 +50,8 @@ export default function Auth() {
         },
       });
       if (error) throw error;
-    } catch (error: any) {
-      toast.error(error.message || "Error signing in with Google");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Error signing in with Google"));
       setGoogleLoading(false);
     }
   };
@@ -56,17 +59,20 @@ export default function Auth() {
   const handleReferral = async (newUserId: string) => {
     const referrerId = localStorage.getItem("amud_referral");
     if (!referrerId || referrerId === newUserId) return;
+
     try {
       await supabase.from("friendships").upsert(
         { requester_id: newUserId, addressee_id: referrerId, status: "accepted" },
         { onConflict: "requester_id,addressee_id" }
       );
       localStorage.removeItem("amud_referral");
-    } catch {}
+    } catch {
+      // Referral linking is best-effort and should not block auth.
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setLoading(true);
     try {
       if (isSignUp) {
@@ -81,22 +87,20 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(getErrorMessage(error, t.common.error));
     } finally {
       setLoading(false);
     }
   };
 
   const switchMode = () => {
-    setIsSignUp(v => !v);
+    setIsSignUp((value) => !value);
     setShowEmailForm(false);
   };
 
   return (
     <div dir={dir} className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-12">
-
-      {/* Language toggle — top right */}
       <div className={`absolute top-4 ${dir === "rtl" ? "left-4" : "right-4"}`}>
         <LanguageToggle />
       </div>
@@ -107,7 +111,6 @@ export default function Auth() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="w-full max-w-sm"
       >
-        {/* ── Brand ───────────────────────────────────────────────── */}
         <div className="text-center mb-8 space-y-3">
           <div className="flex items-center justify-center gap-3">
             <span className="block w-[3px] h-10 rounded-full bg-primary" />
@@ -115,24 +118,23 @@ export default function Auth() {
               src="/logo.png"
               alt="AMUD"
               className="h-24 w-24 object-contain"
-              onError={e => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
             />
             <span className="block w-[3px] h-10 rounded-full bg-primary" />
           </div>
           <h1 className="font-display text-4xl tracking-[0.18em] text-primary">AMUD</h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {t.auth.tagline}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{t.auth.tagline}</p>
           <div className="flex justify-center gap-2 flex-wrap pt-1">
-            {FEATURES.map(f => (
-              <Badge key={f.label} variant="outline" className="text-[11px] border-border/60 text-muted-foreground gap-1 px-2.5 py-0.5">
-                {f.emoji} {f.label}
+            {features.map((feature) => (
+              <Badge key={feature.label} variant="outline" className="text-[11px] border-border/60 text-muted-foreground gap-1 px-2.5 py-0.5">
+                {feature.emoji} {feature.label}
               </Badge>
             ))}
           </div>
         </div>
 
-        {/* ── Auth card ───────────────────────────────────────────── */}
         <Card className="shadow-lg border-border/60">
           <CardHeader className="pb-2 pt-6 px-6">
             <h2 className="text-center text-base font-semibold text-foreground">
@@ -141,7 +143,6 @@ export default function Auth() {
           </CardHeader>
 
           <CardContent className="px-6 space-y-4">
-            {/* Google */}
             <Button
               type="button"
               variant="outline"
@@ -150,20 +151,16 @@ export default function Auth() {
               onClick={handleGoogleSignIn}
               disabled={googleLoading}
             >
-              {googleLoading
-                ? <span className="h-4 w-4 rounded-full border-2 border-muted border-t-blue-500 animate-spin" />
-                : <GoogleIcon />}
+              {googleLoading ? <span className="h-4 w-4 rounded-full border-2 border-muted border-t-blue-500 animate-spin" /> : <GoogleIcon />}
               {googleLoading ? t.auth.googleLoading : isSignUp ? t.auth.googleSignup : t.auth.googleLogin}
             </Button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3">
               <Separator className="flex-1" />
               <span className="text-xs text-muted-foreground px-1">{t.common.or}</span>
               <Separator className="flex-1" />
             </div>
 
-            {/* Email */}
             {!showEmailForm ? (
               <Button
                 type="button"
@@ -183,13 +180,15 @@ export default function Auth() {
                 className="space-y-3"
               >
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs text-muted-foreground">{t.auth.emailPlaceholder}</Label>
+                  <Label htmlFor="email" className="text-xs text-muted-foreground">
+                    {t.auth.emailPlaceholder}
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="email@example.com"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(event) => setEmail(event.target.value)}
                     dir="ltr"
                     className="text-left h-10"
                     required
@@ -197,13 +196,15 @@ export default function Auth() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="password" className="text-xs text-muted-foreground">{t.auth.passwordPlaceholder}</Label>
+                  <Label htmlFor="password" className="text-xs text-muted-foreground">
+                    {t.auth.passwordPlaceholder}
+                  </Label>
                   <Input
                     id="password"
                     type="password"
                     placeholder={t.auth.passwordHint}
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={(event) => setPassword(event.target.value)}
                     dir="ltr"
                     className="text-left h-10"
                     required
@@ -211,12 +212,7 @@ export default function Auth() {
                     autoComplete={isSignUp ? "new-password" : "current-password"}
                   />
                 </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full touch-manipulation"
-                  disabled={loading}
-                >
+                <Button type="submit" size="lg" className="w-full touch-manipulation" disabled={loading}>
                   {loading ? t.auth.submitting : isSignUp ? t.auth.createAccount : t.auth.loginBtn}
                 </Button>
               </motion.form>
@@ -236,7 +232,6 @@ export default function Auth() {
             </p>
           </CardFooter>
         </Card>
-
       </motion.div>
     </div>
   );

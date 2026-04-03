@@ -204,10 +204,7 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
   if (error && recommendations.length === 0) return null;
 
   const handleCardClick = (rec: Recommendation) => {
-    if (rec.googleBooksId) {
-      // Navigate to a search result or just search for the book
-      navigate(`/search?q=${encodeURIComponent(rec.title)}`);
-    }
+    navigate(`/search?q=${encodeURIComponent(`${rec.title} ${rec.author}`.trim())}`);
   };
 
   return (

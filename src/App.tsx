@@ -20,6 +20,7 @@ import LandingPage from "./pages/LandingPage";
 import Onboarding from "./pages/Onboarding";
 import Friends from "./pages/Friends";
 import BookDetailPage from "./pages/BookDetailPage";
+import BookSearchPage from "./pages/BookSearchPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import LeaderboardShare from "./pages/LeaderboardShare";
 import BottomNav from "./components/BottomNav";
@@ -30,7 +31,7 @@ import PWAInstallBanner from "./components/PWAInstallBanner";
 import PushNotificationPrompt from "./components/PushNotificationPrompt";
 
 // Routes guests can browse without signing up
-const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts"];
+const GUEST_BROWSEABLE = ["/feed", "/books", "/challenges", "/posts", "/search"];
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ const AppLayout = () => (
       <Route path="/challenge/:id" element={<ChallengeDetail />} />
       <Route path="/friends" element={<Friends />} />
       <Route path="/book/:bookId" element={<BookDetailPage />} />
+      <Route path="/search" element={<BookSearchPage />} />
       <Route path="/notifications" element={<NotificationsPage />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="*" element={<NotFound />} />

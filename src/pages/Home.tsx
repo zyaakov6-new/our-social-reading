@@ -33,9 +33,12 @@ const GUEST_DEMO_SESSIONS: ReadingSession[] = [
 type Tab = 'feed' | 'challenges' | 'books';
 
 const ChallengesTab = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
   const { challenges, loading, joinChallenge } = useChallenges();
+  const [createOpen, setCreateOpen] = useState(false);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   if (!user) {
     return (
@@ -45,18 +48,15 @@ const ChallengesTab = () => {
         <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
           {t.home.challengesSub}
         </p>
-        <button
-          onClick={() => window.location.href = "/auth"}
-          className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90"
-          style={{ background: 'hsl(126 15% 28%)' }}
+        <Button
+          onClick={() => navigate("/auth")}
+          className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm"
         >
           {t.home.joinToParticipate}
-        </button>
+        </Button>
       </div>
     );
   }
-  const [createOpen, setCreateOpen] = useState(false);
-  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   const handleJoin = async (id: string) => {
     setJoiningId(id);
@@ -432,7 +432,7 @@ const Home = () => {
     const handler = () => refetchBooks();
     window.addEventListener('bookAdded', handler);
     return () => window.removeEventListener('bookAdded', handler);
-  }, []);
+  }, [refetchBooks]);
 
   useEffect(() => {
     const tab = pathToTab[location.pathname];

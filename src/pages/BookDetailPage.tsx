@@ -76,7 +76,6 @@ const BookDetailPage = () => {
   useEffect(() => {
     if (!bookId) return;
     fetchAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookId]);
 
   const fetchAll = async () => {

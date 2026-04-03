@@ -22,51 +22,58 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export const useLanguage = () => useContext(LanguageContext);
 
+const getInitialLanguage = (): Lang => {
+  const saved = localStorage.getItem("amud_lang");
+  if (saved === "he" || saved === "en") return saved;
+
+  const locale = navigator.language.toLowerCase();
+  return locale.startsWith("he") || locale.includes("-il") ? "he" : "en";
+};
+
 async function detectCountry(): Promise<string | null> {
-  // Primary: Cloudflare trace — always available, no CORS, ~1ms
   try {
     const res = await fetch("https://cloudflare.com/cdn-cgi/trace", { signal: AbortSignal.timeout(2000) });
     const text = await res.text();
     const match = text.match(/^loc=(.+)$/m);
     if (match?.[1]) return match[1].trim();
-  } catch { /* fall through */ }
+  } catch {
+    // Fall through to the backup detector.
+  }
 
-  // Fallback: api.country.is
   try {
     const res = await fetch("https://api.country.is/", { signal: AbortSignal.timeout(3000) });
     const data = await res.json();
-    if (data?.country) return data.country;
-  } catch { /* fall through */ }
+    if (data?.country) return data.country as string;
+  } catch {
+    // Keep the current language if geo detection fails.
+  }
 
   return null;
 }
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLangState] = useState<Lang>(() => {
-    const saved = localStorage.getItem("amud_lang") as Lang | null;
-    if (saved === "he" || saved === "en") return saved;
-    return "he"; // default while detecting
-  });
-
-  const [detected, setDetected] = useState(false);
+  const [lang, setLangState] = useState<Lang>(getInitialLanguage);
 
   useEffect(() => {
     const saved = localStorage.getItem("amud_lang");
     const detectedBefore = localStorage.getItem("amud_lang_detected");
-    // If user explicitly toggled the language manually, respect it
     if ((saved === "he" || saved === "en") && detectedBefore === "1") {
-      setDetected(true);
       return;
     }
-    // First visit or detection was never properly run — detect by IP
-    // Default to "he" if detection fails (Israeli-first app)
-    detectCountry().then(country => {
-      const lang: Lang = (country && country !== "IL") ? "en" : "he";
-      setLangState(lang);
-      localStorage.setItem("amud_lang", lang);
+
+    let active = true;
+    detectCountry().then((country) => {
+      if (!active || !country) return;
+
+      const nextLang: Lang = country === "IL" ? "he" : "en";
+      setLangState(nextLang);
+      localStorage.setItem("amud_lang", nextLang);
       localStorage.setItem("amud_lang_detected", "1");
-      setDetected(true);
     });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -74,16 +81,14 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
   }, [lang]);
 
-  const setLang = (l: Lang) => {
-    localStorage.setItem("amud_lang", l);
-    localStorage.setItem("amud_lang_detected", "1"); // mark as user-chosen
-    setLangState(l);
+  const setLang = (nextLang: Lang) => {
+    localStorage.setItem("amud_lang", nextLang);
+    localStorage.setItem("amud_lang_detected", "1");
+    setLangState(nextLang);
   };
 
   const t = translations[lang] as typeof he;
   const dir = lang === "he" ? "rtl" : "ltr";
-
-  if (!detected) return null; // wait for detection before rendering to avoid flash
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t, dir }}>
