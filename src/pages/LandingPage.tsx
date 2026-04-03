@@ -33,11 +33,33 @@ const fadeUp = {
   }),
 };
 
-const sampleReaders = [
-  { name: "Maya", minutes: 210, rank: 1 },
-  { name: "Noa", minutes: 165, rank: 2 },
-  { name: "Roni", minutes: 120, rank: 3 },
-];
+type LandingCopy = {
+  eyebrow: string;
+  headline: string;
+  subheadline: string;
+  primaryCta: string;
+  secondaryCta: string;
+  proofTitle: string;
+  proofBody: string;
+  leaderboardTitle: string;
+  leaderboardNote: string;
+  sampleStreakTitle: string;
+  sampleStreakItems: string[];
+  finalTitle: string;
+  finalBody: string;
+  login: string;
+  previewFeed: string;
+  tryNote: string;
+  weeklyMinutesLabel: string;
+  finalPrimaryCta: string;
+  finalSecondaryCta: string;
+  sampleReaders: Array<{ name: string; minutes: number; rank: number }>;
+  stepCards: Array<{
+    icon: typeof Search;
+    title: string;
+    desc: string;
+  }>;
+};
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -46,83 +68,119 @@ export default function LandingPage() {
 
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
 
-  const copy = useMemo(
-    () =>
-      lang === "he"
-        ? {
-            eyebrow: "אפליקציית קריאה חברתית",
-            headline: "לקרוא יותר עם חברים.",
-            subheadline:
-              variant === "guest_first"
-                ? "נסו את AMUD עם ספר אחד. חפשו כותר, תראו איך זה עובד, ותתחברו רק כשאתם רוצים לשמור."
-                : "בנו רצף קריאה שנשאר. תעדו דקות, התקדמו מול חברים, וסיימו יותר ספרים השנה.",
-            primaryCta:
-              variant === "guest_first" ? "נסו עם ספר אחד" : "הצטרפו בחינם",
-            secondaryCta:
-              variant === "guest_first" ? "ליצירת חשבון חינם" : "לנסות בלי הרשמה",
-            proofTitle: "כך AMUD עובד בדקה הראשונה",
-            proofBody:
-              "חיפוש ספר, רישום דקות, ורצף שממשיך מחר. התוכן למטה הוא הדגמה של החוויה, לא נתונים חיים.",
-            stepCards: [
-              { icon: Search, title: "מחפשים ספר", desc: "מקלידים שם ספר או מחבר ורואים תוצאות מיד" },
-              { icon: Clock3, title: "רושמים דקות", desc: "רישום יומי מהיר בלי עומס או טפסים ארוכים" },
-              { icon: Medal, title: "שומרים על רצף", desc: "עולים בטבלה, נשארים עקביים, ומסיימים יותר" },
-            ],
-            sampleLabel: "דוגמה",
-            sampleLeaderboard: "טבלת דירוג לדוגמה",
-            sampleNote: "כך נראית תחרות שבועית בין חברים",
-            sampleStreakTitle: "מה תרוויחו",
-            sampleStreakItems: [
-              "רצף קריאה יומי",
-              "חברים, אתגרים ודירוג",
-              "ספרייה אישית ומעקב התקדמות",
-            ],
-            honestyBadge: "תצוגה מקדימה אמיתית",
-            finalTitle: "תתחילו עם ספר אחד כבר היום.",
-            finalBody:
-              "חפשו כותר, תעדו את הדקות הראשונות שלכם, ופתחו חשבון חינם רק כשתרצו לשמור את ההתקדמות.",
-            login: "כניסה",
-            previewFeed: "לצפייה בפיד הקוראים",
-            tryNote: "לא צריך להירשם כדי לנסות חיפוש ספר",
-          }
-        : {
-            eyebrow: "Social reading app",
-            headline: "Read more with friends.",
-            subheadline:
-              variant === "guest_first"
-                ? "Try AMUD with one book. Search a title, feel the flow, and only sign up when you want to save it."
-                : "Build a reading streak that sticks. Log minutes, compete with friends, and finish more books this year.",
-            primaryCta:
-              variant === "guest_first" ? "Try with one book" : "Join free",
-            secondaryCta:
-              variant === "guest_first" ? "Create a free account" : "Try without signing up",
-            proofTitle: "What happens in the first minute",
-            proofBody:
-              "Search a book, log minutes, and build a streak you want to keep. The content below is a sample preview, not live user stats.",
-            stepCards: [
-              { icon: Search, title: "Search a book", desc: "Type a title or author and see results right away" },
-              { icon: Clock3, title: "Log minutes", desc: "A fast daily check-in without a long form" },
-              { icon: Medal, title: "Keep your streak", desc: "Climb the board, stay consistent, and finish more" },
-            ],
-            sampleLabel: "Sample",
-            sampleLeaderboard: "Sample leaderboard",
-            sampleNote: "A preview of what a weekly reading race looks like",
-            sampleStreakTitle: "What you unlock",
-            sampleStreakItems: [
-              "A daily reading streak",
-              "Friends, challenges, and rankings",
-              "A personal library with progress tracking",
-            ],
-            honestyBadge: "Honest preview",
-            finalTitle: "Start with one book today.",
-            finalBody:
-              "Search a title, log your first minutes, and create a free account when you want to keep the progress.",
-            login: "Login",
-            previewFeed: "See the reader feed",
-            tryNote: "No signup needed to try a book search",
+  const copy = useMemo<LandingCopy>(() => {
+    if (lang === "he") {
+      return {
+        eyebrow: "אפליקציית קריאה חברתית",
+        headline: "לקרוא יותר עם חברים.",
+        subheadline:
+          variant === "guest_first"
+            ? "נסו את AMUD עם ספר אחד. חפשו כותר, התחילו להרגיש את הזרימה, והירשמו רק כשבאמת תרצו לשמור את ההתקדמות."
+            : "בנו הרגל קריאה שנשאר. תעדו דקות, התקדמו מול חברים, וסיימו יותר ספרים השנה.",
+        primaryCta:
+          variant === "guest_first" ? "לנסות עם ספר אחד" : "להצטרף בחינם",
+        secondaryCta:
+          variant === "guest_first" ? "לפתוח חשבון חינם" : "לנסות בלי הרשמה",
+        proofTitle: "מה קורה בדקה הראשונה",
+        proofBody:
+          "מוצאים ספר, רושמים כמה דקות, ומתחילים רצף יומי שקל יותר לשמור עליו.",
+        stepCards: [
+          {
+            icon: Search,
+            title: "מחפשים ספר",
+            desc: "מקלידים שם ספר או מחבר ורואים תוצאות מיד",
           },
-    [lang, variant],
-  );
+          {
+            icon: Clock3,
+            title: "רושמים דקות",
+            desc: "רישום יומי מהיר בלי עומס או טפסים ארוכים",
+          },
+          {
+            icon: Medal,
+            title: "שומרים על רצף",
+            desc: "עולים בדירוג, נשארים עקביים, ומסיימים יותר",
+          },
+        ],
+        leaderboardTitle: "לוח קריאה שבועי",
+        leaderboardNote: "קריאה יומיומית מרגישה טוב יותר כשיש גם מרוץ ידידותי שמחכה לך.",
+        sampleStreakTitle: "מה מקבלים בפנים",
+        sampleStreakItems: [
+          "רצף קריאה יומי",
+          "חברים, אתגרים ודירוג",
+          "ספרייה אישית ומעקב התקדמות",
+        ],
+        finalTitle: "להתחיל היום עם ספר אחד.",
+        finalBody:
+          "חפשו כותר, תעדו את הדקות הראשונות שלכם, ופתחו חשבון חינם רק כשתרצו לשמור את ההתקדמות.",
+        login: "כניסה",
+        previewFeed: "לצפייה בפיד הקוראים",
+        tryNote: "לא צריך להירשם כדי לנסות חיפוש ספר",
+        weeklyMinutesLabel: "דקות השבוע",
+        finalPrimaryCta: "לנסות חיפוש ספר",
+        finalSecondaryCta: "לפתוח חשבון חינם",
+        sampleReaders: [
+          { name: "מאיה", minutes: 210, rank: 1 },
+          { name: "נועה", minutes: 165, rank: 2 },
+          { name: "רוני", minutes: 120, rank: 3 },
+        ],
+      };
+    }
+
+    return {
+      eyebrow: "Social reading app",
+      headline: "Read more with friends.",
+      subheadline:
+        variant === "guest_first"
+          ? "Try AMUD with one book. Search a title, feel the flow, and only sign up when you want to save your progress."
+          : "Build a reading streak that sticks. Log minutes, compete with friends, and finish more books this year.",
+      primaryCta:
+        variant === "guest_first" ? "Try with one book" : "Join free",
+      secondaryCta:
+        variant === "guest_first" ? "Create a free account" : "Try without signing up",
+      proofTitle: "What happens in the first minute",
+      proofBody:
+        "Search a book, log a few minutes, and start building a streak you actually want to keep.",
+      stepCards: [
+        {
+          icon: Search,
+          title: "Search a book",
+          desc: "Type a title or author and see results right away",
+        },
+        {
+          icon: Clock3,
+          title: "Log minutes",
+          desc: "A fast daily check-in without a long form",
+        },
+        {
+          icon: Medal,
+          title: "Keep your streak",
+          desc: "Climb the board, stay consistent, and finish more",
+        },
+      ],
+      leaderboardTitle: "Weekly reading board",
+      leaderboardNote: "Reading feels better when there is a friendly race waiting for you.",
+      sampleStreakTitle: "What you unlock",
+      sampleStreakItems: [
+        "A daily reading streak",
+        "Friends, challenges, and rankings",
+        "A personal library with progress tracking",
+      ],
+      finalTitle: "Start with one book today.",
+      finalBody:
+        "Search a title, log your first minutes, and create a free account when you want to keep the progress.",
+      login: "Login",
+      previewFeed: "See the reader feed",
+      tryNote: "No signup needed to try a book search",
+      weeklyMinutesLabel: "min this week",
+      finalPrimaryCta: "Try a book search",
+      finalSecondaryCta: "Create a free account",
+      sampleReaders: [
+        { name: "Maya", minutes: 210, rank: 1 },
+        { name: "Noa", minutes: 165, rank: 2 },
+        { name: "Roni", minutes: 120, rank: 3 },
+      ],
+    };
+  }, [lang, variant]);
 
   useEffect(() => {
     trackEvent("landing_viewed", {
@@ -207,11 +265,12 @@ export default function LandingPage() {
             className="space-y-5"
           >
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline" className="border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
-                  {copy.eyebrow}
-                </Badge>
-              </div>
+              <Badge
+                variant="outline"
+                className="border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary"
+              >
+                {copy.eyebrow}
+              </Badge>
 
               <div className="space-y-3">
                 <h1 className="font-display text-[clamp(2.2rem,6vw,4.5rem)] leading-[1.05] tracking-[0.02em] text-foreground">
@@ -249,11 +308,6 @@ export default function LandingPage() {
 
             <Card className="border-border/60 bg-card/70 shadow-sm">
               <CardHeader className="space-y-2 pb-3">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
-                    {copy.honestyBadge}
-                  </Badge>
-                </div>
                 <CardTitle className="text-lg">{copy.proofTitle}</CardTitle>
                 <p className="text-sm leading-6 text-muted-foreground">{copy.proofBody}</p>
               </CardHeader>
@@ -280,19 +334,12 @@ export default function LandingPage() {
           >
             <Card className="overflow-hidden border-border/60 shadow-lg">
               <div className="border-b bg-primary px-5 py-4 text-primary-foreground">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold">{copy.sampleLeaderboard}</p>
-                    <p className="text-xs text-primary-foreground/75">{copy.sampleNote}</p>
-                  </div>
-                  <Badge className="border-0 bg-primary-foreground/15 text-[10px] text-primary-foreground">
-                    {copy.sampleLabel}
-                  </Badge>
-                </div>
+                <p className="text-sm font-bold">{copy.leaderboardTitle}</p>
+                <p className="text-xs text-primary-foreground/75">{copy.leaderboardNote}</p>
               </div>
 
               <CardContent className="space-y-3 p-5">
-                {sampleReaders.map((reader, index) => (
+                {copy.sampleReaders.map((reader, index) => (
                   <div key={reader.name}>
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
@@ -300,11 +347,13 @@ export default function LandingPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold">{reader.name}</p>
-                        <p className="text-xs text-muted-foreground">{reader.minutes} min this week</p>
+                        <p className="text-xs text-muted-foreground">
+                          {reader.minutes} {copy.weeklyMinutesLabel}
+                        </p>
                       </div>
                       <Medal className="h-4 w-4 text-[hsl(28_71%_57%)]" />
                     </div>
-                    {index < sampleReaders.length - 1 && <Separator className="mt-3" />}
+                    {index < copy.sampleReaders.length - 1 && <Separator className="mt-3" />}
                   </div>
                 ))}
               </CardContent>
@@ -365,7 +414,7 @@ export default function LandingPage() {
                   className="bg-[hsl(28_71%_57%)] font-bold text-white hover:bg-[hsl(28_71%_50%)]"
                   onClick={startTrial}
                 >
-                  {lang === "he" ? "לנסות חיפוש ספר" : "Try a book search"}
+                  {copy.finalPrimaryCta}
                 </Button>
                 <Button
                   size="lg"
@@ -373,7 +422,7 @@ export default function LandingPage() {
                   className="font-semibold"
                   onClick={() => openAuth("signup", "final_join")}
                 >
-                  {lang === "he" ? "לפתוח חשבון חינם" : "Create a free account"}
+                  {copy.finalSecondaryCta}
                 </Button>
               </div>
             </div>
