@@ -8,6 +8,8 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-4 h-4 flex-shrink-0" aria-hidden="true">
@@ -18,20 +20,21 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const FEATURES = [
-  { emoji: "📚", label: "ספרייה" },
-  { emoji: "🏆", label: "דירוגים" },
-  { emoji: "🔥", label: "רצפים" },
-  { emoji: "👥", label: "חברים" },
-];
-
 export default function Auth() {
+  const { t, dir } = useLanguage();
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+
+  const FEATURES = [
+    { emoji: "📚", label: t.auth.feature1 },
+    { emoji: "🏆", label: t.auth.feature2 },
+    { emoji: "🔥", label: t.auth.feature3 },
+    { emoji: "👥", label: t.auth.feature4 },
+  ];
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -45,7 +48,7 @@ export default function Auth() {
       });
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message || "שגיאה בכניסה עם Google");
+      toast.error(error.message || "Error signing in with Google");
       setGoogleLoading(false);
     }
   };
@@ -91,7 +94,12 @@ export default function Auth() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-12">
+    <div dir={dir} className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-12">
+
+      {/* Language toggle — top right */}
+      <div className={`absolute top-4 ${dir === "rtl" ? "left-4" : "right-4"}`}>
+        <LanguageToggle />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -113,7 +121,7 @@ export default function Auth() {
           </div>
           <h1 className="font-display text-4xl tracking-[0.18em] text-primary">AMUD</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            קרא יותר. התחרה עם חברים. בנה הרגל שנשאר.
+            {t.auth.tagline}
           </p>
           <div className="flex justify-center gap-2 flex-wrap pt-1">
             {FEATURES.map(f => (
@@ -128,7 +136,7 @@ export default function Auth() {
         <Card className="shadow-lg border-border/60">
           <CardHeader className="pb-2 pt-6 px-6">
             <h2 className="text-center text-base font-semibold text-foreground">
-              {isSignUp ? "יצירת חשבון חדש" : "ברוכים השבים"}
+              {isSignUp ? t.auth.signupTitle : t.auth.loginTitle}
             </h2>
           </CardHeader>
 
@@ -145,13 +153,13 @@ export default function Auth() {
               {googleLoading
                 ? <span className="h-4 w-4 rounded-full border-2 border-muted border-t-blue-500 animate-spin" />
                 : <GoogleIcon />}
-              {googleLoading ? "מעביר לגוגל..." : isSignUp ? "הרשמה עם Google" : "כניסה עם Google"}
+              {googleLoading ? t.auth.googleLoading : isSignUp ? t.auth.googleSignup : t.auth.googleLogin}
             </Button>
 
             {/* Divider */}
             <div className="flex items-center gap-3">
               <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground px-1">או</span>
+              <span className="text-xs text-muted-foreground px-1">{t.common.or}</span>
               <Separator className="flex-1" />
             </div>
 
@@ -164,7 +172,7 @@ export default function Auth() {
                 className="w-full font-medium text-muted-foreground hover:text-foreground border border-border/50 hover:border-border touch-manipulation"
                 onClick={() => setShowEmailForm(true)}
               >
-                {isSignUp ? "הרשמה עם אימייל וסיסמה" : "כניסה עם אימייל וסיסמה"}
+                {isSignUp ? t.auth.emailSignup : t.auth.emailLogin}
               </Button>
             ) : (
               <motion.form
@@ -175,7 +183,7 @@ export default function Auth() {
                 className="space-y-3"
               >
                 <div className="space-y-1.5">
-                  <Label htmlFor="email" className="text-xs text-muted-foreground">אימייל</Label>
+                  <Label htmlFor="email" className="text-xs text-muted-foreground">{t.auth.emailPlaceholder}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -189,11 +197,11 @@ export default function Auth() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="password" className="text-xs text-muted-foreground">סיסמה</Label>
+                  <Label htmlFor="password" className="text-xs text-muted-foreground">{t.auth.passwordPlaceholder}</Label>
                   <Input
                     id="password"
                     type="password"
-                    placeholder="לפחות 6 תווים"
+                    placeholder={t.auth.passwordHint}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     dir="ltr"
@@ -209,7 +217,7 @@ export default function Auth() {
                   className="w-full touch-manipulation"
                   disabled={loading}
                 >
-                  {loading ? "רגע..." : isSignUp ? "יצירת חשבון" : "כניסה"}
+                  {loading ? t.auth.submitting : isSignUp ? t.auth.createAccount : t.auth.loginBtn}
                 </Button>
               </motion.form>
             )}
@@ -217,13 +225,13 @@ export default function Auth() {
 
           <CardFooter className="px-6 pb-6 justify-center">
             <p className="text-xs text-muted-foreground text-center">
-              {isSignUp ? "כבר יש לך חשבון?" : "עדיין אין חשבון?"}{" "}
+              {isSignUp ? t.auth.hasAccount : t.auth.noAccount}{" "}
               <button
                 type="button"
                 onClick={switchMode}
                 className="text-primary font-semibold hover:underline underline-offset-2 touch-manipulation"
               >
-                {isSignUp ? "כניסה" : "הרשמה"}
+                {isSignUp ? t.auth.switchToLogin : t.auth.switchToSignup}
               </button>
             </p>
           </CardFooter>

@@ -3,6 +3,7 @@ import { Trophy, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import AuthGateModal from "./AuthGateModal";
 
@@ -42,6 +43,7 @@ interface LeaderboardProps {
 
 const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const isCacheValid = !!(
@@ -212,7 +214,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
         <div className="flex items-center gap-2 px-4 py-3"
           style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
           <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
-          <h3 className="font-bold text-sm">מובילי השבוע</h3>
+          <h3 className="font-bold text-sm">{t.leaderboard.title}</h3>
         </div>
         {meEntry && (
           <div className="flex items-center gap-3 px-4 py-3 bg-primary/5">
@@ -229,7 +231,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-semibold truncate text-primary">אני</span>
                 <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
-                  {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} דק׳` : "-"}
+                  {meEntry.weekMinutes > 0 ? `${meEntry.weekMinutes} ${t.leaderboard.minutesShort}` : "-"}
                 </span>
               </div>
               {meEntry.weekMinutes > 0 && (
@@ -255,7 +257,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
         <div className="flex items-center gap-2 px-4 py-3"
           style={{ background: 'hsl(28 71% 57% / 0.08)', borderBottom: '1px solid hsl(28 71% 57% / 0.15)' }}>
           <Trophy size={15} strokeWidth={1.5} style={{ color: 'hsl(28 71% 57%)' }} />
-          <h3 className="font-bold text-sm">מובילי השבוע</h3>
+          <h3 className="font-bold text-sm">{t.leaderboard.title}</h3>
         </div>
         {meEntry && (
           <div className="flex items-center gap-3 px-4 py-3 bg-primary/5">
@@ -273,7 +275,7 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
                 <span className="text-sm font-semibold truncate text-primary">אני</span>
                 <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">-</span>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5">עוד אין פעילות השבוע - התחל לקרוא!</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{t.common.week}</p>
             </div>
           </div>
         )}
@@ -309,10 +311,10 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <span className={`text-sm font-semibold truncate ${entry.isMe ? 'text-primary' : ''}`}>
-                    {entry.isMe ? "אני" : entry.displayName}
+                    {entry.isMe ? t.leaderboard.you.replace(' ←', '').replace('← ', '') : entry.displayName}
                   </span>
                   <span className="text-xs font-numbers font-semibold text-muted-foreground flex-shrink-0 mr-2">
-                    {entry.weekMinutes} דק׳
+                    {entry.weekMinutes} {t.leaderboard.minutesShort}
                   </span>
                 </div>
                 {entry.weekMinutes > 0 && (
@@ -336,14 +338,14 @@ const Leaderboard = ({ onAddFriendsClick }: LeaderboardProps) => {
       {!user && (
         <div className="px-4 py-3 text-center"
           style={{ borderTop: '1px solid hsl(44 12% 76% / 0.5)', background: 'hsl(126 15% 28% / 0.04)' }}>
-          <p className="text-xs text-muted-foreground mb-2">הצטרף כדי להופיע בדירוג ולהתחרות</p>
+          <p className="text-xs text-muted-foreground mb-2">{t.home.guestSub}</p>
           <button
             onClick={() => navigate("/auth")}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             style={{ background: 'hsl(126 15% 28%)' }}
           >
             <UserPlus size={12} strokeWidth={2} />
-            הצטרף חינם
+            {t.common.join}
           </button>
         </div>
       )}

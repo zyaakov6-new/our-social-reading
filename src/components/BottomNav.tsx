@@ -1,9 +1,11 @@
 import { Home, Trophy } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname === path;
@@ -59,13 +61,13 @@ const BottomNav = () => {
       {/* DOM order: Home | spacer | Challenges */}
       <div className="mx-auto flex max-w-md items-stretch">
         {/* Home - visually far right */}
-        <NavBtn path="/" label="בית" icon={Home} />
+        <NavBtn path="/" label={t.nav.home} icon={Home} />
 
         {/* Spacer under the central FAB button */}
         <div className="w-20 flex-shrink-0" aria-hidden="true" />
 
         {/* Challenges */}
-        <NavBtn path="/challenges" label="אתגרים" icon={Trophy} />
+        <NavBtn path="/challenges" label={t.nav.challenges} icon={Trophy} />
       </div>
     </nav>
   );

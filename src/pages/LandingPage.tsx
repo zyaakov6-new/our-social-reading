@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Medal, Star, Flame, Clock, Target, Users, BookOpen, ArrowLeft } from "lucide-react";
+import { Medal, Star, Flame, Clock, Target, Users, BookOpen, ArrowLeft, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,10 +10,12 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageToggle from "@/components/LanguageToggle";
 
 type Period = "week" | "month" | "year";
 
-const DATA: Record<Period, { name: string; minutes: number; initials: string; color: string }[]> = {
+const DATA_HE: Record<Period, { name: string; minutes: number; initials: string; color: string }[]> = {
   week:  [
     { name: "יעל כ׳",  minutes: 147,  initials: "י", color: "bg-primary" },
     { name: "דני ל׳",  minutes: 93,   initials: "ד", color: "bg-secondary" },
@@ -31,18 +33,35 @@ const DATA: Record<Period, { name: string; minutes: number; initials: string; co
   ],
 };
 
+const DATA_EN: Record<Period, { name: string; minutes: number; initials: string; color: string }[]> = {
+  week:  [
+    { name: "Sarah M.", minutes: 147, initials: "S", color: "bg-primary" },
+    { name: "Dan L.",   minutes: 93,  initials: "D", color: "bg-secondary" },
+    { name: "Mike A.",  minutes: 71,  initials: "M", color: "bg-cta" },
+  ],
+  month: [
+    { name: "Mike A.",  minutes: 610, initials: "M", color: "bg-cta" },
+    { name: "Sarah M.", minutes: 540, initials: "S", color: "bg-primary" },
+    { name: "Ron B.",   minutes: 388, initials: "R", color: "bg-secondary" },
+  ],
+  year:  [
+    { name: "Dan L.",   minutes: 4820, initials: "D", color: "bg-secondary" },
+    { name: "Mike A.",  minutes: 4210, initials: "M", color: "bg-cta" },
+    { name: "Sarah M.", minutes: 3990, initials: "S", color: "bg-primary" },
+  ],
+};
+
 const MEDALS = [
   { icon: Medal, className: "text-yellow-400 fill-yellow-400/20" },
   { icon: Medal, className: "text-slate-400 fill-slate-400/20" },
   { icon: Medal, className: "text-amber-600 fill-amber-600/20" },
 ];
 
-const PERIOD_LABEL: Record<Period, string> = { week: "השבוע", month: "החודש", year: "השנה" };
-
-const fmtMinutes = (m: number) => {
-  if (m < 60) return `${m} דק׳`;
+const fmtMinutes = (m: number, lang: "he" | "en") => {
+  if (m < 60) return lang === "he" ? `${m} דק׳` : `${m} min`;
   const h = Math.floor(m / 60), rem = m % 60;
-  return rem ? `${h}:${String(rem).padStart(2, "0")} שע׳` : `${h} שע׳`;
+  if (lang === "he") return rem ? `${h}:${String(rem).padStart(2, "0")} שע׳` : `${h} שע׳`;
+  return rem ? `${h}h ${rem}m` : `${h}h`;
 };
 
 const fadeUp = {
@@ -52,12 +71,22 @@ const fadeUp = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { t, lang, dir } = useLanguage();
   const [period, setPeriod] = useState<Period>("week");
+
+  const DATA = lang === "he" ? DATA_HE : DATA_EN;
   const rows = DATA[period];
   const leader = rows[0];
+  const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
+
+  const PERIOD_LABEL: Record<Period, string> = {
+    week: t.leaderboard.weekly,
+    month: t.leaderboard.monthly,
+    year: t.leaderboard.yearly,
+  };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-background">
+    <div dir={dir} className="min-h-screen bg-background">
 
       {/* ── Sticky header ─────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
@@ -66,9 +95,12 @@ export default function LandingPage() {
             <span className="block w-[3px] h-6 rounded-full bg-primary flex-shrink-0" />
             <span className="font-display text-xl tracking-[0.18em] text-primary">AMUD</span>
           </div>
-          <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="touch-manipulation font-semibold">
-            כניסה
-          </Button>
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <Button variant="outline" size="sm" onClick={() => navigate("/auth")} className="touch-manipulation font-semibold">
+              {t.landing.login}
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -77,14 +109,14 @@ export default function LandingPage() {
         {/* ── Hero ──────────────────────────────────────────────────── */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0} className="text-center space-y-3 pt-2">
           <Badge variant="outline" className="font-bold tracking-widest uppercase text-[10px] px-3 py-1 border-primary/30 text-primary">
-            אפליקציית מעקב קריאה חברתית
+            {t.landing.badge}
           </Badge>
           <h1 className="font-display leading-[1.15] tracking-[0.05em]" style={{ fontSize: "clamp(1.9rem, 8vw, 2.8rem)" }}>
-            <span className="text-primary">עקוב אחרי כל ספר.</span>
+            <span className="text-primary">{t.landing.line1}</span>
             <br />
-            <span className="text-[hsl(28_71%_50%)]">התחרה עם חברים.</span>
+            <span className="text-[hsl(28_71%_50%)]">{t.landing.line2}</span>
             <br />
-            <span className="text-primary">בנה הרגל שנשאר.</span>
+            <span className="text-primary">{t.landing.line3}</span>
           </h1>
         </motion.div>
 
@@ -95,8 +127,8 @@ export default function LandingPage() {
             className="w-full touch-manipulation font-bold text-base shadow-md shadow-primary/20 gap-2"
             onClick={() => navigate("/feed")}
           >
-            נסה בלי הרשמה
-            <ArrowLeft size={16} />
+            {lang === "he" ? "נסה בלי הרשמה" : "Try without signing up"}
+            <ArrowIcon size={16} />
           </Button>
           <Button
             size="lg"
@@ -104,7 +136,7 @@ export default function LandingPage() {
             className="w-full touch-manipulation font-semibold border-primary/40 text-primary hover:bg-primary/5"
             onClick={() => navigate("/auth")}
           >
-            הצטרף עכשיו
+            {t.landing.ctaJoin}
           </Button>
         </motion.div>
 
@@ -116,10 +148,10 @@ export default function LandingPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                  <span className="text-sm font-bold text-primary-foreground">לוח תוצאות</span>
+                  <span className="text-sm font-bold text-primary-foreground">{t.landing.leaderboardTitle}</span>
                 </div>
                 <Badge className="bg-primary-foreground/15 text-primary-foreground hover:bg-primary-foreground/20 border-0 text-[10px] font-bold">
-                  אתגר: 52 ספרים ב-2026
+                  {t.landing.challengeBadge}
                 </Badge>
               </div>
 
@@ -155,7 +187,7 @@ export default function LandingPage() {
                       </Avatar>
                       <span className="flex-1 text-sm font-semibold">{r.name}</span>
                       <M.icon size={16} className={cn("flex-shrink-0", M.className)} strokeWidth={1.5} />
-                      <span className="text-sm font-bold text-secondary tabular-nums">{fmtMinutes(r.minutes)}</span>
+                      <span className="text-sm font-bold text-secondary tabular-nums">{fmtMinutes(r.minutes, lang)}</span>
                     </div>
                     {i < rows.length - 1 && <Separator className="mx-4 w-auto" />}
                   </div>
@@ -170,13 +202,13 @@ export default function LandingPage() {
                   <Avatar className="h-9 w-9 flex-shrink-0 ring-2 ring-white/20">
                     <AvatarFallback className="bg-white/15 text-white/60 text-sm font-bold">?</AvatarFallback>
                   </Avatar>
-                  <span className="flex-1 text-sm font-semibold text-white/90">את/ה יכול/ה להיות כאן</span>
+                  <span className="flex-1 text-sm font-semibold text-white/90">{t.landing.youCouldBeHere}</span>
                   <Button
                     size="sm"
                     onClick={() => navigate("/auth")}
                     className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 h-8 px-4 text-xs font-bold shadow-md touch-manipulation"
                   >
-                    הצטרף
+                    {t.landing.joinBtn}
                   </Button>
                 </div>
               </div>
@@ -185,7 +217,10 @@ export default function LandingPage() {
               <div className="flex items-center justify-center gap-1.5 px-4 pb-3">
                 <Star size={11} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
                 <span className="text-[11px] font-medium text-muted-foreground">
-                  {leader.name} קרא/ה {fmtMinutes(leader.minutes)} - אתה יכול לנצח {PERIOD_LABEL[period]}!
+                  {lang === "he"
+                    ? `${leader.name} קרא/ה ${fmtMinutes(leader.minutes, "he")} - אתה יכול לנצח ${PERIOD_LABEL[period]}!`
+                    : `${leader.name} read ${fmtMinutes(leader.minutes, "en")} — you can beat them ${PERIOD_LABEL[period].toLowerCase()}!`
+                  }
                 </span>
               </div>
             </CardContent>
@@ -195,10 +230,10 @@ export default function LandingPage() {
         {/* ── Stat mini-cards ───────────────────────────────────────── */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="grid grid-cols-3 gap-2.5">
           {[
-            { icon: Flame, value: "12", label: "יום רצף", accent: "hsl(28 71% 57%)", accentBg: "hsl(28 71% 57% / 0.08)" },
-            { icon: Clock, value: "3:20", label: "שע׳ השבוע", accent: "hsl(188 60% 35%)", accentBg: "hsl(188 60% 35% / 0.08)" },
-            { icon: BookOpen, value: "7", label: "ספרים", accent: "hsl(126 15% 28%)", accentBg: "hsl(126 15% 28% / 0.08)" },
-          ].map(({ icon: Icon, value, label, accent, accentBg }) => (
+            { icon: Flame, value: "12", label: t.landing.streakLabel, accent: "hsl(28 71% 57%)", accentBg: "hsl(28 71% 57% / 0.08)" },
+            { icon: Clock, value: "3:20", label: t.landing.weekLabel, accent: "hsl(188 60% 35%)", accentBg: "hsl(188 60% 35% / 0.08)" },
+            { icon: BookOpen, value: "7", label: t.landing.booksLabel, accent: "hsl(126 15% 28%)", accentBg: "hsl(126 15% 28% / 0.08)" },
+          ].map(({ icon: Icon, value, label, accent }) => (
             <Card key={label} className="overflow-hidden border-border/60">
               <div className="h-1" style={{ background: accent }} />
               <CardContent className="flex flex-col items-center pt-3 pb-3 px-1 gap-0.5">
@@ -216,11 +251,11 @@ export default function LandingPage() {
             <CardContent className="py-4 px-4 space-y-3.5">
               <div className="flex items-center gap-2 mb-0.5">
                 <Target size={14} className="text-primary" />
-                <span className="text-xs font-bold text-primary">יעדים</span>
+                <span className="text-xs font-bold text-primary">{t.landing.goalsTitle}</span>
               </div>
               {[
-                { label: "יעד יומי", sub: "25/30 דקות", value: 83 },
-                { label: "יעד 2026", sub: "7/24 ספרים",  value: 29 },
+                { label: t.landing.dailyGoal, sub: lang === "he" ? "25/30 דקות" : "25/30 min", value: 83 },
+                { label: t.landing.yearlyGoal, sub: lang === "he" ? "7/24 ספרים" : "7/24 books", value: 29 },
               ].map(g => (
                 <div key={g.label} className="space-y-1.5">
                   <div className="flex justify-between items-baseline">
@@ -234,40 +269,38 @@ export default function LandingPage() {
           </Card>
         </motion.div>
 
-
       </main>
 
       {/* ── Final CTA ─────────────────────────────────────────────── */}
       <motion.section
         variants={fadeUp} initial="hidden" animate="visible" custom={5}
         className="px-4 pb-16 max-w-lg mx-auto"
-
       >
         <Card className="overflow-hidden border-0 shadow-xl">
           <div className="bg-primary px-6 py-10 text-center space-y-4">
             <div className="flex items-center justify-center gap-2 text-primary-foreground/60 text-xs mb-1">
               <Users size={13} />
-              <span>847 קוראים כבר בפנים</span>
+              <span>{t.landing.socialProof}</span>
             </div>
             <h3 className="font-display text-3xl tracking-wide text-primary-foreground leading-tight">
-              הפסק לקרוא לבד.
+              {t.landing.finalTitle}
             </h3>
             <p className="text-sm leading-relaxed text-primary-foreground/75 max-w-xs mx-auto">
-              הצטרף לראשונים שבונים הרגל קריאה שנשאר - ספר אחרי ספר.
+              {t.landing.finalSubtitle}
             </p>
             <Button
               size="lg"
               onClick={() => navigate("/auth")}
               className="bg-[hsl(28_71%_57%)] hover:bg-[hsl(28_71%_50%)] text-white border-0 font-bold shadow-lg shadow-black/20 touch-manipulation mt-2"
             >
-              הצטרף עכשיו ←
+              {t.landing.finalCta}
             </Button>
           </div>
         </Card>
       </motion.section>
 
       <footer className="border-t py-6 text-center">
-        <p className="text-xs text-muted-foreground">AMUD - קריאה חברתית בעברית</p>
+        <p className="text-xs text-muted-foreground">{t.landing.footer}</p>
       </footer>
 
     </div>

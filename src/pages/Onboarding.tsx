@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchBooks, BookSearchResult } from "@/services/googleBooks";
-import { Search, ArrowLeft, Flame, Trophy, Bell } from "lucide-react";
+import { Search, ArrowLeft, ArrowRight, Flame, Trophy, Bell } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const C = {
   green:  'hsl(126 15% 28%)',
@@ -17,6 +18,8 @@ const MINUTE_OPTIONS = [15, 30, 45, 60];
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const { t, lang, dir } = useLanguage();
+  const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const [step, setStep] = useState(0);
 
   // Step 0 — book
@@ -161,7 +164,7 @@ const Onboarding = () => {
   const selectedMinutes = minutes ?? (customMinutes ? parseInt(customMinutes) : null);
 
   return (
-    <div dir="rtl" className="min-h-screen flex flex-col" style={{ background: C.bg }}>
+    <div dir={dir} className="min-h-screen flex flex-col" style={{ background: C.bg }}>
 
       {/* Progress dots */}
       <div className="flex justify-center gap-2 pt-8 pb-2 flex-shrink-0">
@@ -186,9 +189,9 @@ const Onboarding = () => {
                   style={{ background: 'hsl(28 71% 57% / 0.12)' }}>
                   <Bell size={32} style={{ color: C.orange }} />
                 </div>
-                <h2 className="font-serif text-xl font-bold">לא לשבור את הרצף 🔥</h2>
+                <h2 className="font-serif text-xl font-bold">{t.onboarding.streakTitle}</h2>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  נשלח לך תזכורת ב-22:00 בכל יום שלא קראת — כדי שתשמור על הרצף שלך
+                  {t.onboarding.streakSubtitle}
                 </p>
               </div>
 
@@ -199,13 +202,13 @@ const Onboarding = () => {
                   className="w-full py-3.5 rounded-xl text-sm font-bold transition-all active:scale-95 disabled:opacity-60"
                   style={{ background: C.green, color: 'white' }}
                 >
-                  {pushLoading ? 'מפעיל...' : 'הפעל תזכורות יומיות ←'}
+                  {pushLoading ? t.onboarding.enabling : t.onboarding.enableReminders}
                 </button>
                 <button
                   onClick={handleFinish}
                   className="w-full py-3 text-sm text-muted-foreground"
                 >
-                  לא עכשיו
+                  {t.onboarding.notNow}
                 </button>
               </div>
             </motion.div>
@@ -220,8 +223,8 @@ const Onboarding = () => {
             >
               <div className="text-center space-y-1">
                 <p className="text-3xl">📖</p>
-                <h2 className="font-serif text-xl font-bold">איזה ספר אתה קורא עכשיו?</h2>
-                <p className="text-xs text-muted-foreground">חפש ספר - נתחיל לעקוב אחרי ההתקדמות שלך</p>
+                <h2 className="font-serif text-xl font-bold">{t.onboarding.bookTitle}</h2>
+                <p className="text-xs text-muted-foreground">{t.onboarding.bookSubtitle}</p>
               </div>
 
               {!addedBook ? (
@@ -230,7 +233,7 @@ const Onboarding = () => {
                     <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                     <input
                       value={bookQuery} onChange={e => setBookQuery(e.target.value)}
-                      placeholder="שם הספר או המחבר..." dir="rtl" autoFocus
+                      placeholder={t.onboarding.bookPlaceholder} dir={dir} autoFocus
                       className="w-full text-sm rounded-xl pr-9 pl-4 py-3 outline-none"
                       style={{ background: 'hsl(44 25% 97%)', border: '1.5px solid hsl(44 15% 80%)' }}
                       onFocus={e => (e.currentTarget.style.borderColor = C.green)}
@@ -261,7 +264,7 @@ const Onboarding = () => {
                             <p className="text-xs text-muted-foreground truncate">{book.author}</p>
                           </div>
                           <span className="text-xs font-semibold px-2.5 py-1 rounded-lg flex-shrink-0 text-white"
-                            style={{ background: C.green }}>+ הוסף</span>
+                            style={{ background: C.green }}>{t.onboarding.addBtn}</span>
                         </button>
                       ))}
                     </div>
@@ -271,8 +274,8 @@ const Onboarding = () => {
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                   className="text-center py-6 space-y-2">
                   <p className="text-4xl">✅</p>
-                  <p className="font-bold" style={{ color: C.green }}>{addedBook.title} נוסף!</p>
-                  <p className="text-xs text-muted-foreground">ממשיכים…</p>
+                  <p className="font-bold" style={{ color: C.green }}>{t.onboarding.bookAdded(addedBook.title)}</p>
+                  <p className="text-xs text-muted-foreground">{t.onboarding.continuing}</p>
                 </motion.div>
               )}
             </motion.div>
@@ -287,13 +290,13 @@ const Onboarding = () => {
             >
               <div className="text-center space-y-1">
                 <p className="text-3xl">👋</p>
-                <h2 className="font-serif text-xl font-bold">מה קוראים לך?</h2>
-                <p className="text-xs text-muted-foreground">השם שיופיע בלוח התוצאות</p>
+                <h2 className="font-serif text-xl font-bold">{t.onboarding.nameTitle}</h2>
+                <p className="text-xs text-muted-foreground">{t.onboarding.nameSubtitle}</p>
               </div>
 
               <input
                 value={name} onChange={e => setName(e.target.value)}
-                placeholder="השם שלך" dir="rtl" autoFocus
+                placeholder={t.onboarding.namePlaceholder} dir={dir} autoFocus
                 className="w-full text-sm rounded-xl px-4 py-3 outline-none"
                 style={{ background: 'hsl(44 25% 97%)', border: '1.5px solid hsl(44 15% 80%)' }}
                 onFocus={e => (e.currentTarget.style.borderColor = C.green)}
@@ -306,19 +309,19 @@ const Onboarding = () => {
                 style={{ border: '1px solid hsl(44 15% 80%)', background: 'hsl(44 30% 96%)' }}>
                 <div className="px-3 py-2 text-xs font-bold flex items-center gap-1.5"
                   style={{ borderBottom: '1px solid hsl(44 15% 80%)', color: C.green }}>
-                  <Trophy size={12} /> כך ייראה הדירוג שלך
+                  <Trophy size={12} /> {t.onboarding.leaderboardPreview}
                 </div>
                 {[
                   { name: 'יעל כ׳', mins: 147, rank: 1 },
                   { name: 'דני ל׳', mins: 93,  rank: 2 },
-                  { name: name.trim() || 'אתה', mins: 0, rank: 3, isYou: true },
+                  { name: name.trim() || (lang === 'he' ? 'אתה' : 'You'), mins: 0, rank: 3, isYou: true },
                 ].map(r => (
                   <div key={r.rank} className="flex items-center gap-2.5 px-3 py-2"
                     style={{ borderBottom: '1px solid hsl(44 15% 84%)', background: r.isYou ? `${C.green}0d` : undefined }}>
                     <span className="text-xs w-4 text-center text-muted-foreground">{r.rank}</span>
                     <span className={`flex-1 text-xs font-semibold ${r.isYou ? 'text-primary' : ''}`}
                       style={r.isYou ? { color: C.green } : {}}>
-                      {r.name}{r.isYou && ' ← אתה'}
+                      {r.name}{r.isYou && ` ${t.leaderboard.you}`}
                     </span>
                     <span className="text-xs font-bold" style={{ color: r.mins > 0 ? C.teal : C.muted }}>
                       {r.mins > 0 ? `${r.mins} דק׳` : '—'}
@@ -341,12 +344,12 @@ const Onboarding = () => {
                   <div className="text-center space-y-1">
                     <div className="flex items-center justify-center gap-2">
                       <Flame size={28} style={{ color: C.orange }} />
-                      <p className="font-serif text-xl font-bold">כמה דקות קראת היום?</p>
+                      <p className="font-serif text-xl font-bold">{t.onboarding.sessionTitle}</p>
                     </div>
                     {addedBook && (
-                      <p className="text-xs text-muted-foreground">ב"{addedBook.title}"</p>
+                      <p className="text-xs text-muted-foreground">{t.onboarding.sessionIn(addedBook.title)}</p>
                     )}
-                    <p className="text-xs text-muted-foreground">רישום ראשון = יום 1 ברצף!</p>
+                    <p className="text-xs text-muted-foreground">{t.onboarding.sessionSubtitle}</p>
                   </div>
 
                   {/* Quick-select */}
@@ -365,18 +368,18 @@ const Onboarding = () => {
 
                   {/* Custom input */}
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground flex-shrink-0">מספר אחר:</span>
+                    <span className="text-xs text-muted-foreground flex-shrink-0">{t.onboarding.customMinutes}</span>
                     <input
                       type="number" min="1" max="480"
                       value={customMinutes}
                       onChange={e => { setCustomMinutes(e.target.value); setMinutes(null); }}
-                      placeholder="דקות"
+                      placeholder={t.onboarding.minutesLabel}
                       className="w-24 text-sm rounded-xl px-3 py-2 outline-none text-center"
                       style={{ background: 'hsl(44 25% 97%)', border: '1.5px solid hsl(44 15% 80%)' }}
                       onFocus={e => (e.currentTarget.style.borderColor = C.green)}
                       onBlur={e => (e.currentTarget.style.borderColor = 'hsl(44 15% 80%)')}
                     />
-                    <span className="text-xs text-muted-foreground">דקות</span>
+                    <span className="text-xs text-muted-foreground">{t.onboarding.minutesLabel}</span>
                   </div>
                 </>
               ) : (
@@ -390,9 +393,9 @@ const Onboarding = () => {
                       <Flame size={36} style={{ color: C.orange }} />
                       <span className="font-display text-5xl tracking-tight" style={{ color: C.orange }}>1</span>
                     </div>
-                    <p className="font-serif text-lg font-bold">יום 1 ברצף! 🎉</p>
+                    <p className="font-serif text-lg font-bold">{t.onboarding.streakDay1}</p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {selectedMinutes} דקות קריאה נרשמו
+                      {t.onboarding.minutesLogged(selectedMinutes ?? 0)}
                     </p>
                   </motion.div>
 
@@ -403,31 +406,34 @@ const Onboarding = () => {
                     style={{ border: '1px solid hsl(44 15% 80%)', background: 'hsl(44 30% 96%)' }}>
                     <div className="px-3 py-2 text-xs font-bold flex items-center gap-1.5"
                       style={{ borderBottom: '1px solid hsl(44 15% 80%)', color: C.green }}>
-                      <Trophy size={12} /> הדירוג השבועי שלך
+                      <Trophy size={12} /> {t.onboarding.weeklyRank}
                     </div>
                     {[
                       { name: 'יעל כ׳', mins: 147, rank: 1 },
                       { name: 'דני ל׳', mins: 93,  rank: 2 },
-                      { name: name.trim() || 'אתה', mins: selectedMinutes ?? 0, rank: 3, isYou: true },
+                      { name: name.trim() || (lang === 'he' ? 'אתה' : 'You'), mins: selectedMinutes ?? 0, rank: 3, isYou: true },
                     ].map(r => (
                       <div key={r.rank} className="flex items-center gap-2.5 px-3 py-2"
                         style={{ borderBottom: '1px solid hsl(44 15% 84%)', background: r.isYou ? `${C.green}0d` : undefined }}>
                         <span className="text-xs w-4 text-center text-muted-foreground">{r.rank}</span>
                         <span className={`flex-1 text-xs font-semibold`}
                           style={r.isYou ? { color: C.green } : {}}>
-                          {r.name}{r.isYou && ' ← אתה'}
+                          {r.name}{r.isYou && ` ${t.leaderboard.you}`}
                         </span>
                         <span className="text-xs font-bold" style={{ color: C.teal }}>
-                          {r.mins} דק׳
+                          {r.mins} {t.leaderboard.minutesShort}
                         </span>
                       </div>
                     ))}
                     <div className="px-3 py-2 text-center text-[11px] font-semibold" style={{ color: C.orange }}>
-                      קרא עוד {147 - (selectedMinutes ?? 0)} דקות השבוע - תנצח את יעל! 🏆
+                      {lang === 'he'
+                        ? `קרא עוד ${147 - (selectedMinutes ?? 0)} דקות השבוע - תנצח את יעל! 🏆`
+                        : `Read ${147 - (selectedMinutes ?? 0)} more min this week — beat Sarah! 🏆`
+                      }
                     </div>
                   </motion.div>
 
-                  <p className="text-xs text-muted-foreground animate-pulse">רגע אחד…</p>
+                  <p className="text-xs text-muted-foreground animate-pulse">{t.onboarding.transferring}</p>
                 </motion.div>
               )}
             </motion.div>
@@ -443,7 +449,7 @@ const Onboarding = () => {
             <button onClick={() => setStep(s => s - 1)}
               className="h-11 px-4 rounded-xl text-sm font-medium text-muted-foreground touch-manipulation"
               style={{ background: 'hsl(44 15% 84%)' }}>
-              חזרה
+              {t.onboarding.backBtn}
             </button>
           )}
 
@@ -451,7 +457,7 @@ const Onboarding = () => {
           {step === 0 && !addedBook && (
             <button onClick={() => setStep(1)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors touch-manipulation">
-              דלג בינתיים
+              {t.onboarding.skipForNow}
             </button>
           )}
 
@@ -463,7 +469,7 @@ const Onboarding = () => {
               {!addedBook && (
                 <button onClick={() => setStep(2)}
                   className="text-sm px-3 py-2 text-muted-foreground touch-manipulation">
-                  דלג
+                  {t.onboarding.skipBtn}
                 </button>
               )}
               <button
@@ -471,7 +477,7 @@ const Onboarding = () => {
                 className="h-11 px-8 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all touch-manipulation"
                 style={{ background: C.green, color: 'white' }}
               >
-                הבא <ArrowLeft size={15} />
+                {t.onboarding.nextBtn} <ArrowIcon size={15} />
               </button>
             </>
           )}
@@ -481,7 +487,7 @@ const Onboarding = () => {
             <>
               <button onClick={handleFinish}
                 className="text-sm px-3 py-2 text-muted-foreground touch-manipulation">
-                דלג
+                {t.onboarding.skipBtn}
               </button>
               <button
                 onClick={handleSaveSession}
@@ -489,7 +495,7 @@ const Onboarding = () => {
                 className="h-11 px-8 rounded-xl text-sm font-semibold flex items-center gap-2 disabled:opacity-40 transition-all touch-manipulation"
                 style={{ background: C.orange, color: 'white' }}
               >
-                {savingSession ? 'שומר…' : <>התחל רצף 🔥</>}
+                {savingSession ? t.onboarding.savingSession : t.onboarding.startStreak}
               </button>
             </>
           )}

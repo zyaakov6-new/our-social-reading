@@ -3,9 +3,11 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function PushNotificationPrompt() {
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const { supported, permission, subscribed, subscribe } = usePushNotifications();
   const [dismissed, setDismissed] = useState(
     () => localStorage.getItem('push-prompt-dismissed') === '1'
@@ -57,7 +59,7 @@ export default function PushNotificationPrompt() {
               <X size={16} />
             </button>
 
-            <div className="flex items-center gap-3" dir="rtl">
+            <div className="flex items-center gap-3" dir={dir}>
               <div
                 className="h-11 w-11 rounded-xl flex items-center justify-center flex-shrink-0"
                 style={{ background: 'hsl(28 71% 57% / 0.12)' }}
@@ -66,10 +68,10 @@ export default function PushNotificationPrompt() {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm leading-snug" style={{ color: 'hsl(126 15% 22%)' }}>
-                  אל תשבור את הרצף 🔥
+                  {t.push.title}
                 </p>
                 <p className="text-xs mt-0.5 text-muted-foreground">
-                  תזכורת יומית ב-21:00 כשלא קראת עדיין
+                  {t.push.subtitle}
                 </p>
               </div>
             </div>
@@ -81,14 +83,14 @@ export default function PushNotificationPrompt() {
                 className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all active:scale-95 touch-manipulation disabled:opacity-60"
                 style={{ background: 'hsl(126 15% 28%)', color: 'white' }}
               >
-                {loading ? 'מפעיל...' : 'הפעל תזכורות ←'}
+                {loading ? t.push.enabling : t.push.enable}
               </button>
               <button
                 onClick={handleDismiss}
                 className="px-4 py-2.5 rounded-xl text-sm font-medium touch-manipulation"
                 style={{ background: 'hsl(44 15% 85%)', color: 'hsl(44 12% 40%)' }}
               >
-                לא עכשיו
+                {t.push.dismiss}
               </button>
             </div>
           </div>

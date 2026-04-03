@@ -4,6 +4,7 @@ import { useBooks } from "@/hooks/useBooks";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
 import { useChallenges } from "@/hooks/useChallenges";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import FeedItemCard from "@/components/FeedItemCard";
 import ChallengeCard from "@/components/ChallengeCard";
 import BookCard from "@/components/BookCard";
@@ -27,22 +28,23 @@ type Tab = 'feed' | 'challenges' | 'books';
 
 const ChallengesTab = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { challenges, loading, joinChallenge } = useChallenges();
 
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 px-4">
         <div className="text-4xl">🏆</div>
-        <h3 className="font-serif font-bold text-lg">אתגרי קריאה</h3>
+        <h3 className="font-serif font-bold text-lg">{t.home.challengesTitle}</h3>
         <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
-          הצטרף לאתגרים עם חברים - מי יקרא הכי הרבה דקות השבוע?
+          {t.home.challengesSub}
         </p>
         <button
           onClick={() => window.location.href = "/auth"}
           className="mt-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-opacity hover:opacity-90"
           style={{ background: 'hsl(126 15% 28%)' }}
         >
-          הצטרף כדי להשתתף ←
+          {t.home.joinToParticipate}
         </button>
       </div>
     );
@@ -81,7 +83,7 @@ const ChallengesTab = () => {
               <text x="26" y="32" textAnchor="middle" fontSize="20" style={{ userSelect: 'none' }}>🏆</text>
             </svg>
           </div>
-          <p className="text-sm font-semibold text-muted-foreground animate-pulse">טוען אתגרים...</p>
+          <p className="text-sm font-semibold text-muted-foreground animate-pulse">{t.home.loadingChallenges}</p>
         </div>
 
         {/* Challenge card skeletons with shimmer */}
@@ -125,12 +127,12 @@ const ChallengesTab = () => {
         onClick={() => setCreateOpen(true)}
         className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors"
       >
-        + צור אתגר חדש
+        {t.home.createChallenge}
       </button>
 
       {challenges.length === 0 ? (
         <div className="text-center py-8 text-sm text-muted-foreground">
-          עדיין אין אתגרים - צור את האתגר הראשון!
+          {t.home.noChallenges}
         </div>
       ) : (
         challenges.map(c => (
@@ -156,7 +158,7 @@ const ChallengesTab = () => {
                 className="w-full rounded-xl py-3 font-bold text-sm text-primary-foreground transition-opacity disabled:opacity-60"
                 style={{ background: 'hsl(126 15% 28%)' }}
               >
-                {joiningId === c.id ? 'מצטרף...' : 'הצטרף לאתגר 🎯'}
+                {joiningId === c.id ? t.home.joining : t.home.joinChallenge}
               </button>
             )}
           </div>
@@ -182,6 +184,7 @@ interface PersonalStatsCardProps {
 }
 const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [yearlyGoal, setYearlyGoal] = useState(12);
   const [editingYearlyGoal, setEditingYearlyGoal] = useState(false);
   const [yearlyDraft, setYearlyDraft] = useState('');
@@ -239,7 +242,7 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
   const dailyDone = todayMinutes >= dailyGoalMinutes;
 
   const fmtMinutes = (m: number) => {
-    if (m < 60) return { val: String(m), unit: 'דקות' };
+    if (m < 60) return { val: String(m), unit: t.common.minutes };
     const h = Math.floor(m / 60), rem = m % 60;
     return { val: rem > 0 ? `${h}:${String(rem).padStart(2, '0')}` : `${h}`, unit: 'שעות' };
   };
@@ -252,17 +255,17 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
         <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(28 71% 57% / 0.10)' }}>
           <Flame size={19} style={{ color: 'hsl(28 71% 57%)' }} />
           <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(28 71% 45%)' }}>{streak}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">יום רצף</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.streak}</span>
         </div>
         <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(188 60% 35% / 0.08)' }}>
           <Clock size={19} style={{ color: 'hsl(188 60% 35%)' }} />
           <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(188 60% 35%)' }}>{week.val}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">{week.unit} השבוע</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">{week.unit} {t.common.week}</span>
         </div>
         <div className="flex-1 flex flex-col items-center py-2.5 rounded-xl" style={{ background: 'hsl(126 15% 28% / 0.08)' }}>
           <BookOpen size={19} style={{ color: 'hsl(126 15% 28%)' }} />
           <span className="text-2xl font-extrabold leading-none mt-1" style={{ color: 'hsl(126 15% 28%)' }}>{finishedCount}</span>
-          <span className="text-[10px] text-muted-foreground mt-0.5">ספרים</span>
+          <span className="text-[10px] text-muted-foreground mt-0.5">{t.common.books}</span>
         </div>
       </div>
 
@@ -270,9 +273,9 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs font-bold" style={{ color: dailyDone ? 'hsl(126 15% 28%)' : 'hsl(28 71% 45%)' }}>
-            {dailyDone ? '✓ יעד יומי הושג!' : 'יעד יומי'}
+            {dailyDone ? t.home.dailyGoalMet : t.home.dailyGoal}
           </span>
-          <span className="text-[11px] text-muted-foreground">{todayMinutes}/{dailyGoalMinutes} דקות היום</span>
+          <span className="text-[11px] text-muted-foreground">{todayMinutes}/{dailyGoalMinutes} {t.home.minutesToday}</span>
         </div>
         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
           <div
@@ -288,13 +291,13 @@ const PersonalStatsCard = ({ sessions, finishedCount }: PersonalStatsCardProps) 
       {/* Yearly goal */}
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs font-bold" style={{ color: 'hsl(126 15% 28%)' }}>יעד {year}</span>
+          <span className="text-xs font-bold" style={{ color: 'hsl(126 15% 28%)' }}>{t.common.yearly} {year}</span>
           {!editingYearlyGoal ? (
             <button
               onClick={() => { setYearlyDraft(String(yearlyGoal)); setEditingYearlyGoal(true); }}
               className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground touch-manipulation"
             >
-              <Pencil size={10} /> {finishedCount}/{yearlyGoal} ספרים
+              <Pencil size={10} /> {finishedCount}/{yearlyGoal} {t.common.books}
             </button>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -327,6 +330,7 @@ interface GoalBannerProps {
 }
 const ReadingGoalBanner = ({ finishedCount }: GoalBannerProps) => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [goal, setGoal] = useState<number>(12);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState("");
@@ -363,14 +367,14 @@ const ReadingGoalBanner = ({ finishedCount }: GoalBannerProps) => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Target size={15} strokeWidth={1.8} style={{ color: 'hsl(188 100% 27%)' }} />
-          <span className="text-sm font-bold">יעד קריאה {year}</span>
+          <span className="text-sm font-bold">{t.common.yearly} {year}</span>
         </div>
         {!editing ? (
           <button
             onClick={() => { setDraft(String(goal)); setEditing(true); }}
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <Pencil size={11} /> שנה יעד
+            <Pencil size={11} /> {t.home.changeGoal}
           </button>
         ) : (
           <div className="flex items-center gap-2">
@@ -394,7 +398,7 @@ const ReadingGoalBanner = ({ finishedCount }: GoalBannerProps) => {
         <span className="text-3xl font-extrabold font-numbers leading-none" style={{ color: 'hsl(188 100% 27%)' }}>
           {finishedCount}
         </span>
-        <span className="text-sm text-muted-foreground">מתוך {goal} ספרים</span>
+        <span className="text-sm text-muted-foreground">{t.common.books}: {goal}</span>
       </div>
 
       <div className="h-2 rounded-full bg-muted overflow-hidden">
@@ -412,6 +416,7 @@ const Home = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, dir } = useLanguage();
   const [activeTab, setActiveTab] = useState<Tab>(pathToTab[location.pathname] || 'feed');
   const [addBookGateOpen, setAddBookGateOpen] = useState(false);
   const { books, refetch: refetchBooks, deleteBook, updateStatus } = useBooks();
@@ -454,7 +459,7 @@ const Home = () => {
           <span style={{ display: 'block', width: '3px', height: '26px', background: 'hsl(126 15% 28%)', borderRadius: '2px', flexShrink: 0 }} />
           <div>
             <h1 className="font-display text-[1.5rem] tracking-[0.14em] leading-none">AMUD</h1>
-            <p className="font-quote text-[10px] text-muted-foreground mt-0.5">פיד קריאה</p>
+            <p className="font-quote text-[10px] text-muted-foreground mt-0.5">{t.home.feedTitle}</p>
           </div>
         </div>
       </div>
@@ -466,21 +471,21 @@ const Home = () => {
             {!user && (
               <div className="rounded-xl p-4 text-center space-y-2"
                 style={{ background: 'hsl(126 15% 28% / 0.07)', border: '1px solid hsl(126 15% 28% / 0.15)' }}>
-                <p className="text-sm font-bold">רואים את הקהילה בפעולה</p>
-                <p className="text-xs text-muted-foreground">הצטרף כדי לרשום קריאות, לתחרות עם חברים ולהופיע בדירוג</p>
+                <p className="text-sm font-bold">{t.home.guestBanner}</p>
+                <p className="text-xs text-muted-foreground">{t.home.guestSub}</p>
                 <button
                   onClick={() => navigate("/auth")}
                   className="mt-1 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold text-white transition-opacity hover:opacity-90"
                   style={{ background: 'hsl(126 15% 28%)' }}
                 >
-                  הצטרף חינם ←
+                  {t.home.guestJoin}
                 </button>
               </div>
             )}
             {user && <PersonalStatsCard sessions={sessions} finishedCount={finishedBooks.length} />}
             <Leaderboard />
             {user && (
-              <div className="flex gap-2" dir="rtl">
+              <div className="flex gap-2" dir={dir}>
                 {(['all', 'friends'] as const).map(f => (
                   <button
                     key={f}
@@ -491,7 +496,7 @@ const Home = () => {
                       : { background: 'hsl(44 15% 84%)', color: 'hsl(44 12% 40%)' }
                     }
                   >
-                    {f === 'all' ? 'כולם' : 'חברים'}
+                    {f === 'all' ? t.common.everyone : t.common.friends}
                   </button>
                 ))}
               </div>
@@ -523,24 +528,24 @@ const Home = () => {
             ) : sessions.length === 0 ? (
               <>
                 <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-secondary">קרא עכשיו</p>
-                  <p className="text-sm font-hebrew-serif font-bold">התחל את סשן הקריאה הראשון שלך היום</p>
+                  <p className="text-xs font-semibold text-secondary">{t.home.readNow}</p>
+                  <p className="text-sm font-hebrew-serif font-bold">{t.home.firstSessionTitle}</p>
                   <p className="text-xs text-muted-foreground">
-                    לחץ על כפתור ▶ במרכז כדי למדוד זמן קריאה.
+                    {t.home.firstSessionSub}
                   </p>
                 </div>
                 <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-primary">הצעה לאתגר</p>
-                  <p className="text-sm font-hebrew-serif font-bold">20 דקות קריאה ביום לשבוע</p>
+                  <p className="text-xs font-semibold text-primary">{t.home.challengeSuggestion}</p>
+                  <p className="text-sm font-hebrew-serif font-bold">{t.home.challengeText}</p>
                   <p className="text-xs text-muted-foreground">
-                    אתגר קטן שיעזור לך לבנות רצף ראשון רגוע.
+                    {t.home.challengeSub}
                   </p>
                 </div>
                 <div className="rounded-xl bg-card p-4 card-shadow text-right space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">טיפ קריאה</p>
-                  <p className="text-sm font-hebrew-serif font-bold">5 דקות הן התחלה מצוינת</p>
+                  <p className="text-xs font-semibold text-muted-foreground">{t.home.readingTip}</p>
+                  <p className="text-sm font-hebrew-serif font-bold">{t.home.tipTitle}</p>
                   <p className="text-xs text-muted-foreground">
-                    גם קטע קצר לפני השינה נחשב - העקביות היא מה שבונה את ההרגל.
+                    {t.home.tipText}
                   </p>
                 </div>
               </>
@@ -566,8 +571,8 @@ const Home = () => {
                   className="w-full rounded-xl p-4 text-center space-y-1 transition-all hover:opacity-90 active:scale-[0.98]"
                   style={{ background: 'hsl(126 15% 28%)', color: 'hsl(44 30% 93%)' }}
                 >
-                  <p className="text-sm font-bold">📖 הזמן חבר לקרוא איתך</p>
-                  <p className="text-xs opacity-80">לחץ לשיתוף הזמנה לאפליקציה</p>
+                  <p className="text-sm font-bold">{t.home.inviteFriend}</p>
+                  <p className="text-xs opacity-80">{t.home.inviteSub}</p>
                 </button>
               )}
               </>
@@ -589,7 +594,7 @@ const Home = () => {
                 onClick={() => setAddBookGateOpen(true)}
                 className="w-full rounded-xl border-2 border-dashed border-primary/30 py-4 text-primary font-semibold hover:bg-primary/5 transition-colors"
               >
-                + הוסף ספר
+                {t.home.addBook}
               </button>
             )}
             <AuthGateModal
@@ -605,14 +610,14 @@ const Home = () => {
 
             {books.length === 0 ? (
               <div className="text-center py-12 space-y-2">
-                <p className="text-sm font-semibold text-foreground">אין עדיין ספרים ברשימה</p>
-                <p className="text-sm text-muted-foreground">הוסף את הספר הראשון שתרצה לקרוא</p>
+                <p className="text-sm font-semibold text-foreground">{t.home.noBooksYet}</p>
+                <p className="text-sm text-muted-foreground">{t.home.addFirstBook}</p>
               </div>
             ) : (
               <>
                 {readingBooks.length > 0 && (
                   <section>
-                    <h3 className="section-heading mb-4">קורא עכשיו</h3>
+                    <h3 className="section-heading mb-4">{t.home.reading}</h3>
                     <div className="space-y-2">
                       {readingBooks.map(book => (
                         <BookCard key={book.id} book={book} compact onDelete={deleteBook} onLogSaved={handleLogSaved} onStatusChange={updateStatus} />
@@ -624,7 +629,7 @@ const Home = () => {
                 {finishedBooks.length > 0 && (
                   <section>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="section-heading">סיימתי</h3>
+                      <h3 className="section-heading">{t.home.finished}</h3>
                       <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                         style={{ background: 'hsl(188 100% 27% / 0.12)', color: 'hsl(188 100% 27%)' }}>
                         {finishedBooks.length}
@@ -641,7 +646,7 @@ const Home = () => {
                 {wantBooks.length > 0 && (
                   <section>
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="section-heading">רוצה לקרוא</h3>
+                      <h3 className="section-heading">{t.home.wantToRead}</h3>
                       <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                         style={{ background: 'hsl(28 71% 57% / 0.12)', color: 'hsl(28 71% 45%)' }}>
                         {wantBooks.length}
@@ -654,7 +659,7 @@ const Home = () => {
                     </div>
                     {wantBooks.length > 0 && (
                       <p className="text-xs text-muted-foreground text-center mt-1">
-                        לחץ על ספר מהרשימה כדי להתחיל לקרוא
+                        {t.home.selectBook}
                       </p>
                     )}
                   </section>

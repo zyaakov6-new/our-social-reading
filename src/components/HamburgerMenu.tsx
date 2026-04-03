@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import InviteModal from "./InviteModal";
 import { useStreak } from "@/hooks/useStreak";
+import LanguageToggle from "./LanguageToggle";
 
 const authLinks = [
   { path: "/",               label: "בית",     icon: Home,          desc: "עמוד הבית" },
@@ -232,8 +234,11 @@ const HamburgerMenu = () => {
                     </button>
                   </div>
 
-                  {/* Sign out */}
-                  <div className="px-3 py-4" style={{ borderTop: "1px solid hsl(44 12% 76%)" }}>
+                  {/* Language toggle + Sign out */}
+                  <div className="px-3 py-4 space-y-2" style={{ borderTop: "1px solid hsl(44 12% 76%)" }}>
+                    <div className="flex justify-center pb-1">
+                      <LanguageToggle />
+                    </div>
                     <button
                       onClick={async () => { setOpen(false); await signOut(); }}
                       className="w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-right transition-all"
@@ -251,6 +256,9 @@ const HamburgerMenu = () => {
                 </>
               ) : (
                 <div className="px-3 py-4 space-y-2" style={{ borderTop: "1px solid hsl(44 12% 76%)" }}>
+                  <div className="flex justify-center pb-1">
+                    <LanguageToggle />
+                  </div>
                   <button
                     onClick={() => { setOpen(false); navigate("/auth"); }}
                     className="w-full flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white transition-opacity hover:opacity-90"
