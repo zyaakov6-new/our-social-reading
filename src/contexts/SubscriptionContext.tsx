@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -20,7 +21,7 @@ interface SubscriptionContextType {
   isPro: boolean;
   isLoading: boolean;
   subscription: SubInfo | null;
-  openCheckout: (billing?: 'monthly' | 'yearly') => void;
+  openCheckout: (billing?: 'monthly' | 'yearly') => boolean;
   openManage: () => void;
 }
 
@@ -45,7 +46,7 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   isPro: false,
   isLoading: true,
   subscription: null,
-  openCheckout: (_billing?: 'monthly' | 'yearly') => {},
+  openCheckout: (_billing?: 'monthly' | 'yearly') => false,
   openManage: () => {},
 });
 
@@ -147,11 +148,15 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [user?.id]);
 
-  // ── Open Paddle checkout overlay ───────────────────────────────────────────
-  const openCheckout = useCallback((billing: 'monthly' | 'yearly' = 'monthly') => {
-    if (!paddleReady || !PADDLE_PRICE_ID) {
-      console.warn("Paddle not ready or VITE_PADDLE_PRICE_ID not set");
-      return;
+  // ── Open Paddle checkout overlay — returns true if checkout opened ───────────
+  const openCheckout = useCallback((billing: 'monthly' | 'yearly' = 'monthly'): boolean => {
+    if (!PADDLE_CLIENT_TOKEN || !PADDLE_PRICE_ID) {
+      toast.error("Checkout not configured — add Paddle env vars in Vercel");
+      return false;
+    }
+    if (!paddleReady) {
+      toast.error("Checkout loading, please try again in a moment");
+      return false;
     }
     const isIsrael = localStorage.getItem("amud_lang") === "he";
     let priceId: string;
@@ -162,11 +167,18 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     } else {
       priceId = (isIsrael && PADDLE_PRICE_ID_ILS) ? PADDLE_PRICE_ID_ILS : PADDLE_PRICE_ID;
     }
-    window.Paddle.Checkout.open({
-      items: [{ priceId, quantity: 1 }],
-      ...(user?.email ? { customer: { email: user.email } } : {}),
-      customData: user ? { user_id: user.id } : undefined,
-    });
+    try {
+      window.Paddle.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        ...(user?.email ? { customer: { email: user.email } } : {}),
+        customData: user ? { user_id: user.id } : undefined,
+      });
+      return true;
+    } catch (e) {
+      console.error("Paddle checkout error:", e);
+      toast.error("Failed to open checkout, please try again");
+      return false;
+    }
   }, [paddleReady, user]);
 
   // ── Open Paddle customer portal ────────────────────────────────────────────

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Lock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Book } from "@/hooks/useBooks";
-import ProGate from "@/components/ProGate";
+import UpgradeModal from "@/components/UpgradeModal";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -130,6 +130,7 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     if (books.length < 1) return;
@@ -208,11 +209,43 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
 
   if (books.length < 1) return null;
 
+  // Non-Pro: show a subtle single-row teaser — not a blurred overlay
+  if (!isPro) {
+    return (
+      <>
+        <button
+          onClick={() => setUpgradeOpen(true)}
+          className="w-full flex items-center gap-2.5 rounded-xl px-4 py-3 text-right transition-colors hover:bg-muted/60"
+          style={{
+            background: "hsl(126 15% 28% / 0.05)",
+            border: "1px dashed hsl(126 15% 28% / 0.22)",
+          }}
+        >
+          <Sparkles size={14} className="text-primary/50 flex-shrink-0" />
+          <span className="text-xs text-muted-foreground flex-1">
+            {t.subscription.feat1}
+          </span>
+          <span
+            className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+            style={{ background: "hsl(126 15% 28%)", color: "hsl(44 30% 93%)" }}
+          >
+            PRO
+          </span>
+          <Lock size={12} className="text-muted-foreground/60 flex-shrink-0" />
+        </button>
+        <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+      </>
+    );
+  }
+
   const handleCardClick = (rec: Recommendation) => {
     navigate(`/search?q=${encodeURIComponent(`${rec.title} ${rec.author}`.trim())}`);
   };
 
-  const content = (
+  // Don't render the section at all if errored and no cached recs
+  if (error && recommendations.length === 0) return null;
+
+  return (
     <section className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -234,33 +267,16 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
         </p>
       </div>
 
-      {/* Content */}
       {loading ? (
         <RecommendationSkeleton />
-      ) : error ? null : recommendations.length > 0 ? (
+      ) : recommendations.length > 0 ? (
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
           {recommendations.map((rec, i) => (
-            <RecCard
-              key={i}
-              rec={rec}
-              onClick={() => handleCardClick(rec)}
-            />
+            <RecCard key={i} rec={rec} onClick={() => handleCardClick(rec)} />
           ))}
         </div>
-      ) : (
-        // Show skeleton as a preview for non-Pro users (they'll see it blurred)
-        <RecommendationSkeleton />
-      )}
+      ) : null}
     </section>
-  );
-
-  return (
-    <ProGate
-      title={t.subscription.gateTitle}
-      desc={t.subscription.gateDesc}
-    >
-      {content}
-    </ProGate>
   );
 };
 

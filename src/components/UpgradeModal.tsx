@@ -27,8 +27,8 @@ const UpgradeModal = ({ open, onClose }: UpgradeModalProps) => {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
 
   const handleUpgrade = () => {
-    onClose();
-    openCheckout(billing);
+    const opened = openCheckout(billing);
+    if (opened) onClose();
   };
 
   const isYearly = billing === 'yearly';
