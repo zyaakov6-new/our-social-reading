@@ -1,13 +1,15 @@
 import { useEffect, useState, useRef } from "react";
-import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera, Share2 } from "lucide-react";
+import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera, Share2, Sparkles, Crown } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import InviteModal from "@/components/InviteModal";
+import UpgradeModal from "@/components/UpgradeModal";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { formatTimeAgo } from "@/utils/formatTimeAgo";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,6 +39,8 @@ const Profile = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { isPro, subscription, openCheckout } = useSubscription();
   const [editMinutes, setEditMinutes] = useState("");
   const [editPages, setEditPages] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -398,11 +402,60 @@ const Profile = () => {
           )}
         </div>
 
+        {/* ── Subscription card ── */}
+        {isPro ? (
+          <div
+            className="rounded-xl p-4 card-shadow flex items-center justify-between"
+            style={{ background: "linear-gradient(135deg, hsl(126 15% 22%) 0%, hsl(126 15% 30%) 100%)" }}
+          >
+            <div className="flex items-center gap-3">
+              <Crown size={20} className="text-yellow-400 flex-shrink-0" />
+              <div>
+                <p className="font-bold text-sm text-white">{t.subscription.proActive}</p>
+                {subscription?.currentPeriodEnd && (
+                  <p className="text-xs text-white/60 mt-0.5">
+                    {subscription.cancelAtPeriodEnd
+                      ? t.subscription.proCancels(new Date(subscription.currentPeriodEnd).toLocaleDateString(dir === "rtl" ? "he-IL" : "en-US"))
+                      : t.subscription.proRenews(new Date(subscription.currentPeriodEnd).toLocaleDateString(dir === "rtl" ? "he-IL" : "en-US"))}
+                  </p>
+                )}
+              </div>
+            </div>
+            <span
+              className="text-[10px] font-extrabold tracking-widest px-2 py-0.5 rounded-full"
+              style={{ background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }}
+            >
+              PRO
+            </span>
+          </div>
+        ) : (
+          <button
+            onClick={() => setUpgradeOpen(true)}
+            className="w-full rounded-xl p-4 card-shadow flex items-center justify-between group transition-opacity hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, hsl(126 15% 28%) 0%, hsl(126 22% 38%) 100%)" }}
+          >
+            <div className="flex items-center gap-3">
+              <Sparkles size={20} className="text-white/80 flex-shrink-0" />
+              <div className="text-start">
+                <p className="font-bold text-sm text-white">{t.subscription.proTitle}</p>
+                <p className="text-xs text-white/60">{t.subscription.proSubtitle}</p>
+              </div>
+            </div>
+            <span
+              className="text-xs font-bold px-3 py-1.5 rounded-full flex-shrink-0"
+              style={{ background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }}
+            >
+              {t.subscription.upgradeCta}
+            </span>
+          </button>
+        )}
+
         <FriendsSection />
       </div>
 
       <SettingsSidebar open={settingsOpen} onOpenChange={setSettingsOpen} />
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent dir={dir}>

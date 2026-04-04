@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Book } from "@/hooks/useBooks";
+import ProGate from "@/components/ProGate";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Recommendation {
   title: string;
@@ -122,12 +125,16 @@ interface BookRecommendationsProps {
 
 const BookRecommendations = ({ books }: BookRecommendationsProps) => {
   const navigate = useNavigate();
+  const { isPro } = useSubscription();
+  const { t } = useLanguage();
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     if (books.length < 1) return;
+    // Only fetch if the user is Pro (avoid burning Claude API credits for free users)
+    if (!isPro) return;
 
     const bookHash = hashBooks(books);
 
@@ -199,15 +206,13 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
     fetchRecs();
   }, [books]);
 
-  // Don't render section if user has no books yet, or if errored and nothing to show
   if (books.length < 1) return null;
-  if (error && recommendations.length === 0) return null;
 
   const handleCardClick = (rec: Recommendation) => {
     navigate(`/search?q=${encodeURIComponent(`${rec.title} ${rec.author}`.trim())}`);
   };
 
-  return (
+  const content = (
     <section className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -242,8 +247,20 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
             />
           ))}
         </div>
-      ) : null}
+      ) : (
+        // Show skeleton as a preview for non-Pro users (they'll see it blurred)
+        <RecommendationSkeleton />
+      )}
     </section>
+  );
+
+  return (
+    <ProGate
+      title={t.subscription.gateTitle}
+      desc={t.subscription.gateDesc}
+    >
+      {content}
+    </ProGate>
   );
 };
 

@@ -440,6 +440,39 @@ const he = {
     beFirst: 'היה ראשון להגיב ✍️',
     hot: '🔥 חם',
   },
+
+  // Subscription / Pro
+  subscription: {
+    proTitle: 'AMUD PRO',
+    proSubtitle: 'פתח את כל הפיצ\'רים',
+    upgradeCta: 'שדרג ל-PRO',
+    manageSubscription: 'נהל מנוי',
+    cancelAnytime: 'ביטול בכל עת - ללא התחייבות',
+
+    // Checkout modal
+    modalTitle: 'שדרג ל-AMUD PRO',
+    modalSubtitle: 'קרא יותר, עם יותר כלים',
+    price: '₪15',
+    perMonth: '/ חודש',
+    yearlyPrice: 'או ₪120 לשנה - חסוך 33%',
+
+    // Feature list in modal
+    feat1: 'המלצות ספרים מבוססות AI',
+    feat2: 'יצירת אתגרי קריאה מותאמים',
+    feat3: 'גרפים וסטטיסטיקות מתקדמות',
+    feat4: 'עיכול שבועי מפורט במייל',
+    feat5: 'תמיכה מועדפת',
+
+    // Pro status (profile page)
+    proActive: 'מנוי PRO פעיל',
+    proRenews: (date: string) => `מתחדש ב-${date}`,
+    proCancels: (date: string) => `פג תוקף ב-${date}`,
+    proExpired: 'המנוי פג',
+
+    // Gate overlay (ProGate component)
+    gateTitle: 'פיצ\'ר PRO',
+    gateDesc: 'שדרג לגרסת PRO כדי לפתוח',
+  },
 } as const;
 
 export default he;

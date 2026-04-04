@@ -423,6 +423,35 @@ const en = {
     beFirst: 'Be the first to reply ✍️',
     hot: '🔥 Hot',
   },
+
+  // Subscription / Pro
+  subscription: {
+    proTitle: 'AMUD PRO',
+    proSubtitle: 'Unlock all features',
+    upgradeCta: 'Upgrade to PRO',
+    manageSubscription: 'Manage subscription',
+    cancelAnytime: 'Cancel anytime - no commitment',
+
+    modalTitle: 'Upgrade to AMUD PRO',
+    modalSubtitle: 'Read more, with more tools',
+    price: '$4',
+    perMonth: '/ month',
+    yearlyPrice: 'or $35/year - save 27%',
+
+    feat1: 'AI-powered book recommendations',
+    feat2: 'Create custom reading challenges',
+    feat3: 'Advanced charts & statistics',
+    feat4: 'Detailed weekly email digest',
+    feat5: 'Priority support',
+
+    proActive: 'PRO subscription active',
+    proRenews: (date: string) => `Renews on ${date}`,
+    proCancels: (date: string) => `Expires on ${date}`,
+    proExpired: 'Subscription expired',
+
+    gateTitle: 'PRO Feature',
+    gateDesc: 'Upgrade to PRO to unlock this',
+  },
 } as const;
 
 export default en;

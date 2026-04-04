@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import UserProfilePage from "./pages/UserProfilePage";
@@ -164,13 +165,15 @@ const App = () => (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
-            <Analytics />
-            <SpeedInsights />
+            <SubscriptionProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+              <Analytics />
+              <SpeedInsights />
+            </SubscriptionProvider>
           </AuthProvider>
         </TooltipProvider>
       </QueryClientProvider>
