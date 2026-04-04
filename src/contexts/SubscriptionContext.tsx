@@ -60,27 +60,46 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   const [subscription, setSubscription] = useState<SubInfo | null>(null);
   const [paddleReady, setPaddleReady] = useState(false);
 
+  // ── initPaddle defined FIRST so it can be referenced in the effect below ──
+  const initPaddle = useCallback(() => {
+    if (!window.Paddle || !PADDLE_CLIENT_TOKEN) return;
+    try {
+      const opts: Record<string, unknown> = { token: PADDLE_CLIENT_TOKEN };
+      if (IS_SANDBOX) opts.environment = "sandbox";
+      window.Paddle.Initialize(opts);
+      setPaddleReady(true);
+      console.log("Paddle initialized ✓");
+    } catch (e) {
+      console.error("Paddle.Initialize failed:", e);
+      toast.error(`Paddle init error: ${String(e)}`);
+    }
+  }, []);
+
   // ── Load Paddle.js once ────────────────────────────────────────────────────
   useEffect(() => {
     if (!PADDLE_CLIENT_TOKEN) return;
+    // Already loaded by a previous render / hot-reload
+    if (window.Paddle?.Initialized) {
+      setPaddleReady(true);
+      return;
+    }
     if (window.Paddle) {
       initPaddle();
       return;
     }
+    // Avoid injecting the script twice
+    if (document.querySelector('script[src*="paddle.com/paddle/v2"]')) return;
+
     const script = document.createElement("script");
     script.src = "https://cdn.paddle.com/paddle/v2/paddle.js";
     script.async = true;
     script.onload = initPaddle;
+    script.onerror = () => {
+      console.error("Failed to load Paddle.js");
+      toast.error("Failed to load payment system. Check your connection.");
+    };
     document.head.appendChild(script);
-  }, []);
-
-  const initPaddle = () => {
-    if (!window.Paddle || !PADDLE_CLIENT_TOKEN) return;
-    const opts: Record<string, unknown> = { token: PADDLE_CLIENT_TOKEN };
-    if (IS_SANDBOX) opts.environment = "sandbox";
-    window.Paddle.Initialize(opts);
-    setPaddleReady(true);
-  };
+  }, [initPaddle]);
 
   // ── Fetch subscription status ──────────────────────────────────────────────
   useEffect(() => {
