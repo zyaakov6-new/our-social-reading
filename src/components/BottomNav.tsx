@@ -1,11 +1,16 @@
-import { Home, Trophy } from "lucide-react";
+import { Home, Trophy, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useState } from "react";
+import UpgradeModal from "./UpgradeModal";
 
 const BottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { isPro, isLoading } = useSubscription();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   const isActive = (path: string) =>
     path === "/" ? location.pathname === "/" : location.pathname === path;
@@ -49,27 +54,52 @@ const BottomNav = () => {
   };
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-card/97 backdrop-blur-md"
-      style={{
-        borderTop: "1px solid hsl(44 12% 74%)",
-        boxShadow:
-          "0 -4px 20px -4px hsl(126 15% 15% / 0.12), 0 -1px 4px -1px hsl(210 11% 14% / 0.06)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
-      {/* DOM order: Home | spacer | Challenges */}
-      <div className="mx-auto flex max-w-md items-stretch">
-        {/* Home - visually far right */}
-        <NavBtn path="/" label={t.nav.home} icon={Home} />
+    <>
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 bg-card/97 backdrop-blur-md"
+        style={{
+          borderTop: "1px solid hsl(44 12% 74%)",
+          boxShadow:
+            "0 -4px 20px -4px hsl(126 15% 15% / 0.12), 0 -1px 4px -1px hsl(210 11% 14% / 0.06)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        }}
+      >
+        {/* PRO upgrade strip — visible for free logged-in users */}
+        {!isLoading && !isPro && (
+          <button
+            onClick={() => setUpgradeOpen(true)}
+            className="w-full flex items-center justify-center gap-2 py-1.5 transition-opacity hover:opacity-80"
+            style={{
+              background: "linear-gradient(90deg, hsl(126 15% 22%) 0%, hsl(126 22% 32%) 50%, hsl(126 15% 22%) 100%)",
+              borderBottom: "1px solid hsl(126 15% 18%)",
+            }}
+          >
+            <Sparkles size={11} style={{ color: "hsl(44 70% 65%)" }} />
+            <span
+              className="text-[11px] font-bold tracking-wide"
+              style={{ color: "hsl(44 30% 88%)" }}
+            >
+              {t.subscription.upgradeCta}
+            </span>
+            <span
+              className="text-[9px] font-extrabold tracking-widest px-1.5 py-0.5 rounded-full"
+              style={{ background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }}
+            >
+              PRO
+            </span>
+          </button>
+        )}
 
-        {/* Spacer under the central FAB button */}
-        <div className="w-20 flex-shrink-0" aria-hidden="true" />
+        {/* DOM order: Home | spacer | Challenges */}
+        <div className="mx-auto flex max-w-md items-stretch">
+          <NavBtn path="/" label={t.nav.home} icon={Home} />
+          <div className="w-20 flex-shrink-0" aria-hidden="true" />
+          <NavBtn path="/challenges" label={t.nav.challenges} icon={Trophy} />
+        </div>
+      </nav>
 
-        {/* Challenges */}
-        <NavBtn path="/challenges" label={t.nav.challenges} icon={Trophy} />
-      </div>
-    </nav>
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
+    </>
   );
 };
 

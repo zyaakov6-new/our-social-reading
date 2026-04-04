@@ -434,14 +434,14 @@ const en = {
 
     modalTitle: 'Upgrade to AMUD PRO',
     modalSubtitle: 'Read more, with more tools',
-    price: '$4',
+    price: '$5',
     perMonth: '/ month',
-    yearlyPrice: 'or $35/year - save 27%',
+    yearlyPrice: 'or $35/year - save 30%',
 
     feat1: 'AI-powered book recommendations',
     feat2: 'Create custom reading challenges',
     feat3: 'Advanced charts & statistics',
-    feat4: 'Detailed weekly email digest',
+    feat4: 'Weekly reading insights by email',
     feat5: 'Priority support',
 
     proActive: 'PRO subscription active',

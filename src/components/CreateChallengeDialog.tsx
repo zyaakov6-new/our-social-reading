@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useChallenges } from "@/hooks/useChallenges";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import UpgradeModal from "@/components/UpgradeModal";
 
 interface Props {
   open: boolean;
@@ -20,6 +22,7 @@ const PRESETS = [
 
 const CreateChallengeDialog = ({ open, onOpenChange, onCreated }: Props) => {
   const { createChallenge } = useChallenges();
+  const { isPro } = useSubscription();
   const [name, setName] = useState("");
   const [goalType, setGoalType] = useState<"minutes" | "books">("minutes");
   const [goalValue, setGoalValue] = useState("");
@@ -51,6 +54,16 @@ const CreateChallengeDialog = ({ open, onOpenChange, onCreated }: Props) => {
       setSaving(false);
     }
   };
+
+  // If user is not Pro, intercept the open and show the upgrade modal instead
+  if (!isPro) {
+    return (
+      <UpgradeModal
+        open={open}
+        onClose={() => onOpenChange(false)}
+      />
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>

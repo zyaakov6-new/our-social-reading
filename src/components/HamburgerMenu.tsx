@@ -1,11 +1,13 @@
-import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Bell, Share2, UserPlus } from "lucide-react";
+import { Home, Trophy, Menu, X, BookOpen, MessageSquare, Users, LogOut, Bell, Share2, UserPlus, Sparkles, Crown } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import InviteModal from "./InviteModal";
+import UpgradeModal from "./UpgradeModal";
 import { useStreak } from "@/hooks/useStreak";
 import LanguageToggle from "./LanguageToggle";
 
@@ -18,7 +20,9 @@ const HamburgerMenu = () => {
   const [open, setOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { streak } = useStreak();
+  const { isPro } = useSubscription();
 
   const authLinks = [
     { path: "/",               label: t.nav.home,          icon: Home,          desc: t.menu.homeDesc },
@@ -143,7 +147,12 @@ const HamburgerMenu = () => {
                     {initial}
                   </div>
                   <div className="text-right flex-1 min-w-0">
-                    <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <p className="font-semibold text-sm leading-tight truncate">{displayName}</p>
+                      {isPro && (
+                        <Crown size={13} style={{ color: "hsl(44 70% 45%)", flexShrink: 0 }} />
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 mt-0.5">
                       <p className="text-xs text-muted-foreground">{t.menu.viewProfile}</p>
                       {streak > 0 && (
@@ -215,6 +224,55 @@ const HamburgerMenu = () => {
               {/* Footer */}
               {user ? (
                 <>
+                  {/* PRO upgrade card (free users) or PRO active badge (pro users) */}
+                  <div className="px-3 pb-2">
+                    {isPro ? (
+                      <div
+                        className="flex items-center gap-2.5 rounded-2xl px-4 py-3"
+                        style={{ background: "hsl(126 15% 28% / 0.12)", border: "1px solid hsl(126 15% 28% / 0.2)" }}
+                      >
+                        <Crown size={16} style={{ color: "hsl(44 70% 55%)" }} />
+                        <span className="text-sm font-bold" style={{ color: "hsl(126 15% 28%)" }}>
+                          {t.subscription.proActive}
+                        </span>
+                        <span
+                          className="ms-auto text-[10px] font-extrabold tracking-widest px-2 py-0.5 rounded-full"
+                          style={{ background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }}
+                        >
+                          PRO
+                        </span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { setUpgradeOpen(true); setOpen(false); }}
+                        className="w-full rounded-2xl px-4 py-3.5 text-right transition-opacity hover:opacity-90"
+                        style={{
+                          background: "linear-gradient(135deg, hsl(126 15% 22%) 0%, hsl(126 22% 35%) 100%)",
+                          boxShadow: "0 2px 12px hsl(126 15% 15% / 0.25)",
+                        }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0"
+                            style={{ background: "hsl(44 70% 55% / 0.2)" }}
+                          >
+                            <Sparkles size={16} style={{ color: "hsl(44 70% 65%)" }} />
+                          </div>
+                          <div className="flex-1 text-right">
+                            <p className="text-sm font-bold text-white leading-tight">{t.subscription.proTitle}</p>
+                            <p className="text-[11px] text-white/60 mt-0.5">{t.subscription.proSubtitle}</p>
+                          </div>
+                          <span
+                            className="text-[10px] font-extrabold tracking-widest px-2 py-0.5 rounded-full flex-shrink-0"
+                            style={{ background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }}
+                          >
+                            {t.subscription.upgradeCta.split(" ")[0]}
+                          </span>
+                        </div>
+                      </button>
+                    )}
+                  </div>
+
                   {/* Invite friends */}
                   <div className="px-3 pb-3">
                     <button
@@ -282,6 +340,7 @@ const HamburgerMenu = () => {
         )}
       </AnimatePresence>
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </>
   );
 };

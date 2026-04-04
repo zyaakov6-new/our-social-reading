@@ -18,12 +18,13 @@ Deno.serve(async () => {
     const { data: authUsers } = await supabase.auth.admin.listUsers();
     if (!authUsers?.users?.length) return new Response("no users", { status: 200 });
 
-    // Get profiles
+    // Get Pro profiles only — weekly digest is a Pro feature
     const userIds = authUsers.users.map(u => u.id);
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, display_name, reading_goal_minutes")
-      .in("user_id", userIds);
+      .in("user_id", userIds)
+      .eq("is_pro", true);
 
     const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.user_id, p]));
 

@@ -27,6 +27,8 @@ interface SubscriptionContextType {
 // ── Env vars ──────────────────────────────────────────────────────────────────
 const PADDLE_CLIENT_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string | undefined;
 const PADDLE_PRICE_ID = import.meta.env.VITE_PADDLE_PRICE_ID as string | undefined;
+// Optional ILS price for Israeli users — create a separate price in Paddle Dashboard
+const PADDLE_PRICE_ID_ILS = import.meta.env.VITE_PADDLE_PRICE_ID_ILS as string | undefined;
 const IS_SANDBOX = import.meta.env.VITE_PADDLE_SANDBOX === "true";
 
 declare global {
@@ -148,8 +150,11 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
       console.warn("Paddle not ready or VITE_PADDLE_PRICE_ID not set");
       return;
     }
+    // Use ILS price for Israeli users when available
+    const isIsrael = localStorage.getItem("amud_lang") === "he";
+    const priceId = (isIsrael && PADDLE_PRICE_ID_ILS) ? PADDLE_PRICE_ID_ILS : PADDLE_PRICE_ID;
     window.Paddle.Checkout.open({
-      items: [{ priceId: PADDLE_PRICE_ID, quantity: 1 }],
+      items: [{ priceId, quantity: 1 }],
       ...(user?.email ? { customer: { email: user.email } } : {}),
       customData: user ? { user_id: user.id } : undefined,
     });

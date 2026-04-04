@@ -452,15 +452,15 @@ const he = {
     // Checkout modal
     modalTitle: 'שדרג ל-AMUD PRO',
     modalSubtitle: 'קרא יותר, עם יותר כלים',
-    price: '₪15',
+    price: '₪19',
     perMonth: '/ חודש',
-    yearlyPrice: 'או ₪120 לשנה - חסוך 33%',
+    yearlyPrice: 'או ₪69 לשנה - חסוך 30%',
 
     // Feature list in modal
     feat1: 'המלצות ספרים מבוססות AI',
     feat2: 'יצירת אתגרי קריאה מותאמים',
     feat3: 'גרפים וסטטיסטיקות מתקדמות',
-    feat4: 'עיכול שבועי מפורט במייל',
+    feat4: 'תובנות שבועיות למייל',
     feat5: 'תמיכה מועדפת',
 
     // Pro status (profile page)
