@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Sparkles, Flame, BarChart2, Trophy, Mail, X } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -13,21 +14,24 @@ interface UpgradeModalProps {
 }
 
 const PRO_FEATURES = [
-  { icon: Sparkles, key: "feat1" as const },
-  { icon: Trophy,   key: "feat2" as const },
+  { icon: Sparkles,  key: "feat1" as const },
+  { icon: Trophy,    key: "feat2" as const },
   { icon: BarChart2, key: "feat3" as const },
-  { icon: Mail,     key: "feat4" as const },
-  { icon: Flame,    key: "feat5" as const },
+  { icon: Mail,      key: "feat4" as const },
+  { icon: Flame,     key: "feat5" as const },
 ] as const;
 
 const UpgradeModal = ({ open, onClose }: UpgradeModalProps) => {
   const { openCheckout } = useSubscription();
   const { t, dir } = useLanguage();
+  const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
 
   const handleUpgrade = () => {
     onClose();
-    openCheckout();
+    openCheckout(billing);
   };
+
+  const isYearly = billing === 'yearly';
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -61,14 +65,48 @@ const UpgradeModal = ({ open, onClose }: UpgradeModalProps) => {
           </h2>
           <p className="text-white/70 text-sm">{t.subscription.modalSubtitle}</p>
 
+          {/* Monthly / Yearly toggle */}
+          <div
+            className="mt-4 inline-flex rounded-full p-1 gap-1"
+            style={{ background: "hsl(126 15% 15% / 0.5)" }}
+          >
+            {(['monthly', 'yearly'] as const).map((plan) => (
+              <button
+                key={plan}
+                onClick={() => setBilling(plan)}
+                className="rounded-full px-4 py-1.5 text-xs font-bold transition-all"
+                style={
+                  billing === plan
+                    ? { background: "hsl(44 70% 55%)", color: "hsl(126 15% 15%)" }
+                    : { color: "hsl(44 30% 75%)" }
+                }
+              >
+                {plan === 'monthly'
+                  ? (dir === 'rtl' ? 'חודשי' : 'Monthly')
+                  : (dir === 'rtl' ? 'שנתי' : 'Yearly')}
+                {plan === 'yearly' && (
+                  <span className="ms-1.5 text-[9px] font-extrabold opacity-80">
+                    {t.subscription.yearlyNote}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
           {/* Price */}
           <div className="mt-4 flex items-end justify-center gap-1">
             <span className="text-4xl font-extrabold text-white leading-none">
-              {t.subscription.price}
+              {isYearly ? t.subscription.yearlyPrice.split(' ')[0] : t.subscription.price}
             </span>
-            <span className="text-white/70 text-sm mb-1">{t.subscription.perMonth}</span>
+            <span className="text-white/70 text-sm mb-1">
+              {isYearly
+                ? t.subscription.yearlyPrice.split(' ').slice(1).join(' ')
+                : t.subscription.perMonth}
+            </span>
           </div>
-          <p className="text-white/50 text-[11px] mt-0.5">{t.subscription.yearlyPrice}</p>
+          <p className="text-white/50 text-[11px] mt-0.5">
+            {isYearly ? t.subscription.yearlyNote : t.subscription.monthlyNote}
+          </p>
         </div>
 
         {/* Features */}

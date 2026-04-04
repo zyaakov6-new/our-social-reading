@@ -112,13 +112,15 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             )}
           </div>
 
-          {/* Log reading button - always visible */}
-          <button
-            onClick={() => setLogOpen(true)}
-            className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0"
-          >
-            <PlusCircle size={16} className="text-primary" />
-          </button>
+          {/* Log reading button — only for active books */}
+          {(book.status === 'reading' || book.status === 'want') && (
+            <button
+              onClick={() => setLogOpen(true)}
+              className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors flex-shrink-0"
+            >
+              <PlusCircle size={16} className="text-primary" />
+            </button>
+          )}
 
           {/* Status change popover */}
           {onStatusChange && (
@@ -207,13 +209,15 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             </span>
           )}
 
-          {/* Log reading overlay button */}
-          <button
-            onClick={() => setLogOpen(true)}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-          >
-            <PlusCircle size={15} className="text-white" />
-          </button>
+          {/* Log reading overlay button — only for active books */}
+          {(book.status === 'reading' || book.status === 'want') && (
+            <button
+              onClick={() => setLogOpen(true)}
+              className="absolute bottom-3 left-1/2 -translate-x-1/2 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+            >
+              <PlusCircle size={15} className="text-white" />
+            </button>
+          )}
         </div>
 
         {/* Delete button */}

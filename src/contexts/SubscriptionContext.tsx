@@ -20,7 +20,7 @@ interface SubscriptionContextType {
   isPro: boolean;
   isLoading: boolean;
   subscription: SubInfo | null;
-  openCheckout: () => void;
+  openCheckout: (billing?: 'monthly' | 'yearly') => void;
   openManage: () => void;
 }
 
@@ -29,6 +29,9 @@ const PADDLE_CLIENT_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string |
 const PADDLE_PRICE_ID = import.meta.env.VITE_PADDLE_PRICE_ID as string | undefined;
 // Optional ILS price for Israeli users — create a separate price in Paddle Dashboard
 const PADDLE_PRICE_ID_ILS = import.meta.env.VITE_PADDLE_PRICE_ID_ILS as string | undefined;
+// Yearly price IDs
+const PADDLE_YEARLY_PRICE_ID = import.meta.env.VITE_PADDLE_YEARLY_PRICE_ID as string | undefined;
+const PADDLE_YEARLY_PRICE_ID_ILS = import.meta.env.VITE_PADDLE_YEARLY_PRICE_ID_ILS as string | undefined;
 const IS_SANDBOX = import.meta.env.VITE_PADDLE_SANDBOX === "true";
 
 declare global {
@@ -42,7 +45,7 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
   isPro: false,
   isLoading: true,
   subscription: null,
-  openCheckout: () => {},
+  openCheckout: (_billing?: 'monthly' | 'yearly') => {},
   openManage: () => {},
 });
 
@@ -145,14 +148,20 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
   }, [user?.id]);
 
   // ── Open Paddle checkout overlay ───────────────────────────────────────────
-  const openCheckout = useCallback(() => {
+  const openCheckout = useCallback((billing: 'monthly' | 'yearly' = 'monthly') => {
     if (!paddleReady || !PADDLE_PRICE_ID) {
       console.warn("Paddle not ready or VITE_PADDLE_PRICE_ID not set");
       return;
     }
-    // Use ILS price for Israeli users when available
     const isIsrael = localStorage.getItem("amud_lang") === "he";
-    const priceId = (isIsrael && PADDLE_PRICE_ID_ILS) ? PADDLE_PRICE_ID_ILS : PADDLE_PRICE_ID;
+    let priceId: string;
+    if (billing === 'yearly') {
+      priceId = (isIsrael && PADDLE_YEARLY_PRICE_ID_ILS)
+        ? PADDLE_YEARLY_PRICE_ID_ILS
+        : (PADDLE_YEARLY_PRICE_ID ?? PADDLE_PRICE_ID);
+    } else {
+      priceId = (isIsrael && PADDLE_PRICE_ID_ILS) ? PADDLE_PRICE_ID_ILS : PADDLE_PRICE_ID;
+    }
     window.Paddle.Checkout.open({
       items: [{ priceId, quantity: 1 }],
       ...(user?.email ? { customer: { email: user.email } } : {}),

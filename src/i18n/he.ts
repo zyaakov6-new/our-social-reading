@@ -454,7 +454,9 @@ const he = {
     modalSubtitle: 'קרא יותר, עם יותר כלים',
     price: '₪19',
     perMonth: '/ חודש',
-    yearlyPrice: 'או ₪69 לשנה - חסוך 30%',
+    yearlyPrice: '₪149 / שנה',
+    yearlyNote: 'חסוך 35%',
+    monthlyNote: 'בחיוב חודשי',
 
     // Feature list in modal
     feat1: 'המלצות ספרים מבוססות AI',

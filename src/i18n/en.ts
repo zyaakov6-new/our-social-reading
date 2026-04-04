@@ -436,7 +436,9 @@ const en = {
     modalSubtitle: 'Read more, with more tools',
     price: '$5',
     perMonth: '/ month',
-    yearlyPrice: 'or $35/year - save 30%',
+    yearlyPrice: '$49 / year',
+    yearlyNote: 'Save 18%',
+    monthlyNote: 'billed monthly',
 
     feat1: 'AI-powered book recommendations',
     feat2: 'Create custom reading challenges',

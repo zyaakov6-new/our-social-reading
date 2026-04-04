@@ -23,7 +23,8 @@ const ReadingFAB = () => {
   const [gateOpen, setGateOpen] = useState(false);
 
   const { books } = useBooks();
-  const currentBooks = books;
+  // Only show books the user is actively reading or wants to read — not finished/abandoned
+  const currentBooks = books.filter(b => b.status === 'reading' || b.status === 'want');
   const selectedBook = currentBooks.find(b => b.id === selectedBookId);
 
   useEffect(() => {
