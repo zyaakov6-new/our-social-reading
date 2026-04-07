@@ -207,6 +207,14 @@ const en = {
     title: 'Add AMUD to your home screen',
     subtitle: 'Get daily reading reminders and open faster',
     install: 'Install now →',
+    benefitNotifs: 'Daily reminders to keep your streak alive',
+    benefitSpeed: 'Opens instantly like a native app',
+    benefitHome: 'One tap access from your home screen',
+    iosHowTo: 'How to add to your home screen:',
+    iosStep1: 'Tap the Share button',
+    iosStep2: 'Scroll and tap "Add to Home Screen"',
+    iosStep3: 'Tap "Add" → done!',
+    neverShow: 'Never show again',
   },
 
   leaderboard: {
