@@ -41,7 +41,7 @@ export function usePushNotifications() {
       });
 
       const subJson = sub.toJSON();
-      const { error } = await supabase.from('push_subscriptions').upsert({
+      const { error } = await (supabase as any).from('push_subscriptions').upsert({
         user_id: user.id,
         endpoint: sub.endpoint,
         p256dh: subJson.keys?.p256dh ?? '',
@@ -67,7 +67,7 @@ export function usePushNotifications() {
     const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.getSubscription();
     if (sub) await sub.unsubscribe();
-    await supabase.from('push_subscriptions').delete().eq('user_id', user.id);
+    await (supabase as any).from('push_subscriptions').delete().eq('user_id', user.id);
     setSubscribed(false);
     localStorage.removeItem('push-subscribed');
   };
