@@ -111,8 +111,8 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
         { data: commentsData, error: commentsErr },
         { data: { user } },
       ] = await Promise.all([
-        supabase.from("session_likes").select("user_id").eq("session_id", item.id),
-        supabase.from("session_comments").select("id").eq("session_id", item.id),
+        (supabase as any).from("session_likes").select("user_id").eq("session_id", item.id),
+        (supabase as any).from("session_comments").select("id").eq("session_id", item.id),
         supabase.auth.getUser(),
       ]);
       if (cancelled) return;
@@ -135,7 +135,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   }, [showComments]);
 
   const fetchComments = async () => {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("session_comments")
       .select("id, user_id, display_name, content, created_at")
       .eq("session_id", item.id)
@@ -151,17 +151,19 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   const toggleLike = async () => {
     if (!currentUserId) { openGate("לאהוב פוסטים"); return; }
     const wasLiked = liked;
+    // Optimistic update
     setLiked(!wasLiked);
     setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
-    try {
-      if (wasLiked) {
-        await supabase.from("session_likes").delete().eq("session_id", item.id).eq("user_id", currentUserId);
-      } else {
-        await supabase.from("session_likes").insert({ session_id: item.id, user_id: currentUserId });
-      }
-    } catch {
+
+    const { error } = wasLiked
+      ? await (supabase as any).from("session_likes").delete().eq("session_id", item.id).eq("user_id", currentUserId)
+      : await (supabase as any).from("session_likes").insert({ session_id: item.id, user_id: currentUserId });
+
+    if (error) {
+      // Roll back optimistic update
       setLiked(wasLiked);
       setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
+      toast.error("שגיאה בשמירת הלייק - נסה שוב");
     }
   };
 
@@ -180,7 +182,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
         authUser?.email?.split("@")[0] ||
         "קורא";
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("session_comments")
         .insert({ session_id: item.id, user_id: currentUserId, display_name: displayName, content: commentText.trim() })
         .select()
@@ -200,7 +202,7 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
   };
 
   const deleteComment = async (commentId: string) => {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("session_comments")
       .delete()
       .eq("id", commentId);
