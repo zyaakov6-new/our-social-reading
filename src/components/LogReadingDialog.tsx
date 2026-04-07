@@ -20,6 +20,7 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
   const [currentPage, setCurrentPage] = useState("");
   const [saving, setSaving] = useState(false);
 
+  const prevPage = book.currentPage ?? 0;
   const currentPageNum = parseInt(currentPage || "0", 10);
   const progress = book.totalPages > 0 && currentPageNum > 0
     ? Math.min(100, Math.round((currentPageNum / book.totalPages) * 100))
@@ -27,11 +28,12 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
 
   const handleSave = async () => {
     const minutesRead = parseInt(minutes || "0", 10);
+    // Pages read = how far user advanced this session (never negative)
     const pagesRead = currentPageNum > 0
-      ? Math.max(0, currentPageNum - book.currentPage)
+      ? Math.max(0, currentPageNum - prevPage)
       : 0;
 
-    if (minutesRead === 0 && pagesRead === 0 && currentPageNum === 0) {
+    if (minutesRead === 0 && currentPageNum === 0) {
       toast.error("יש להזין דקות קריאה או עמוד נוכחי");
       return;
     }
@@ -47,14 +49,14 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
       const { error } = await supabase.from("reading_sessions").insert({
         user_id: user.id,
         book_id: book.id,
-        minutes_read: minutesRead,
-        pages_read: pagesRead,
+        minutes_read: isNaN(minutesRead) ? 0 : minutesRead,
+        pages_read: isNaN(pagesRead) ? 0 : pagesRead,
         session_date: sessionDate,
       });
 
       if (error) throw error;
 
-      // Always promote to 'reading' (unless already finished), and track current page
+      // Always promote to 'reading', and update current_page whenever user specified one
       const bookUpdates: Record<string, any> = {};
       if (book.status !== 'finished') bookUpdates.status = 'reading';
       if (currentPageNum > 0) bookUpdates.current_page = currentPageNum;
@@ -108,7 +110,7 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
             <p className="text-xs text-muted-foreground truncate">{book.author}</p>
             {book.totalPages > 0 && (
               <p className="text-xs text-muted-foreground">
-                עמוד {book.currentPage} מתוך {book.totalPages}
+                {prevPage > 0 ? `עמוד ${prevPage} מתוך ${book.totalPages}` : `${book.totalPages} עמודים`}
               </p>
             )}
           </div>
@@ -138,13 +140,18 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
             <Input
               id="log-current-page"
               type="number"
-              placeholder={book.currentPage > 0 ? String(book.currentPage) : "0"}
+              placeholder={prevPage > 0 ? String(prevPage) : "0"}
               value={currentPage}
               onChange={e => setCurrentPage(e.target.value)}
               className="text-right"
               min="0"
               max={book.totalPages > 0 ? book.totalPages : undefined}
             />
+            {prevPage > 0 && (
+              <p className="text-[11px] text-muted-foreground">
+                עמוד קודם: {prevPage}
+              </p>
+            )}
           </div>
         </div>
 
