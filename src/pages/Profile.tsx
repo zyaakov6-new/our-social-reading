@@ -1,10 +1,9 @@
 import { useEffect, useState, useRef } from "react";
-import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera, Share2, Sparkles, Crown } from "lucide-react";
+import { Flame, Clock, TrendingUp, BookOpen, Calendar, Settings, Pencil, Camera, Share2, Sparkles, Crown, Lock, BarChart2 } from "lucide-react";
 import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import InviteModal from "@/components/InviteModal";
 import UpgradeModal from "@/components/UpgradeModal";
-import ProGate from "@/components/ProGate";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -41,7 +40,7 @@ const Profile = () => {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const { isPro, subscription, openCheckout } = useSubscription();
+  const { isPro, isLoading: subLoading, subscription, openCheckout } = useSubscription();
   const [editMinutes, setEditMinutes] = useState("");
   const [editPages, setEditPages] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -304,74 +303,7 @@ const Profile = () => {
           </div>
         </div>
 
-        <ProGate title="סטטיסטיקות מתקדמות" desc="שדרג ל-PRO לצפייה בנתוני הקריאה המלאים שלך">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl p-4 card-shadow text-center stat-green">
-              <Clock size={20} className="text-primary mx-auto mb-1" />
-              {stats.weekMinutes === 0 ? (
-                <>
-                  <p className="text-sm font-semibold text-foreground">{t.profile.noWeek}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noWeekSub}</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.weekMinutes}</p>
-                </>
-              )}
-            </div>
-            <div className="rounded-xl p-4 card-shadow text-center stat-teal">
-              <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
-              {stats.monthMinutes === 0 ? (
-                <>
-                  <p className="text-sm font-semibold text-foreground">{t.profile.noMonth}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noMonthSub}</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.monthMinutes}</p>
-                </>
-              )}
-            </div>
-            <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
-              <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
-              {stats.allTimeMinutes === 0 ? (
-                <>
-                  <p className="text-sm font-semibold text-foreground">{t.profile.noBooksRead}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noActivity}</p>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.totalMinutes}</p>
-                </>
-              )}
-            </div>
-          </div>
-        </ProGate>
-
-        <ProGate title="לוח קריאה" desc="שדרג ל-PRO לצפייה במפת הפעילות שלך">
-          <div className="rounded-xl bg-card p-4 card-shadow">
-            <div className="flex items-center gap-2 mb-3">
-              <Calendar size={16} className="text-primary" />
-              <h3 className="font-serif font-bold text-sm">{t.profile.activityMap}</h3>
-            </div>
-            <div className="grid grid-cols-7 gap-1.5">
-              {(t.profile.heatmapDays as readonly string[]).map((day, idx) => (
-                <div key={idx} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
-              ))}
-              {heatmapDays.map((day, i) => (
-                <div
-                  key={i}
-                  className={`aspect-square rounded ${intensityColors[day.intensity]} transition-colors`}
-                  title={`${day.date.toLocaleDateString('he-IL')}`}
-                />
-              ))}
-            </div>
-          </div>
-        </ProGate>
-
+        {/* ── Recent activity (free for all) ── */}
         <div className="rounded-xl bg-card p-4 card-shadow">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-serif font-bold text-sm">{t.profile.recentActivity}</h3>
@@ -406,6 +338,95 @@ const Profile = () => {
             </div>
           )}
         </div>
+
+        {/* ── Advanced stats + heatmap (Pro only) ── */}
+        {isPro ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl p-4 card-shadow text-center stat-green">
+                <Clock size={20} className="text-primary mx-auto mb-1" />
+                {stats.weekMinutes === 0 ? (
+                  <>
+                    <p className="text-sm font-semibold text-foreground">{t.profile.noWeek}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t.profile.noWeekSub}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.profile.weekMinutes}</p>
+                  </>
+                )}
+              </div>
+              <div className="rounded-xl p-4 card-shadow text-center stat-teal">
+                <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
+                {stats.monthMinutes === 0 ? (
+                  <>
+                    <p className="text-sm font-semibold text-foreground">{t.profile.noMonth}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t.profile.noMonthSub}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.profile.monthMinutes}</p>
+                  </>
+                )}
+              </div>
+              <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
+                <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
+                {stats.allTimeMinutes === 0 ? (
+                  <>
+                    <p className="text-sm font-semibold text-foreground">{t.profile.noBooksRead}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t.profile.noActivity}</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.profile.totalMinutes}</p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-card p-4 card-shadow">
+              <div className="flex items-center gap-2 mb-3">
+                <Calendar size={16} className="text-primary" />
+                <h3 className="font-serif font-bold text-sm">{t.profile.activityMap}</h3>
+              </div>
+              <div className="grid grid-cols-7 gap-1.5">
+                {(t.profile.heatmapDays as readonly string[]).map((day, idx) => (
+                  <div key={idx} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
+                ))}
+                {heatmapDays.map((day, i) => (
+                  <div
+                    key={i}
+                    className={`aspect-square rounded ${intensityColors[day.intensity]} transition-colors`}
+                    title={`${day.date.toLocaleDateString('he-IL')}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        ) : !subLoading ? (
+          // Slim teaser for free users — unobtrusive, at the bottom
+          <button
+            onClick={() => setUpgradeOpen(true)}
+            className="w-full flex items-center gap-2.5 rounded-xl px-4 py-3 text-right transition-colors hover:bg-muted/60"
+            style={{
+              background: "hsl(126 15% 28% / 0.05)",
+              border: "1px dashed hsl(126 15% 28% / 0.22)",
+            }}
+          >
+            <BarChart2 size={14} className="text-primary/50 flex-shrink-0" />
+            <span className="text-xs text-muted-foreground flex-1">סטטיסטיקות מתקדמות ולוח קריאה</span>
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+              style={{ background: "hsl(126 15% 28%)", color: "hsl(44 30% 93%)" }}
+            >
+              PRO
+            </span>
+            <Lock size={12} className="text-muted-foreground/60 flex-shrink-0" />
+          </button>
+        ) : null}
 
         {/* ── Subscription card ── */}
         {isPro ? (
