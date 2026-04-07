@@ -21,20 +21,18 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
   const [saving, setSaving] = useState(false);
 
   const prevPage = book.currentPage ?? 0;
-  const currentPageNum = parseInt(currentPage || "0", 10);
-  const progress = book.totalPages > 0 && currentPageNum > 0
-    ? Math.min(100, Math.round((currentPageNum / book.totalPages) * 100))
+  const pagesReadNum = parseInt(currentPage || "0", 10);
+  const newPage = prevPage + pagesReadNum;
+  const progress = book.totalPages > 0 && pagesReadNum > 0
+    ? Math.min(100, Math.round((newPage / book.totalPages) * 100))
     : null;
 
   const handleSave = async () => {
     const minutesRead = parseInt(minutes || "0", 10);
-    // Pages read = how far user advanced this session (never negative)
-    const pagesRead = currentPageNum > 0
-      ? Math.max(0, currentPageNum - prevPage)
-      : 0;
+    const pagesRead = isNaN(pagesReadNum) ? 0 : Math.max(0, pagesReadNum);
 
-    if (minutesRead === 0 && currentPageNum === 0) {
-      toast.error("יש להזין דקות קריאה או עמוד נוכחי");
+    if (minutesRead === 0 && pagesRead === 0) {
+      toast.error("יש להזין דקות קריאה או עמודים שקראת");
       return;
     }
 
@@ -50,16 +48,16 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
         user_id: user.id,
         book_id: book.id,
         minutes_read: isNaN(minutesRead) ? 0 : minutesRead,
-        pages_read: isNaN(pagesRead) ? 0 : pagesRead,
+        pages_read: pagesRead,
         session_date: sessionDate,
       });
 
       if (error) throw error;
 
-      // Always promote to 'reading', and update current_page whenever user specified one
+      // Always promote to 'reading', and advance current_page by pages read this session
       const bookUpdates: Record<string, any> = {};
       if (book.status !== 'finished') bookUpdates.status = 'reading';
-      if (currentPageNum > 0) bookUpdates.current_page = currentPageNum;
+      if (pagesRead > 0) bookUpdates.current_page = prevPage + pagesRead;
 
       const { error: updateError } = await supabase
         .from("books")
@@ -132,24 +130,21 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="log-current-page">
-              עמוד נוכחי
-              {book.totalPages > 0 && (
-                <span className="text-muted-foreground font-normal"> / {book.totalPages}</span>
-              )}
+              עמודים שקראתי
             </Label>
             <Input
               id="log-current-page"
               type="number"
-              placeholder={prevPage > 0 ? String(prevPage) : "0"}
+              placeholder="10"
               value={currentPage}
               onChange={e => setCurrentPage(e.target.value)}
               className="text-right"
               min="0"
-              max={book.totalPages > 0 ? book.totalPages : undefined}
+              max={book.totalPages > 0 ? book.totalPages - prevPage : undefined}
             />
             {prevPage > 0 && (
               <p className="text-[11px] text-muted-foreground">
-                עמוד קודם: {prevPage}
+                היית בעמוד {prevPage}
               </p>
             )}
           </div>
