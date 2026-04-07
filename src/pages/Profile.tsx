@@ -4,6 +4,7 @@ import FriendsSection from "@/components/FriendsSection";
 import SettingsSidebar from "@/components/SettingsSidebar";
 import InviteModal from "@/components/InviteModal";
 import UpgradeModal from "@/components/UpgradeModal";
+import ProGate from "@/components/ProGate";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useReadingSessions } from "@/hooks/useReadingSessions";
@@ -303,69 +304,73 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl p-4 card-shadow text-center stat-green">
-            <Clock size={20} className="text-primary mx-auto mb-1" />
-            {stats.weekMinutes === 0 ? (
-              <>
-                <p className="text-sm font-semibold text-foreground">{t.profile.noWeek}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t.profile.noWeekSub}</p>
-              </>
-            ) : (
-              <>
-                <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.weekMinutes}</p>
-              </>
-            )}
+        <ProGate title="סטטיסטיקות מתקדמות" desc="שדרג ל-PRO לצפייה בנתוני הקריאה המלאים שלך">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl p-4 card-shadow text-center stat-green">
+              <Clock size={20} className="text-primary mx-auto mb-1" />
+              {stats.weekMinutes === 0 ? (
+                <>
+                  <p className="text-sm font-semibold text-foreground">{t.profile.noWeek}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noWeekSub}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-extrabold text-primary font-numbers">{stats.weekMinutes}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.weekMinutes}</p>
+                </>
+              )}
+            </div>
+            <div className="rounded-xl p-4 card-shadow text-center stat-teal">
+              <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
+              {stats.monthMinutes === 0 ? (
+                <>
+                  <p className="text-sm font-semibold text-foreground">{t.profile.noMonth}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noMonthSub}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.monthMinutes}</p>
+                </>
+              )}
+            </div>
+            <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
+              <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
+              {stats.allTimeMinutes === 0 ? (
+                <>
+                  <p className="text-sm font-semibold text-foreground">{t.profile.noBooksRead}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.profile.noActivity}</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.profile.totalMinutes}</p>
+                </>
+              )}
+            </div>
           </div>
-          <div className="rounded-xl p-4 card-shadow text-center stat-teal">
-            <TrendingUp size={20} className="mx-auto mb-1" style={{ color: 'hsl(188 100% 27%)' }} />
-            {stats.monthMinutes === 0 ? (
-              <>
-                <p className="text-sm font-semibold text-foreground">{t.profile.noMonth}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t.profile.noMonthSub}</p>
-              </>
-            ) : (
-              <>
-                <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(188 100% 27%)' }}>{stats.monthMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.monthMinutes}</p>
-              </>
-            )}
-          </div>
-          <div className="rounded-xl p-4 card-shadow text-center col-span-2 stat-orange">
-            <BookOpen size={20} className="mx-auto mb-1" style={{ color: 'hsl(28 71% 57%)' }} />
-            {stats.allTimeMinutes === 0 ? (
-              <>
-                <p className="text-sm font-semibold text-foreground">{t.profile.noBooksRead}</p>
-                <p className="text-xs text-muted-foreground mt-1">{t.profile.noActivity}</p>
-              </>
-            ) : (
-              <>
-                <p className="text-3xl font-extrabold font-numbers" style={{ color: 'hsl(28 71% 57%)' }}>{stats.allTimeMinutes}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t.profile.totalMinutes}</p>
-              </>
-            )}
-          </div>
-        </div>
+        </ProGate>
 
-        <div className="rounded-xl bg-card p-4 card-shadow">
-          <div className="flex items-center gap-2 mb-3">
-            <Calendar size={16} className="text-primary" />
-            <h3 className="font-serif font-bold text-sm">{t.profile.activityMap}</h3>
+        <ProGate title="לוח קריאה" desc="שדרג ל-PRO לצפייה במפת הפעילות שלך">
+          <div className="rounded-xl bg-card p-4 card-shadow">
+            <div className="flex items-center gap-2 mb-3">
+              <Calendar size={16} className="text-primary" />
+              <h3 className="font-serif font-bold text-sm">{t.profile.activityMap}</h3>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5">
+              {(t.profile.heatmapDays as readonly string[]).map((day, idx) => (
+                <div key={idx} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
+              ))}
+              {heatmapDays.map((day, i) => (
+                <div
+                  key={i}
+                  className={`aspect-square rounded ${intensityColors[day.intensity]} transition-colors`}
+                  title={`${day.date.toLocaleDateString('he-IL')}`}
+                />
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-7 gap-1.5">
-            {(t.profile.heatmapDays as readonly string[]).map((day, idx) => (
-              <div key={idx} className="text-center text-[10px] text-muted-foreground mb-1">{day}</div>
-            ))}
-            {heatmapDays.map((day, i) => (
-              <div
-                key={i}
-                className={`aspect-square rounded ${intensityColors[day.intensity]} transition-colors`}
-                title={`${day.date.toLocaleDateString('he-IL')}`}
-              />
-            ))}
-          </div>
-        </div>
+        </ProGate>
 
         <div className="rounded-xl bg-card p-4 card-shadow">
           <div className="flex items-center justify-between mb-3">
