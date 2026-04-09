@@ -1,32 +1,46 @@
-// AMUD Service Worker — handles push notifications
+const CACHE_NAME = "amud-v1";
 
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+const STATIC_ASSETS = [
+  "/",
+  "/manifest.json",
+  "/logo.png",
+];
 
-self.addEventListener('push', event => {
-  const data = event.data?.json() ?? {};
-  const title = data.title ?? 'AMUD';
-  const options = {
-    body: data.body ?? '',
-    icon: '/logo.png',
-    badge: '/logo.png',
-    tag: data.tag ?? 'amud-notification',
-    renotify: true,
-    data: { url: data.url ?? '/' },
-    dir: 'rtl',
-    lang: 'he',
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
+// Install: cache static assets
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const url = event.notification.data?.url ?? '/';
+// Activate: clean up old caches
+self.addEventListener("activate", (event) => {
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
-      const existing = clients.find(c => c.url.includes(self.location.origin));
-      if (existing) return existing.focus();
-      return self.clients.openWindow(url);
-    })
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+// Fetch: network-first, fallback to cache
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET and cross-origin requests (Supabase, fonts, etc.)
+  if (request.method !== "GET" || url.origin !== self.location.origin) return;
+
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+        }
+        return response;
+      })
+      .catch(() => caches.match(request))
   );
 });
