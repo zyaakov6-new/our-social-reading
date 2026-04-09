@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, Flame, BarChart2, Trophy, Mail, X } from "lucide-react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackEvent } from "@/lib/analytics";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +27,12 @@ const UpgradeModal = ({ open, onClose }: UpgradeModalProps) => {
   const { t, dir } = useLanguage();
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
 
+  useEffect(() => {
+    if (open) trackEvent("upgrade_modal_opened");
+  }, [open]);
+
   const handleUpgrade = () => {
+    trackEvent("upgrade_checkout_clicked", { billing });
     const opened = openCheckout(billing);
     if (opened) onClose();
   };

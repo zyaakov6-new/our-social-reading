@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Book } from "@/hooks/useBooks";
 import { BookOpen } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface LogReadingDialogProps {
   book: Book;
@@ -66,6 +67,11 @@ const LogReadingDialog = ({ book, open, onOpenChange, onSaved }: LogReadingDialo
 
       if (updateError) throw updateError;
 
+      trackEvent("session_logged", {
+        minutes_read: isNaN(minutesRead) ? 0 : minutesRead,
+        pages_read: pagesRead,
+        book_status: book.status,
+      });
       toast.success("הקריאה נשמרה!");
       setMinutes("");
       setCurrentPage("");

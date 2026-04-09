@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/analytics';
 
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ??
   'BBu5lR72P2GEB8K0qDtgo-h2EHVHAiemxoYHMPniiOeI2ODlyxlkVtiMOTAYfYaxRz71h5oYZNFbdgWiNF0ZRqU';
@@ -32,6 +33,7 @@ export function usePushNotifications() {
       const reg = await navigator.serviceWorker.ready;
       const perm = await Notification.requestPermission();
       setPermission(perm as PushPermission);
+      trackEvent("push_permission_response", { result: perm });
       if (perm !== 'granted') return false;
 
       const existing = await reg.pushManager.getSubscription();
@@ -55,6 +57,7 @@ export function usePushNotifications() {
 
       setSubscribed(true);
       localStorage.setItem('push-subscribed', '1');
+      trackEvent("push_subscribed");
       return true;
     } catch (e: any) {
       toast.error('שגיאה בהפעלת התזכורות: ' + (e?.message ?? String(e)));

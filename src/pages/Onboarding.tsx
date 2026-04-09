@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 import { motion, AnimatePresence } from "framer-motion";
 import { searchBooks, BookSearchResult } from "@/services/googleBooks";
 import { Search, ArrowLeft, ArrowRight, Flame, Trophy, Bell } from "lucide-react";
@@ -158,6 +159,7 @@ const Onboarding = () => {
         ]);
       }
     } catch (e) { console.warn('Onboarding save failed:', e); }
+    trackEvent("onboarding_completed", { push_enabled: pushStep });
     navigate('/', { replace: true });
   };
 

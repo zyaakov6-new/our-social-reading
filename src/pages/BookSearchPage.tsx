@@ -116,6 +116,7 @@ const BookSearchPage = () => {
 
       if (error) throw error;
 
+      trackEvent("book_added", { status, source: "search" });
       window.dispatchEvent(new CustomEvent("bookAdded"));
       toast.success(t.feed_item.addedToLib);
       navigate("/books");
