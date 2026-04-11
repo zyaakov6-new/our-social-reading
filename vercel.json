@@ -7,11 +7,7 @@
   ],
   "rewrites": [
     {
-      "source": "/.well-known/assetlinks.json",
-      "destination": "/.well-known/assetlinks.json"
-    },
-    {
-      "source": "/((?!api/|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
+      "source": "/((?!api/|\\.well-known/|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
