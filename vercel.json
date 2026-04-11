@@ -5,5 +5,14 @@
       "headers": [{ "key": "Content-Type", "value": "application/json" }]
     }
   ],
-  "rewrites": [{ "source": "/((?!api/|sitemap\\.xml|robots\\.txt|\\.well-known|.*\\..*).*)", "destination": "/index.html" }]
+  "rewrites": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "destination": "/.well-known/assetlinks.json"
+    },
+    {
+      "source": "/((?!api/|sitemap\\.xml|robots\\.txt|.*\\..*).*)",
+      "destination": "/index.html"
+    }
+  ]
 }
