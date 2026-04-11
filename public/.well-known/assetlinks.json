@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.amudapp.app",
       "sha256_cert_fingerprints": [
-        "22:39:93:CE:77:C9:7E:EA:08:BF:DA:0E:97:F0:14:C9:5F:FB:8C:41:4B:31:7A:6D:BC:72:97:37:F6:B3:E4:70"
+        "22:39:93:CE:77:C9:7E:EA:08:BF:DA:0E:97:F0:14:C9:5F:FB:8C:41:4B:31:7A:6D:BC:72:97:37:F6:B3:E4:70",
+        "DB:98:B3:45:F8:88:8F:58:51:71:EE:E0:3E:53:92:88:66:9D:72:D3:56:21:2F:A7:60:5E:1F:C1:B2:C8:78:D7"
       ]
     }
   }
