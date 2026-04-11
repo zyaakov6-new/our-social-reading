@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/((?!api/|sitemap\\.xml|robots\\.txt|.*\\..*).*)", "destination": "/index.html" }]
+  "headers": [
+    {
+      "source": "/.well-known/assetlinks.json",
+      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+    }
+  ],
+  "rewrites": [{ "source": "/((?!api/|sitemap\\.xml|robots\\.txt|\\.well-known|.*\\..*).*)", "destination": "/index.html" }]
 }

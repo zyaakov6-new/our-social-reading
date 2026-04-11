@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.amudapp.app",
+      "sha256_cert_fingerprints": [
+        "22:39:93:CE:77:C9:7E:EA:08:BF:DA:0E:97:F0:14:C9:5F:FB:8C:41:4B:31:7A:6D:BC:72:97:37:F6:B3:E4:70"
+      ]
+    }
+  }
+]
