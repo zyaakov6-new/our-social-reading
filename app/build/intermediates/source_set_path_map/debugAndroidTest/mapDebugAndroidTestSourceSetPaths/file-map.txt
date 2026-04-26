@@ -1,0 +1,4 @@
+com.amudapp.twa.test.app-androidTest-0 C:\Users\Ziv Yaakov\our-social-reading\app\build\generated\res\resValues\androidTest\debug
+com.amudapp.twa.test.app-mergeDebugAndroidTestResources-1 C:\Users\Ziv Yaakov\our-social-reading\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\merged.dir
+com.amudapp.twa.test.app-mergeDebugAndroidTestResources-2 C:\Users\Ziv Yaakov\our-social-reading\app\build\intermediates\incremental\debugAndroidTest\mergeDebugAndroidTestResources\stripped.dir
+com.amudapp.twa.test.app-debugAndroidTest-3 C:\Users\Ziv Yaakov\our-social-reading\app\build\intermediates\merged_res\debugAndroidTest\mergeDebugAndroidTestResources

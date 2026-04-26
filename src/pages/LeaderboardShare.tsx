@@ -26,31 +26,21 @@ const LeaderboardShare = () => {
         weekAgo.setDate(weekAgo.getDate() - 7);
         const weekAgoStr = weekAgo.toISOString().split("T")[0];
 
-        const [profileRes, sessionsRes, booksRes, allSessionsRes] = await Promise.all([
+        const [profileRes, sessionsRes, booksRes] = await Promise.all([
           supabase.from("profiles").select("display_name").eq("user_id", userId).single(),
           supabase.from("reading_sessions").select("minutes_read").eq("user_id", userId).gte("session_date", weekAgoStr),
           supabase.from("books").select("title").eq("user_id", userId).eq("status", "reading").limit(2),
-          supabase.from("reading_sessions").select("user_id, minutes_read").gte("session_date", weekAgoStr),
         ]);
 
         const weekMinutes = (sessionsRes.data || []).reduce(
           (sum: number, s: any) => sum + (s.minutes_read || 0), 0
         );
 
-        // Calculate rank across all users this week
-        const minutesMap: Record<string, number> = {};
-        (allSessionsRes.data || []).forEach((s: any) => {
-          minutesMap[s.user_id] = (minutesMap[s.user_id] || 0) + (s.minutes_read || 0);
-        });
-        const sorted = Object.entries(minutesMap).sort((a, b) => b[1] - a[1]);
-        const rankIndex = sorted.findIndex(([id]) => id === userId);
-        const rank = rankIndex >= 0 ? rankIndex + 1 : null;
-
         setData({
           displayName: profileRes.data?.display_name || "קורא",
           weekMinutes,
           books: (booksRes.data || []).map((b: any) => b.title),
-          rank,
+          rank: null, // Rank calculated server-side only — not exposed via client query
         });
       } catch (e) {
         console.error("LeaderboardShare error:", e);

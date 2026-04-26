@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -16,131 +16,449 @@ export type Database = {
     Tables: {
       books: {
         Row: {
-          id: string
-          user_id: string
-          title: string
           author: string
-          total_pages: number
-          current_page: number
-          status: string
           cover_url: string | null
-          created_at: string
-          updated_at: string
+          created_at: string | null
+          current_page: number | null
+          description: string | null
+          google_books_id: string | null
+          id: string
+          status: string | null
+          title: string
+          total_pages: number | null
+          updated_at: string | null
+          user_id: string
         }
         Insert: {
-          id?: string
-          user_id: string
-          title: string
           author: string
-          total_pages?: number
-          current_page?: number
-          status?: string
           cover_url?: string | null
-          created_at?: string
-          updated_at?: string
+          created_at?: string | null
+          current_page?: number | null
+          description?: string | null
+          google_books_id?: string | null
+          id?: string
+          status?: string | null
+          title: string
+          total_pages?: number | null
+          updated_at?: string | null
+          user_id: string
         }
         Update: {
-          id?: string
-          user_id?: string
-          title?: string
           author?: string
-          total_pages?: number
-          current_page?: number
-          status?: string
           cover_url?: string | null
-          created_at?: string
-          updated_at?: string
+          created_at?: string | null
+          current_page?: number | null
+          description?: string | null
+          google_books_id?: string | null
+          id?: string
+          status?: string | null
+          title?: string
+          total_pages?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
-      reading_sessions: {
+      challenge_participants: {
         Row: {
+          challenge_id: string
           id: string
+          joined_at: string | null
           user_id: string
-          book_id: string
-          minutes_read: number
-          pages_read: number
-          session_date: string
-          created_at: string
         }
         Insert: {
+          challenge_id: string
           id?: string
+          joined_at?: string | null
           user_id: string
-          book_id: string
-          minutes_read: number
-          pages_read?: number
-          session_date?: string
-          created_at?: string
         }
         Update: {
+          challenge_id?: string
           id?: string
+          joined_at?: string | null
           user_id?: string
-          book_id?: string
-          minutes_read?: number
-          pages_read?: number
-          session_date?: string
-          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_participants_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenges: {
+        Row: {
+          created_at: string | null
+          creator_id: string
+          end_date: string
+          goal_type: string
+          goal_value: number
+          id: string
+          is_public: boolean | null
+          name: string
+          start_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          creator_id: string
+          end_date: string
+          goal_type: string
+          goal_value: number
+          id?: string
+          is_public?: boolean | null
+          name: string
+          start_date?: string
+        }
+        Update: {
+          created_at?: string | null
+          creator_id?: string
+          end_date?: string
+          goal_type?: string
+          goal_value?: number
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          start_date?: string
         }
         Relationships: []
       }
       friendships: {
         Row: {
+          addressee_id: string
+          created_at: string
           id: string
           requester_id: string
-          addressee_id: string
           status: string
-          created_at: string
           updated_at: string
         }
         Insert: {
+          addressee_id: string
+          created_at?: string
           id?: string
           requester_id: string
-          addressee_id: string
           status?: string
-          created_at?: string
           updated_at?: string
         }
         Update: {
+          addressee_id?: string
+          created_at?: string
           id?: string
           requester_id?: string
-          addressee_id?: string
           status?: string
-          created_at?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      post_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          display_name: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string | null
+          display_name: string
+          id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          title?: string
+          user_id?: string
         }
         Relationships: []
       }
       profiles: {
         Row: {
           avatar_url: string | null
+          books_per_year: string | null
           created_at: string
-          daily_goal_type: string
-          daily_goal_value: number
           display_name: string | null
+          genres: string[] | null
           id: string
-          language: string
+          is_pro: boolean
+          is_public: boolean | null
+          paddle_customer_id: string | null
+          reading_goal_minutes: number | null
+          subscription_status: string
+          updated_at: string
+          user_id: string
+          yearly_goal_books: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          books_per_year?: string | null
+          created_at?: string
+          display_name?: string | null
+          genres?: string[] | null
+          id?: string
+          is_pro?: boolean
+          is_public?: boolean | null
+          paddle_customer_id?: string | null
+          reading_goal_minutes?: number | null
+          subscription_status?: string
+          updated_at?: string
+          user_id: string
+          yearly_goal_books?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          books_per_year?: string | null
+          created_at?: string
+          display_name?: string | null
+          genres?: string[] | null
+          id?: string
+          is_pro?: boolean
+          is_public?: boolean | null
+          paddle_customer_id?: string | null
+          reading_goal_minutes?: number | null
+          subscription_status?: string
+          updated_at?: string
+          user_id?: string
+          yearly_goal_books?: number | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reading_sessions: {
+        Row: {
+          book_id: string
+          created_at: string | null
+          id: string
+          minutes_read: number
+          pages_read: number | null
+          session_date: string
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string | null
+          id?: string
+          minutes_read: number
+          pages_read?: number | null
+          session_date?: string
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string | null
+          id?: string
+          minutes_read?: number
+          pages_read?: number | null
+          session_date?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_sessions_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_comments: {
+        Row: {
+          content: string
+          created_at: string | null
+          display_name: string
+          id: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          display_name?: string
+          id?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_comments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "reading_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_likes: {
+        Row: {
+          created_at: string | null
+          id: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_likes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "reading_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          id: string
+          paddle_customer_id: string | null
+          paddle_subscription_id: string | null
+          price_id: string | null
+          status: string
           updated_at: string
           user_id: string
         }
         Insert: {
-          avatar_url?: string | null
+          cancel_at_period_end?: boolean
           created_at?: string
-          daily_goal_type?: string
-          daily_goal_value?: number
-          display_name?: string | null
+          current_period_end?: string | null
           id?: string
-          language?: string
+          paddle_customer_id?: string | null
+          paddle_subscription_id?: string | null
+          price_id?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
-          avatar_url?: string | null
+          cancel_at_period_end?: boolean
           created_at?: string
-          daily_goal_type?: string
-          daily_goal_value?: number
-          display_name?: string | null
+          current_period_end?: string | null
           id?: string
-          language?: string
+          paddle_customer_id?: string | null
+          paddle_subscription_id?: string | null
+          price_id?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }

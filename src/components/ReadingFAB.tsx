@@ -47,7 +47,7 @@ const ReadingFAB = () => {
     setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error("לא מחובר");
 
       const minutesRead = manualMode
         ? parseInt(manualMinutes || '0', 10)

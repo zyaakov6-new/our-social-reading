@@ -1,4 +1,4 @@
-import { Home, Trophy, Sparkles } from "lucide-react";
+import { Home, Trophy, BookOpen, Users, MessageSquare, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -90,10 +90,12 @@ const BottomNav = () => {
           </button>
         )}
 
-        {/* DOM order: Home | spacer | Challenges */}
+        {/* Home | Books | [FAB gap] | Friends | Challenges */}
         <div className="mx-auto flex max-w-md items-stretch">
           <NavBtn path="/" label={t.nav.home} icon={Home} />
-          <div className="w-20 flex-shrink-0" aria-hidden="true" />
+          <NavBtn path="/books" label={t.nav.books} icon={BookOpen} />
+          <div className="w-16 flex-shrink-0" aria-hidden="true" />
+          <NavBtn path="/friends" label={t.nav.friends} icon={Users} />
           <NavBtn path="/challenges" label={t.nav.challenges} icon={Trophy} />
         </div>
       </nav>

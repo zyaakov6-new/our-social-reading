@@ -18,7 +18,7 @@ const FriendsSection = () => {
   const [loadingAll, setLoadingAll] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Load all users when panel opens
+  // Load all users when panel opens — only for authenticated users
   useEffect(() => {
     if (!showSearch || allUsers.length > 0 || !user) return;
     setLoadingAll(true);
@@ -26,6 +26,7 @@ const FriendsSection = () => {
       .from('profiles')
       .select('user_id, display_name, avatar_url')
       .neq('user_id', user.id)
+      .eq('is_public', true)
       .limit(50)
       .then(({ data }) => {
         const acceptedIds = new Set(friends.map(f => f.profile.userId));

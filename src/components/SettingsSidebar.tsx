@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, User, Target, Shield, Info, LogOut, ArrowRight } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,24 @@ interface Props {
 const AccountPage = ({ onBack }: { onBack: () => void }) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.full_name || user?.email?.split("@")[0] || ""
-  );
+  const [displayName, setDisplayName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Load display name from profiles table (canonical source)
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        setDisplayName(
+          data?.display_name || user.user_metadata?.full_name || user.email?.split("@")[0] || ""
+        );
+      });
+  }, [user]);
 
   const saveDisplayName = async () => {
     if (!displayName.trim()) return;
@@ -109,6 +122,21 @@ const GoalsPage = ({ onBack }: { onBack: () => void }) => {
   const [dailyGoal, setDailyGoal] = useState("20");
   const [saving, setSaving] = useState(false);
 
+  // Load saved goal from DB
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("reading_goal_minutes")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.reading_goal_minutes) {
+          setDailyGoal(String(data.reading_goal_minutes));
+        }
+      });
+  }, [user]);
+
   const save = async () => {
     setSaving(true);
     try {
@@ -180,6 +208,21 @@ const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
   const { t, dir } = useLanguage();
   const [isPublic, setIsPublic] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Load saved privacy setting from DB
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("is_public")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data && typeof data.is_public === "boolean") {
+          setIsPublic(data.is_public);
+        }
+      });
+  }, [user]);
 
   const save = async (val: boolean) => {
     setIsPublic(val);

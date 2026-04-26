@@ -1,5 +1,4 @@
 import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
@@ -45,32 +44,35 @@ const queryClient = new QueryClient({
   },
 });
 
-const AppLayout = () => (
-  <>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/feed" element={<Home />} />
-      <Route path="/books" element={<Home />} />
-      <Route path="/challenges" element={<Home />} />
-      <Route path="/profile" element={<Profile />} />
-      <Route path="/user/:userId" element={<UserProfilePage />} />
-      <Route path="/posts" element={<PostsFeed />} />
-      <Route path="/post/:postId" element={<PostThread />} />
-      <Route path="/challenge/:id" element={<ChallengeDetail />} />
-      <Route path="/friends" element={<Friends />} />
-      <Route path="/book/:bookId" element={<BookDetailPage />} />
-      <Route path="/search" element={<BookSearchPage />} />
-      <Route path="/notifications" element={<NotificationsPage />} />
-      <Route path="/onboarding" element={<Onboarding />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-    <ReadingFAB />
-    <HamburgerMenu />
-    <BottomNav />
-    <PWAInstallBanner />
-    <PushNotificationPrompt />
-  </>
-);
+const AppLayout = () => {
+  const { user } = useAuth();
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/feed" element={<Home />} />
+        <Route path="/books" element={<Home />} />
+        <Route path="/challenges" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/user/:userId" element={<UserProfilePage />} />
+        <Route path="/posts" element={<PostsFeed />} />
+        <Route path="/post/:postId" element={<PostThread />} />
+        <Route path="/challenge/:id" element={<ChallengeDetail />} />
+        <Route path="/friends" element={<Friends />} />
+        <Route path="/book/:bookId" element={<BookDetailPage />} />
+        <Route path="/search" element={<BookSearchPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {user && <ReadingFAB />}
+      {user && <HamburgerMenu />}
+      <BottomNav />
+      <PWAInstallBanner />
+      {user && <PushNotificationPrompt />}
+    </>
+  );
+};
 
 // For unauthenticated users: show AppLayout on browseable routes, LandingPage everywhere else
 const GuestRoutes = () => {
@@ -172,7 +174,6 @@ const App = () => (
                 <AppRoutes />
               </BrowserRouter>
               <Analytics />
-              <SpeedInsights />
             </SubscriptionProvider>
           </AuthProvider>
         </TooltipProvider>

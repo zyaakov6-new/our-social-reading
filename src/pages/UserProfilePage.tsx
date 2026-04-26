@@ -157,6 +157,7 @@ const UserProfilePage = () => {
 
   const handleAddFriend = async () => {
     if (!me || !userId) return;
+    if (me.id === userId) return; // Cannot friend yourself
     setActionLoading(true);
     try {
       const { error } = await supabase.from("friendships").insert({

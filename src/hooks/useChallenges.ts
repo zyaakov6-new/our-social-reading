@@ -234,11 +234,12 @@ export const useChallenges = () => {
 
   const leaveChallenge = async (challengeId: string) => {
     if (!user) throw new Error("לא מחובר");
-    await supabase
+    const { error } = await supabase
       .from("challenge_participants")
       .delete()
       .eq("challenge_id", challengeId)
       .eq("user_id", user.id);
+    if (error) throw error;
     await fetchChallenges();
   };
 

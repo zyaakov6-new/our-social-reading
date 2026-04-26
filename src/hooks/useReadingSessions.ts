@@ -85,7 +85,7 @@ export const useReadingSessions = () => {
         profileMap[user.id] = { displayName: myFallbackName };
       }
 
-      // Fetch all reading sessions globally
+      // Fetch all reading sessions globally — include likes/comments counts to avoid N×2 per-card requests
       const { data, error } = await supabase
         .from("reading_sessions")
         .select(`
@@ -100,7 +100,9 @@ export const useReadingSessions = () => {
             title,
             author,
             cover_url
-          )
+          ),
+          session_likes (count),
+          session_comments (count)
         `)
         .order("created_at", { ascending: false })
         .limit(100);
@@ -127,8 +129,8 @@ export const useReadingSessions = () => {
           pagesRead: session.pages_read,
           sessionDate: session.session_date || session.created_at,
           timestamp: session.created_at,
-          likes: 0,
-          comments: 0,
+          likes: session.session_likes?.[0]?.count ?? 0,
+          comments: session.session_comments?.[0]?.count ?? 0,
           isMe,
         };
       });
@@ -157,8 +159,10 @@ export const useReadingSessions = () => {
           event: "*",
           schema: "public",
           table: "reading_sessions",
+          filter: `user_id=eq.${user.id}`,
         },
         () => {
+          _sessionsCache = null; // Invalidate cache on own session change
           fetchSessions();
         }
       )

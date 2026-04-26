@@ -118,11 +118,11 @@ const BookDetailPage = () => {
         });
         setIsOwner(b.user_id === user.id);
 
-        // Fetch other readers who have the same book title (best approximation without google_books_id)
+        // Fetch other readers — case-insensitive title match
         const { data: otherBooks } = await supabase
           .from("books")
           .select("user_id")
-          .eq("title", b.title)
+          .ilike("title", b.title.trim())
           .neq("user_id", user.id)
           .limit(10);
 

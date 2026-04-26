@@ -86,13 +86,14 @@ const NotificationsPage = () => {
   };
 
   const fetchCommentNotifs = async (userId: string): Promise<Notification[]> => {
-    // Get comments on posts written by me, by other users
+    // Get comments on MY posts, by other users — filter at DB level via inner join
     const { data, error } = await supabase
       .from("post_comments")
       .select("id, display_name, content, created_at, post_id, user_id, posts!inner(id, title, user_id)")
       .neq("user_id", userId)
+      .eq("posts.user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
 
     if (error || !data) return [];
 
@@ -111,8 +112,10 @@ const NotificationsPage = () => {
     const { data, error } = await supabase
       .from("post_likes")
       .select("id, user_id, created_at, post_id, posts!inner(id, title, user_id)")
+      .eq("posts.user_id", userId)
+      .neq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
 
     if (error || !data) return [];
 
@@ -183,7 +186,7 @@ const NotificationsPage = () => {
 
   const handleFriendAction = async (
     friendshipId: string,
-    action: "accepted" | "declined"
+    action: "accepted" | "rejected"
   ) => {
     setProcessingId(friendshipId);
     try {
@@ -351,7 +354,7 @@ const NotificationsPage = () => {
                       <button
                         disabled={processingId === notif.friendshipId}
                         onClick={() =>
-                          handleFriendAction(notif.friendshipId!, "declined")
+                          handleFriendAction(notif.friendshipId!, "rejected")
                         }
                         className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-colors disabled:opacity-60"
                         style={{
