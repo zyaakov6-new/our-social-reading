@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, User, Target, Shield, Info, LogOut, ArrowRight } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ChevronLeft, User, Target, Shield, Info, LogOut, ArrowRight, X } from "lucide-react";
+import { Sheet, SheetContent, SheetClose } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +18,7 @@ interface Props {
 }
 
 // ── Subpage: Account ──────────────────────────────────────────────────────────
-const AccountPage = ({ onBack }: { onBack: () => void }) => {
+const AccountPage = ({ onBack, onClose }: { onBack: () => void; onClose: () => void }) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const [displayName, setDisplayName] = useState("");
@@ -72,7 +72,7 @@ const AccountPage = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <div className="space-y-6" dir={dir}>
-      <SubpageHeader title={t.settings.account} onBack={onBack} />
+      <SubpageHeader title={t.settings.account} onBack={onBack} onClose={onClose} />
 
       <div className="space-y-3">
         <h3 className="section-heading">{t.settings.displayName}</h3>
@@ -116,7 +116,7 @@ const AccountPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 // ── Subpage: Reading Goals ────────────────────────────────────────────────────
-const GoalsPage = ({ onBack }: { onBack: () => void }) => {
+const GoalsPage = ({ onBack, onClose }: { onBack: () => void; onClose: () => void }) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const [dailyGoal, setDailyGoal] = useState("20");
@@ -157,7 +157,7 @@ const GoalsPage = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <div className="space-y-6" dir={dir}>
-      <SubpageHeader title={t.settings.goals} onBack={onBack} />
+      <SubpageHeader title={t.settings.goals} onBack={onBack} onClose={onClose} />
 
       <div className="space-y-4">
         <h3 className="section-heading">{t.settings.dailyGoal}</h3>
@@ -203,7 +203,7 @@ const GoalsPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 // ── Subpage: Privacy ──────────────────────────────────────────────────────────
-const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
+const PrivacyPage = ({ onBack, onClose }: { onBack: () => void; onClose: () => void }) => {
   const { user } = useAuth();
   const { t, dir } = useLanguage();
   const [isPublic, setIsPublic] = useState(true);
@@ -241,7 +241,7 @@ const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
 
   return (
     <div className="space-y-6" dir={dir}>
-      <SubpageHeader title={t.settings.privacy} onBack={onBack} />
+      <SubpageHeader title={t.settings.privacy} onBack={onBack} onClose={onClose} />
 
       <div className="space-y-4">
         <h3 className="section-heading">{t.settings.profileVisibility}</h3>
@@ -267,7 +267,7 @@ const PrivacyPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 // ── Subpage: About ────────────────────────────────────────────────────────────
-const AboutPage = ({ onBack }: { onBack: () => void }) => {
+const AboutPage = ({ onBack, onClose }: { onBack: () => void; onClose: () => void }) => {
   const { t, dir } = useLanguage();
   const links = [
     { label: t.settings.reportBug, href: "mailto:support@amud.app" },
@@ -277,7 +277,7 @@ const AboutPage = ({ onBack }: { onBack: () => void }) => {
   ];
   return (
     <div className="space-y-6" dir={dir}>
-      <SubpageHeader title={t.settings.about} onBack={onBack} />
+      <SubpageHeader title={t.settings.about} onBack={onBack} onClose={onClose} />
 
       <div className="flex flex-col items-center py-4 gap-2">
         <div className="w-16 h-16">
@@ -309,12 +309,22 @@ const AboutPage = ({ onBack }: { onBack: () => void }) => {
 };
 
 // ── Shared subpage header ─────────────────────────────────────────────────────
-const SubpageHeader = ({ title, onBack }: { title: string; onBack: () => void }) => (
-  <div className="flex items-center gap-3 pb-2">
-    <button onClick={onBack} className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors">
-      <ArrowRight size={18} strokeWidth={1.5} className="text-foreground" />
+// Back button on the right (RTL start), X close on the left (RTL end) — never stacked
+const SubpageHeader = ({ title, onBack, onClose }: { title: string; onBack: () => void; onClose: () => void }) => (
+  <div className="flex items-center justify-between pb-2">
+    <button
+      onClick={onClose}
+      className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0"
+    >
+      <X size={18} strokeWidth={1.5} />
     </button>
     <h2 className="font-semibold text-base">{title}</h2>
+    <button
+      onClick={onBack}
+      className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0"
+    >
+      <ArrowRight size={18} strokeWidth={1.5} className="text-foreground" />
+    </button>
   </div>
 );
 
@@ -340,11 +350,17 @@ const SettingsSidebar = ({ open, onOpenChange }: Props) => {
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent side="right" className="w-full max-w-sm p-0 bg-background" dir={dir}>
         <div className="flex flex-col h-full">
-          <SheetHeader className="px-5 py-4 border-b border-border/50">
-            <SheetTitle className="font-semibold text-base text-right">
-              {page === "main" ? t.settings.title : ""}
-            </SheetTitle>
-          </SheetHeader>
+          {/* Header: title on right (RTL start), X close on left (RTL end) */}
+          {page === "main" && (
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border/50">
+              <SheetClose asChild>
+                <button className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors flex-shrink-0">
+                  <X size={18} strokeWidth={1.5} />
+                </button>
+              </SheetClose>
+              <h2 className="font-semibold text-base">{t.settings.title}</h2>
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto px-5 py-5">
             {page === "main" && (
@@ -371,10 +387,10 @@ const SettingsSidebar = ({ open, onOpenChange }: Props) => {
               </div>
             )}
 
-            {page === "account" && <AccountPage onBack={() => setPage("main")} />}
-            {page === "goals"   && <GoalsPage   onBack={() => setPage("main")} />}
-            {page === "privacy" && <PrivacyPage onBack={() => setPage("main")} />}
-            {page === "about"   && <AboutPage   onBack={() => setPage("main")} />}
+            {page === "account" && <AccountPage onBack={() => setPage("main")} onClose={handleClose} />}
+            {page === "goals"   && <GoalsPage   onBack={() => setPage("main")} onClose={handleClose} />}
+            {page === "privacy" && <PrivacyPage onBack={() => setPage("main")} onClose={handleClose} />}
+            {page === "about"   && <AboutPage   onBack={() => setPage("main")} onClose={handleClose} />}
           </div>
 
           {page === "main" && (

@@ -86,6 +86,10 @@ const ReadingFAB = () => {
         await supabase.from("books").update(bookUpdates).eq("id", selectedBookId);
       }
 
+      // Notify all listeners so the feed and book list update instantly
+      window.dispatchEvent(new CustomEvent('sessionLogged'));
+      window.dispatchEvent(new CustomEvent('bookAdded'));
+
       setState('done');
     } catch (error: any) {
       toast.error(error.message || "שגיאה בשמירת הפעילות");

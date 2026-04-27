@@ -170,7 +170,14 @@ const BookDetailPage = () => {
         .eq("id", book.id);
       if (error) throw error;
       setBook((prev) => prev ? { ...prev, status: newStatus } : prev);
-      toast.success("הסטטוס עודכן!");
+      if (newStatus === 'finished') {
+        toast.success("🎉 סיימת את הספר! כל הכבוד!", {
+          description: "הספר עבר לרשימת הספרים שקראת",
+          duration: 4000,
+        });
+      } else {
+        toast.success("הסטטוס עודכן!");
+      }
     } catch (e: any) {
       toast.error(e?.message || "שגיאה בעדכון סטטוס");
     } finally {

@@ -267,6 +267,11 @@ const FeedItemCard = ({ item }: { item: ReadingSession }) => {
               {item.pagesRead > 0 && (
                 <span className="badge-teal">📖 {item.pagesRead} {t.common.pagesShort}</span>
               )}
+              {item.currentPage != null && item.totalPages != null && item.totalPages > 0 && (
+                <span className="badge-green" style={{ opacity: 0.85 }}>
+                  {Math.min(100, Math.round((item.currentPage / item.totalPages) * 100))}%
+                </span>
+              )}
             </div>
           </div>
           {/* Book cover thumbnail */}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export interface Book {
   id: string;
@@ -80,6 +81,12 @@ export const useBooks = () => {
           time: Date.now(),
         };
       }
+      if (status === 'finished') {
+        toast.success("🎉 סיימת את הספר! כל הכבוד!", {
+          description: "הספר עבר לרשימת הספרים שקראת",
+          duration: 4000,
+        });
+      }
       return true;
     } catch (error) {
       console.error("Error updating book status:", error);
@@ -113,6 +120,18 @@ export const useBooks = () => {
 
   useEffect(() => {
     fetchBooks();
+
+    // Invalidate cache and refetch whenever a book is added or a session updates current_page
+    const handleRefresh = () => {
+      _booksCache = null;
+      fetchBooks();
+    };
+    window.addEventListener('bookAdded', handleRefresh);
+    window.addEventListener('sessionLogged', handleRefresh);
+    return () => {
+      window.removeEventListener('bookAdded', handleRefresh);
+      window.removeEventListener('sessionLogged', handleRefresh);
+    };
   }, []);
 
   return { books, loading, refetch: fetchBooks, deleteBook, updateStatus };

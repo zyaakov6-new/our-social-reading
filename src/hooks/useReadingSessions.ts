@@ -9,6 +9,10 @@ export interface ReadingSession {
   bookTitle: string;
   bookAuthor?: string;
   coverUrl?: string;
+  /** Current page the reader is on (from books table) */
+  currentPage?: number;
+  /** Total pages of the book (from books table) */
+  totalPages?: number;
   userName: string;
   avatarUrl?: string;
   minutesRead: number;
@@ -99,7 +103,9 @@ export const useReadingSessions = () => {
             id,
             title,
             author,
-            cover_url
+            cover_url,
+            current_page,
+            total_pages
           ),
           session_likes (count),
           session_comments (count)
@@ -123,6 +129,8 @@ export const useReadingSessions = () => {
           bookTitle: session.books?.title || "ספר לא ידוע",
           bookAuthor: session.books?.author,
           coverUrl: session.books?.cover_url ?? undefined,
+          currentPage: session.books?.current_page ?? undefined,
+          totalPages: session.books?.total_pages ?? undefined,
           userName,
           avatarUrl: profile?.avatarUrl,
           minutesRead: session.minutes_read,
@@ -151,6 +159,14 @@ export const useReadingSessions = () => {
     }
     fetchSessions();
 
+    // Invalidate cache and refetch when the current user logs a session
+    const handleRefresh = () => {
+      _sessionsCache = null;
+      fetchSessions();
+    };
+    window.addEventListener('sessionLogged', handleRefresh);
+    window.addEventListener('bookAdded', handleRefresh);
+
     const channel = supabase
       .channel("reading_sessions_changes")
       .on(
@@ -169,6 +185,8 @@ export const useReadingSessions = () => {
       .subscribe();
 
     return () => {
+      window.removeEventListener('sessionLogged', handleRefresh);
+      window.removeEventListener('bookAdded', handleRefresh);
       supabase.removeChannel(channel);
     };
   }, []);
