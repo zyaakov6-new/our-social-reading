@@ -266,13 +266,13 @@ export default function LandingPage() {
   const copy = useMemo(() => {
     if (isHe) {
       return {
-        eyebrow: "אפליקציית קריאה חברתית · חינמי",
+        eyebrow: "אפליקציית קריאה חברתית · freemium",
         headline: "תתחיל. תתמיד. תגמור.",
         subheadline:
           "AMUD עוזר לך לבנות הרגל קריאה אמיתי — עם מעקב יומי קל, חברים שמניעים אותך, ורצף שאתה לא רוצה לשבור.",
         primaryCta: "להצטרף בחינם",
         loginLink: "יש לי כבר חשבון",
-        trust: ["חינמי לתמיד", "הרשמה ב-30 שניות", "ללא כרטיס אשראי"],
+        trust: ["התחלה חינמית", "הרשמה ב-30 שניות", "ללא כרטיס אשראי"],
         proofItems: [
           { icon: Flame, label: "רצף קריאה יומי" },
           { icon: Users, label: "חברים שמניעים" },
@@ -316,17 +316,17 @@ export default function LandingPage() {
         ],
         finalHeadline: "ספר אחד. יום אחד. הרגל שנשאר.",
         finalSub: "הצטרפו לקוראים שהחליטו לסיים יותר ספרים השנה.",
-        finalCta: "להצטרף עכשיו — חינמי",
+        finalCta: "להצטרף עכשיו — ללא עלות",
       };
     }
     return {
-      eyebrow: "Social reading app · Free",
+      eyebrow: "Social reading app · Freemium",
       headline: "Start. Stay. Finish.",
       subheadline:
         "AMUD helps you build a real reading habit — with easy daily tracking, friends who keep you going, and a streak you don't want to break.",
       primaryCta: "Join free",
       loginLink: "I already have an account",
-      trust: ["Free forever", "Sign up in 30 seconds", "No credit card"],
+      trust: ["Free to start", "Sign up in 30 seconds", "No credit card"],
       proofItems: [
         { icon: Flame, label: "Daily reading streak" },
         { icon: Users, label: "Friends who motivate" },
@@ -370,7 +370,7 @@ export default function LandingPage() {
       ],
       finalHeadline: "One book. One day. A habit that sticks.",
       finalSub: "Join readers who decided to finish more books this year.",
-      finalCta: "Join now — it's free",
+      finalCta: "Join now — no cost to start",
     };
   }, [isHe]);
 
@@ -723,8 +723,8 @@ export default function LandingPage() {
               {/* Trust micro-copy */}
               <p className="text-xs" style={{ color: "hsl(44 30% 65%)" }}>
                 {isHe
-                  ? "חינמי לתמיד · ללא כרטיס אשראי · הרשמה ב-30 שניות"
-                  : "Free forever · No credit card · Sign up in 30 seconds"}
+                  ? "התחלה חינמית · ללא כרטיס אשראי · הרשמה ב-30 שניות"
+                  : "Free to start · No credit card · Sign up in 30 seconds"}
               </p>
             </div>
           </motion.div>
