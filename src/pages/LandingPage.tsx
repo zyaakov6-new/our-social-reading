@@ -3,18 +3,13 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   Check,
-  Clock3,
-  Medal,
-  Search,
+  Flame,
+  Target,
+  Trophy,
   Users,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
 import { trackEvent } from "@/lib/analytics";
@@ -25,413 +20,728 @@ import {
 } from "@/lib/experiments";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: (index = 0) => ({
+  hidden: { opacity: 0, y: 22 },
+  visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: index * 0.07, duration: 0.4, ease: "easeOut" },
+    transition: { delay: i * 0.08, duration: 0.45, ease: "easeOut" },
   }),
 };
 
-type LandingCopy = {
-  eyebrow: string;
-  headline: string;
-  subheadline: string;
-  primaryCta: string;
-  secondaryCta: string;
-  proofTitle: string;
-  proofBody: string;
-  leaderboardTitle: string;
-  leaderboardNote: string;
-  sampleStreakTitle: string;
-  sampleStreakItems: string[];
-  finalTitle: string;
-  finalBody: string;
-  login: string;
-  previewFeed: string;
-  tryNote: string;
-  weeklyMinutesLabel: string;
-  finalPrimaryCta: string;
-  finalSecondaryCta: string;
-  sampleReaders: Array<{ name: string; minutes: number; rank: number }>;
-  stepCards: Array<{
-    icon: typeof Search;
-    title: string;
-    desc: string;
-  }>;
+// ── Inline phone mockup ───────────────────────────────────────────────────────
+const AppMockup = ({ lang }: { lang: string }) => {
+  const isHe = lang === "he";
+  const days = isHe
+    ? ["א", "ב", "ג", "ד", "ה", "ו", "ש"]
+    : ["M", "T", "W", "T", "F", "S", "S"];
+  const activeDays = [0, 1, 2, 4, 5];
+
+  return (
+    <div className="relative mx-auto w-[210px] sm:w-[250px] select-none">
+      {/* Ambient glow */}
+      <div
+        className="absolute -inset-10 -z-10 rounded-full blur-3xl"
+        style={{ background: "hsl(126 15% 28% / 0.15)" }}
+      />
+      {/* Phone shell */}
+      <div
+        className="rounded-[2.6rem] p-[5px] shadow-2xl"
+        style={{
+          background: "hsl(210 11% 18%)",
+          boxShadow: "0 30px 80px hsl(126 15% 10% / 0.45), 0 0 0 1px hsl(0 0% 100% / 0.08)",
+        }}
+      >
+        {/* Screen */}
+        <div
+          className="rounded-[2.2rem] overflow-hidden"
+          style={{ background: "hsl(44 27% 84%)" }}
+        >
+          {/* Dynamic island */}
+          <div className="flex justify-center pt-2 pb-1">
+            <div
+              className="h-[5px] w-[72px] rounded-full"
+              style={{ background: "hsl(210 11% 18%)" }}
+            />
+          </div>
+
+          {/* App top bar */}
+          <div className="flex items-center justify-between px-4 py-1.5">
+            <span
+              className="text-[9px] font-bold"
+              style={{ color: "hsl(28 71% 57%)" }}
+            >
+              🔥 7
+            </span>
+            <span
+              className="font-display text-[13px] tracking-[0.2em]"
+              style={{ color: "hsl(126 15% 28%)" }}
+            >
+              AMUD
+            </span>
+            <div
+              className="h-5 w-5 rounded-full flex items-center justify-center text-[8px] font-bold"
+              style={{
+                background: "hsl(126 15% 28%)",
+                color: "hsl(44 30% 93%)",
+              }}
+            >
+              {isHe ? "מ" : "M"}
+            </div>
+          </div>
+
+          <div
+            className="mx-3 h-px"
+            style={{ background: "hsl(44 12% 74%)" }}
+          />
+
+          {/* Feed card 1 — current user */}
+          <div
+            className="mx-3 mt-2.5 rounded-2xl overflow-hidden"
+            style={{
+              border: "1px solid hsl(44 15% 78%)",
+              background: "hsl(44 22% 90%)",
+            }}
+          >
+            <div
+              className="flex items-center justify-between px-3 py-1.5"
+              style={{ background: "hsl(44 18% 86%)" }}
+            >
+              <span style={{ fontSize: 8, color: "hsl(210 8% 55%)" }}>
+                {isHe ? "לפני שעה" : "1 hour ago"}
+              </span>
+              <span
+                className="text-[9px] font-bold"
+                style={{ color: "hsl(28 71% 57%)" }}
+              >
+                {isHe ? "אני" : "me"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2">
+              <div
+                className="h-9 w-[26px] rounded flex-shrink-0 flex items-center justify-center"
+                style={{ background: "hsl(126 15% 28%)", fontSize: 9 }}
+              >
+                📖
+              </div>
+              <div className="min-w-0">
+                <p
+                  className="text-[10px] font-bold font-serif leading-tight truncate"
+                  style={{ color: "hsl(210 11% 14%)" }}
+                >
+                  {isHe ? "הרוקחת מקהיר" : "The Alchemist"}
+                </p>
+                <div className="flex gap-1 mt-1 flex-wrap">
+                  <span
+                    className="text-[8px] rounded-full px-1.5 py-0.5 font-medium"
+                    style={{
+                      background: "hsl(126 15% 28% / 0.12)",
+                      color: "hsl(126 15% 28%)",
+                    }}
+                  >
+                    ⏱ 25 {isHe ? "דק׳" : "min"}
+                  </span>
+                  <span
+                    className="text-[8px] rounded-full px-1.5 py-0.5 font-medium"
+                    style={{
+                      background: "hsl(188 100% 27% / 0.10)",
+                      color: "hsl(188 60% 30%)",
+                    }}
+                  >
+                    62%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Feed card 2 — friend */}
+          <div
+            className="mx-3 mt-1.5 rounded-2xl overflow-hidden"
+            style={{
+              border: "1px solid hsl(44 15% 78%)",
+              background: "hsl(44 22% 90%)",
+            }}
+          >
+            <div
+              className="flex items-center justify-between px-3 py-1.5"
+              style={{ background: "hsl(44 18% 86%)" }}
+            >
+              <span style={{ fontSize: 8, color: "hsl(210 8% 55%)" }}>
+                {isHe ? "לפני 3 ש׳" : "3 hrs ago"}
+              </span>
+              <span
+                className="text-[9px] font-semibold"
+                style={{ color: "hsl(210 11% 14%)" }}
+              >
+                {isHe ? "נועה" : "Noa"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2">
+              <div
+                className="h-9 w-[26px] rounded flex-shrink-0 flex items-center justify-center"
+                style={{ background: "hsl(126 15% 34%)", fontSize: 9 }}
+              >
+                📗
+              </div>
+              <div className="min-w-0">
+                <p
+                  className="text-[10px] font-bold font-serif leading-tight"
+                  style={{ color: "hsl(210 11% 14%)" }}
+                >
+                  1984
+                </p>
+                <div className="flex gap-1 mt-1">
+                  <span
+                    className="text-[8px] rounded-full px-1.5 py-0.5 font-medium"
+                    style={{
+                      background: "hsl(126 15% 28% / 0.12)",
+                      color: "hsl(126 15% 28%)",
+                    }}
+                  >
+                    ⏱ 40 {isHe ? "דק׳" : "min"}
+                  </span>
+                  <span
+                    className="text-[8px] rounded-full px-1.5 py-0.5 font-medium"
+                    style={{
+                      background: "hsl(188 100% 27% / 0.10)",
+                      color: "hsl(188 60% 30%)",
+                    }}
+                  >
+                    88%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Weekly heatmap */}
+          <div
+            className="mx-3 my-2 rounded-xl p-2.5"
+            style={{
+              background: "hsl(44 22% 90%)",
+              border: "1px solid hsl(44 15% 78%)",
+            }}
+          >
+            <p
+              className="text-[8px] font-semibold mb-1.5"
+              style={{ color: "hsl(210 8% 48%)" }}
+            >
+              {isHe ? "רצף הקריאה שלי" : "My reading streak"}
+            </p>
+            <div className="flex justify-between gap-0.5">
+              {days.map((d, i) => (
+                <div key={d + i} className="flex flex-col items-center gap-0.5">
+                  <div
+                    className="h-4 w-4 rounded-sm"
+                    style={{
+                      background: activeDays.includes(i)
+                        ? "hsl(126 15% 28%)"
+                        : "hsl(44 15% 74%)",
+                    }}
+                  />
+                  <span style={{ fontSize: 6, color: "hsl(210 8% 55%)" }}>
+                    {d}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
+// ── Main landing page ─────────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate();
   const { lang, dir, t } = useLanguage();
-  const [variant] = useState<LandingExperimentVariant>(() => getStoredLandingVariant());
+  const [variant] = useState<LandingExperimentVariant>(
+    () => getStoredLandingVariant(),
+  );
 
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
+  const isHe = lang === "he";
 
-  const copy = useMemo<LandingCopy>(() => {
-    if (lang === "he") {
+  const copy = useMemo(() => {
+    if (isHe) {
       return {
-        eyebrow: "אפליקציית קריאה חברתית",
-        headline: "לקרוא יותר עם חברים.",
+        eyebrow: "אפליקציית קריאה חברתית · חינמי",
+        headline: "תתחיל. תתמיד. תגמור.",
         subheadline:
-          variant === "guest_first"
-            ? "נסו את AMUD עם ספר אחד. חפשו כותר, התחילו להרגיש את הזרימה, והירשמו רק כשבאמת תרצו לשמור את ההתקדמות."
-            : "בנו הרגל קריאה שנשאר. תעדו דקות, התקדמו מול חברים, וסיימו יותר ספרים השנה.",
-        primaryCta:
-          variant === "guest_first" ? "לנסות עם ספר אחד" : "להצטרף בחינם",
-        secondaryCta:
-          variant === "guest_first" ? "לפתוח חשבון חינם" : "לנסות בלי הרשמה",
-        proofTitle: "מה קורה בדקה הראשונה",
-        proofBody:
-          "מוצאים ספר, רושמים כמה דקות, ומתחילים רצף יומי שקל יותר לשמור עליו.",
-        stepCards: [
+          "AMUD עוזר לך לבנות הרגל קריאה אמיתי — עם מעקב יומי קל, חברים שמניעים אותך, ורצף שאתה לא רוצה לשבור.",
+        primaryCta: "להצטרף בחינם",
+        loginLink: "יש לי כבר חשבון",
+        trust: ["חינמי לתמיד", "הרשמה ב-30 שניות", "ללא כרטיס אשראי"],
+        proofItems: [
+          { icon: Flame, label: "רצף קריאה יומי" },
+          { icon: Users, label: "חברים שמניעים" },
+          { icon: Trophy, label: "אתגרים ודירוג" },
+        ],
+        stepsTitle: "שלושה צעדים ואתה בפנים",
+        steps: [
           {
-            icon: Search,
+            num: "01",
             title: "מחפשים ספר",
-            desc: "מקלידים שם ספר או מחבר ורואים תוצאות מיד",
+            desc: "מקלידים שם ורואים תוצאות מיידיות מ-Google Books",
           },
           {
-            icon: Clock3,
-            title: "רושמים דקות",
-            desc: "רישום יומי מהיר בלי עומס או טפסים ארוכים",
+            num: "02",
+            title: "רושמים קריאה",
+            desc: "כמה דקות קראת? באיזה עמוד אתה? זהו. 20 שניות.",
           },
           {
-            icon: Medal,
-            title: "שומרים על רצף",
-            desc: "עולים בדירוג, נשארים עקביים, ומסיימים יותר",
+            num: "03",
+            title: "בונים רצף",
+            desc: "הרצף היומי שלך גדל, החברים רואים, אתה ממשיך.",
           },
         ],
-        leaderboardTitle: "לוח קריאה שבועי",
-        leaderboardNote: "קריאה יומיומית מרגישה טוב יותר כשיש גם מרוץ ידידותי שמחכה לך.",
-        sampleStreakTitle: "מה מקבלים בפנים",
-        sampleStreakItems: [
-          "רצף קריאה יומי",
-          "חברים, אתגרים ודירוג",
-          "ספרייה אישית ומעקב התקדמות",
+        benefitsTitle: "למה קוראים נשארים",
+        benefits: [
+          {
+            icon: Target,
+            title: "אתה יודע בדיוק איפה עצרת",
+            desc: "אין יותר 'באיזה עמוד הייתי?'. כל ספר שלך עם התקדמות מדויקת.",
+          },
+          {
+            icon: Users,
+            title: "חברים הופכים את זה לכיף",
+            desc: "ראה מה חבריך קוראים, השאר לייק, השתתף באתגרים משותפים.",
+          },
+          {
+            icon: Flame,
+            title: "הרצף עושה את העבודה",
+            desc: "הרגל קריאה נבנה על עקביות, לא על מרתון. כל יום — דקה אחת מספיקה.",
+          },
         ],
-        finalTitle: "להתחיל היום עם ספר אחד.",
-        finalBody:
-          "חפשו כותר, תעדו את הדקות הראשונות שלכם, ופתחו חשבון חינם רק כשתרצו לשמור את ההתקדמות.",
-        login: "כניסה",
-        previewFeed: "לצפייה בפיד הקוראים",
-        tryNote: "לא צריך להירשם כדי לנסות חיפוש ספר",
-        weeklyMinutesLabel: "דקות השבוע",
-        finalPrimaryCta: "לנסות חיפוש ספר",
-        finalSecondaryCta: "לפתוח חשבון חינם",
-        sampleReaders: [
-          { name: "מאיה", minutes: 210, rank: 1 },
-          { name: "נועה", minutes: 165, rank: 2 },
-          { name: "רוני", minutes: 120, rank: 3 },
-        ],
+        finalHeadline: "ספר אחד. יום אחד. הרגל שנשאר.",
+        finalSub: "הצטרפו לקוראים שהחליטו לסיים יותר ספרים השנה.",
+        finalCta: "להצטרף עכשיו — חינמי",
       };
     }
-
     return {
-      eyebrow: "Social reading app",
-      headline: "Read more with friends.",
+      eyebrow: "Social reading app · Free",
+      headline: "Start. Stay. Finish.",
       subheadline:
-        variant === "guest_first"
-          ? "Try AMUD with one book. Search a title, feel the flow, and only sign up when you want to save your progress."
-          : "Build a reading streak that sticks. Log minutes, compete with friends, and finish more books this year.",
-      primaryCta:
-        variant === "guest_first" ? "Try with one book" : "Join free",
-      secondaryCta:
-        variant === "guest_first" ? "Create a free account" : "Try without signing up",
-      proofTitle: "What happens in the first minute",
-      proofBody:
-        "Search a book, log a few minutes, and start building a streak you actually want to keep.",
-      stepCards: [
+        "AMUD helps you build a real reading habit — with easy daily tracking, friends who keep you going, and a streak you don't want to break.",
+      primaryCta: "Join free",
+      loginLink: "I already have an account",
+      trust: ["Free forever", "Sign up in 30 seconds", "No credit card"],
+      proofItems: [
+        { icon: Flame, label: "Daily reading streak" },
+        { icon: Users, label: "Friends who motivate" },
+        { icon: Trophy, label: "Challenges & rankings" },
+      ],
+      stepsTitle: "Three steps and you're in",
+      steps: [
         {
-          icon: Search,
+          num: "01",
           title: "Search a book",
-          desc: "Type a title or author and see results right away",
+          desc: "Type a title and see results instantly from Google Books",
         },
         {
-          icon: Clock3,
-          title: "Log minutes",
-          desc: "A fast daily check-in without a long form",
+          num: "02",
+          title: "Log your reading",
+          desc: "How many minutes? What page are you on? That's it. 20 seconds.",
         },
         {
-          icon: Medal,
-          title: "Keep your streak",
-          desc: "Climb the board, stay consistent, and finish more",
+          num: "03",
+          title: "Build your streak",
+          desc: "Your daily streak grows, friends see it, you keep going.",
         },
       ],
-      leaderboardTitle: "Weekly reading board",
-      leaderboardNote: "Reading feels better when there is a friendly race waiting for you.",
-      sampleStreakTitle: "What you unlock",
-      sampleStreakItems: [
-        "A daily reading streak",
-        "Friends, challenges, and rankings",
-        "A personal library with progress tracking",
+      benefitsTitle: "Why readers stay",
+      benefits: [
+        {
+          icon: Target,
+          title: "Always know where you left off",
+          desc: "No more 'what page was I on?'. Every book tracked with exact progress.",
+        },
+        {
+          icon: Users,
+          title: "Friends make it fun",
+          desc: "See what your friends are reading, react, join shared challenges.",
+        },
+        {
+          icon: Flame,
+          title: "The streak does the work",
+          desc: "Reading habits are built on consistency, not marathons. One minute a day counts.",
+        },
       ],
-      finalTitle: "Start with one book today.",
-      finalBody:
-        "Search a title, log your first minutes, and create a free account when you want to keep the progress.",
-      login: "Login",
-      previewFeed: "See the reader feed",
-      tryNote: "No signup needed to try a book search",
-      weeklyMinutesLabel: "min this week",
-      finalPrimaryCta: "Try a book search",
-      finalSecondaryCta: "Create a free account",
-      sampleReaders: [
-        { name: "Maya", minutes: 210, rank: 1 },
-        { name: "Noa", minutes: 165, rank: 2 },
-        { name: "Roni", minutes: 120, rank: 3 },
-      ],
+      finalHeadline: "One book. One day. A habit that sticks.",
+      finalSub: "Join readers who decided to finish more books this year.",
+      finalCta: "Join now — it's free",
     };
-  }, [lang, variant]);
+  }, [isHe]);
 
   useEffect(() => {
-    trackEvent("landing_viewed", {
-      variant,
-      locale: lang,
-    });
+    trackEvent("landing_viewed", { variant, locale: lang });
   }, [lang, variant]);
 
-  const startTrial = () => {
-    trackEvent("landing_cta_clicked", {
-      variant,
-      cta: "trial",
-    });
-
-    navigate(`/search?source=landing&variant=${variant}`);
-  };
-
   const openAuth = (mode: "signup" | "login", cta: string) => {
-    storeAuthIntent({
-      source: "landing",
-      variant,
-      mode,
-      next: "/",
-      action: cta,
-    });
-
-    trackEvent("landing_cta_clicked", {
-      variant,
-      cta,
-      mode,
-    });
-
-    navigate(
-      buildAuthPath(mode, {
-        next: "/",
-        source: "landing",
-        variant,
-        action: cta,
-      }),
-    );
+    storeAuthIntent({ source: "landing", variant, mode, next: "/", action: cta });
+    trackEvent("landing_cta_clicked", { variant, cta, mode });
+    navigate(buildAuthPath(mode, { next: "/", source: "landing", variant, action: cta }));
   };
-
-  const primaryAction =
-    variant === "guest_first"
-      ? () => startTrial()
-      : () => openAuth("signup", "hero_join");
-
-  const secondaryAction =
-    variant === "guest_first"
-      ? () => openAuth("signup", "hero_join_secondary")
-      : () => startTrial();
 
   return (
     <div dir={dir} className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur-md">
+      {/* ── NAV ─────────────────────────────────────────────────────────────── */}
+      <header
+        className="sticky top-0 z-50 backdrop-blur-md border-b"
+        style={{
+          background: "hsl(44 27% 84% / 0.96)",
+          borderColor: "hsl(44 12% 74%)",
+        }}
+      >
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-5">
-          <div className="flex items-center gap-2.5">
-            <span className="block h-6 w-[3px] flex-shrink-0 rounded-full bg-primary" />
-            <span className="font-display text-xl tracking-[0.18em] text-primary">AMUD</span>
-          </div>
           <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => openAuth("login", "header_login")}
-              className="touch-manipulation font-semibold"
+            <span
+              className="block h-5 w-[3px] rounded-full"
+              style={{ background: "hsl(126 15% 28%)" }}
+            />
+            <span
+              className="font-display text-xl tracking-[0.18em]"
+              style={{ color: "hsl(126 15% 28%)" }}
             >
-              {copy.login}
-            </Button>
+              AMUD
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <LanguageToggle />
+            <button
+              onClick={() => openAuth("login", "header_login")}
+              className="text-sm font-semibold transition-colors hover:opacity-70"
+              style={{ color: "hsl(126 15% 28%)" }}
+            >
+              {copy.loginLink}
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 pb-24 pt-8">
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-          <motion.section
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-            className="space-y-5"
-          >
-            <div className="space-y-4">
-              <Badge
-                variant="outline"
-                className="border-primary/30 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary"
-              >
-                {copy.eyebrow}
-              </Badge>
-
-              <div className="space-y-3">
-                <h1 className="font-display text-[clamp(2.2rem,6vw,4.5rem)] leading-[1.05] tracking-[0.02em] text-foreground">
-                  {copy.headline}
-                </h1>
-                <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-                  {copy.subheadline}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  className="gap-2 text-base font-bold shadow-md shadow-primary/20"
-                  onClick={primaryAction}
-                >
-                  {copy.primaryCta}
-                  <ArrowIcon size={16} />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-base font-semibold"
-                  onClick={secondaryAction}
-                >
-                  {copy.secondaryCta}
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Check className="h-4 w-4 text-primary" />
-                <span>{copy.tryNote}</span>
-              </div>
-            </div>
-
-            <Card className="border-border/60 bg-card/70 shadow-sm">
-              <CardHeader className="space-y-2 pb-3">
-                <CardTitle className="text-lg">{copy.proofTitle}</CardTitle>
-                <p className="text-sm leading-6 text-muted-foreground">{copy.proofBody}</p>
-              </CardHeader>
-              <CardContent className="grid gap-3 md:grid-cols-3">
-                {copy.stepCards.map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="rounded-xl border border-border/60 bg-background p-4">
-                    <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <p className="text-sm font-semibold">{title}</p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{desc}</p>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </motion.section>
-
-          <motion.section
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={1}
-            className="space-y-4"
-          >
-            <Card className="overflow-hidden border-border/60 shadow-lg">
-              <div className="border-b bg-primary px-5 py-4 text-primary-foreground">
-                <p className="text-sm font-bold">{copy.leaderboardTitle}</p>
-                <p className="text-xs text-primary-foreground/75">{copy.leaderboardNote}</p>
-              </div>
-
-              <CardContent className="space-y-3 p-5">
-                {copy.sampleReaders.map((reader, index) => (
-                  <div key={reader.name}>
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        {reader.rank}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold">{reader.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {reader.minutes} {copy.weeklyMinutesLabel}
-                        </p>
-                      </div>
-                      <Medal className="h-4 w-4 text-[hsl(28_71%_57%)]" />
-                    </div>
-                    {index < copy.sampleReaders.length - 1 && <Separator className="mt-3" />}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/60">
-              <CardContent className="space-y-4 p-5">
-                <div className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <p className="text-sm font-semibold">{copy.sampleStreakTitle}</p>
-                </div>
-                <div className="space-y-3">
-                  {copy.sampleStreakItems.map((item) => (
-                    <div key={item} className="flex items-center gap-3 rounded-lg bg-muted/40 px-3 py-2">
-                      <Check className="h-4 w-4 text-primary" />
-                      <span className="text-sm">{item}</span>
-                    </div>
-                  ))}
-                </div>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between"
-                  onClick={() => {
-                    trackEvent("landing_cta_clicked", {
-                      variant,
-                      cta: "preview_feed",
-                    });
-                    navigate("/feed");
-                  }}
-                >
-                  {copy.previewFeed}
-                  <ArrowIcon className="h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          </motion.section>
-        </div>
-
+      <main className="mx-auto max-w-5xl px-4 pb-24">
+        {/* ── HERO ──────────────────────────────────────────────────────────── */}
         <motion.section
-          variants={fadeUp}
+          className="grid gap-10 pt-12 pb-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16"
           initial="hidden"
           animate="visible"
-          custom={2}
-          className="mt-8"
         >
-          <Card className="overflow-hidden border-0 shadow-xl">
-            <div className="space-y-4 bg-primary px-6 py-10 text-center text-primary-foreground">
-              <div className="flex items-center justify-center gap-2 text-xs text-primary-foreground/70">
-                <BookOpen className="h-4 w-4" />
-                <span>{copy.finalTitle}</span>
-              </div>
-              <p className="mx-auto max-w-2xl text-sm leading-7 text-primary-foreground/80">
-                {copy.finalBody}
-              </p>
-              <div className="flex flex-col justify-center gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  className="bg-[hsl(28_71%_57%)] font-bold text-white hover:bg-[hsl(28_71%_50%)]"
-                  onClick={startTrial}
-                >
-                  {copy.finalPrimaryCta}
-                </Button>
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  className="font-semibold"
-                  onClick={() => openAuth("signup", "final_join")}
-                >
-                  {copy.finalSecondaryCta}
-                </Button>
+          {/* Left: copy */}
+          <motion.div variants={fadeUp} custom={0} className="space-y-6">
+            {/* Eyebrow */}
+            <span
+              className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full"
+              style={{
+                background: "hsl(126 15% 28% / 0.10)",
+                color: "hsl(126 15% 28%)",
+              }}
+            >
+              {copy.eyebrow}
+            </span>
+
+            {/* Headline */}
+            <h1
+              className="font-display leading-[1.08] tracking-[0.02em]"
+              style={{ fontSize: "clamp(2.6rem, 6.5vw, 4.8rem)" }}
+            >
+              {copy.headline}
+            </h1>
+
+            {/* Subheadline */}
+            <p
+              className="max-w-lg text-[1.05rem] leading-7"
+              style={{ color: "hsl(210 8% 40%)" }}
+            >
+              {copy.subheadline}
+            </p>
+
+            {/* Primary CTA */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  trackEvent("landing_cta_clicked", { variant, cta: "hero_primary", mode: "signup" });
+                  openAuth("signup", "hero_primary");
+                }}
+                className="inline-flex items-center gap-2.5 rounded-xl px-7 py-4 text-base font-bold shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
+                style={{
+                  background: "hsl(28 71% 57%)",
+                  color: "#fff",
+                  boxShadow: "0 4px 20px hsl(28 71% 57% / 0.40)",
+                }}
+              >
+                {copy.primaryCta}
+                <ArrowIcon size={17} strokeWidth={2.5} />
+              </button>
+
+              {/* Trust signals */}
+              <div className="flex flex-wrap gap-x-4 gap-y-1">
+                {copy.trust.map((t) => (
+                  <span
+                    key={t}
+                    className="flex items-center gap-1.5 text-xs"
+                    style={{ color: "hsl(210 8% 45%)" }}
+                  >
+                    <Check
+                      size={12}
+                      strokeWidth={2.5}
+                      style={{ color: "hsl(126 15% 35%)" }}
+                    />
+                    {t}
+                  </span>
+                ))}
               </div>
             </div>
-          </Card>
+
+            {/* Secondary: already have account */}
+            <p className="text-sm" style={{ color: "hsl(210 8% 50%)" }}>
+              {isHe ? "כבר קורא ב-AMUD? " : "Already on AMUD? "}
+              <button
+                onClick={() => openAuth("login", "hero_login")}
+                className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+                style={{ color: "hsl(126 15% 28%)" }}
+              >
+                {isHe ? "להתחבר" : "Sign in"}
+              </button>
+            </p>
+          </motion.div>
+
+          {/* Right: app mockup */}
+          <motion.div
+            variants={fadeUp}
+            custom={1}
+            className="flex justify-center lg:justify-end"
+          >
+            <AppMockup lang={lang} />
+          </motion.div>
+        </motion.section>
+
+        {/* ── PROOF PILLS ───────────────────────────────────────────────────── */}
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          custom={0}
+          className="flex flex-wrap justify-center gap-3 py-6 border-y"
+          style={{ borderColor: "hsl(44 12% 74%)" }}
+        >
+          {copy.proofItems.map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium"
+              style={{
+                background: "hsl(44 22% 90%)",
+                border: "1px solid hsl(44 12% 74%)",
+                color: "hsl(210 8% 35%)",
+              }}
+            >
+              <Icon size={14} style={{ color: "hsl(126 15% 28%)" }} />
+              {label}
+            </div>
+          ))}
+        </motion.div>
+
+        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+        <motion.section
+          className="py-16 space-y-10"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.h2
+            variants={fadeUp}
+            custom={0}
+            className="font-display text-center text-2xl sm:text-3xl tracking-wide"
+          >
+            {copy.stepsTitle}
+          </motion.h2>
+
+          <div className="grid gap-5 sm:grid-cols-3">
+            {copy.steps.map((step, i) => (
+              <motion.div
+                key={step.num}
+                variants={fadeUp}
+                custom={i + 1}
+                className="relative rounded-2xl p-6 space-y-3"
+                style={{
+                  background: "hsl(44 22% 90%)",
+                  border: "1px solid hsl(44 12% 74%)",
+                }}
+              >
+                <span
+                  className="font-display text-4xl font-bold leading-none"
+                  style={{ color: "hsl(126 15% 28% / 0.18)" }}
+                >
+                  {step.num}
+                </span>
+                <p className="font-semibold text-base">{step.title}</p>
+                <p
+                  className="text-sm leading-6"
+                  style={{ color: "hsl(210 8% 44%)" }}
+                >
+                  {step.desc}
+                </p>
+                {i < copy.steps.length - 1 && (
+                  <div
+                    className="hidden sm:block absolute -left-2.5 top-1/2 -translate-y-1/2"
+                    style={{ color: "hsl(44 12% 70%)" }}
+                  >
+                    {dir === "rtl" ? (
+                      <ArrowLeft size={16} strokeWidth={1.5} />
+                    ) : (
+                      <ArrowRight size={16} strokeWidth={1.5} />
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Inline CTA after steps */}
+          <motion.div variants={fadeUp} custom={4} className="flex justify-center">
+            <button
+              onClick={() => openAuth("signup", "steps_cta")}
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-all hover:brightness-105"
+              style={{
+                background: "hsl(126 15% 28%)",
+                color: "hsl(44 30% 93%)",
+              }}
+            >
+              {copy.primaryCta}
+              <ArrowIcon size={14} strokeWidth={2.5} />
+            </button>
+          </motion.div>
+        </motion.section>
+
+        {/* ── BENEFITS ──────────────────────────────────────────────────────── */}
+        <motion.section
+          className="py-4 pb-16 space-y-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.h2
+            variants={fadeUp}
+            custom={0}
+            className="font-display text-center text-2xl sm:text-3xl tracking-wide"
+          >
+            {copy.benefitsTitle}
+          </motion.h2>
+
+          <div className="grid gap-5 sm:grid-cols-3">
+            {copy.benefits.map((b, i) => {
+              const Icon = b.icon;
+              return (
+                <motion.div
+                  key={b.title}
+                  variants={fadeUp}
+                  custom={i + 1}
+                  className="rounded-2xl p-6 space-y-3"
+                  style={{
+                    background: "hsl(44 22% 90%)",
+                    border: "1px solid hsl(44 12% 74%)",
+                  }}
+                >
+                  <div
+                    className="h-11 w-11 rounded-xl flex items-center justify-center"
+                    style={{ background: "hsl(126 15% 28% / 0.10)" }}
+                  >
+                    <Icon
+                      size={20}
+                      style={{ color: "hsl(126 15% 28%)" }}
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <p className="font-semibold text-base leading-snug">{b.title}</p>
+                  <p
+                    className="text-sm leading-6"
+                    style={{ color: "hsl(210 8% 44%)" }}
+                  >
+                    {b.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.section>
+
+        {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-40px" }}
+        >
+          <motion.div
+            variants={fadeUp}
+            custom={0}
+            className="rounded-3xl overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, hsl(126 15% 24%) 0%, hsl(126 22% 32%) 60%, hsl(188 60% 28%) 100%)",
+              boxShadow: "0 20px 60px hsl(126 15% 12% / 0.35)",
+            }}
+          >
+            <div className="px-8 py-14 text-center space-y-6" style={{ color: "hsl(44 30% 93%)" }}>
+              {/* Decoration */}
+              <div className="flex justify-center gap-1 text-2xl">
+                <span style={{ opacity: 0.5 }}>📚</span>
+                <span style={{ opacity: 0.8 }}>📚</span>
+                <span>📚</span>
+                <span style={{ opacity: 0.8 }}>📚</span>
+                <span style={{ opacity: 0.5 }}>📚</span>
+              </div>
+
+              <h2
+                className="font-display text-2xl sm:text-4xl tracking-wide max-w-lg mx-auto"
+                style={{ lineHeight: 1.15 }}
+              >
+                {copy.finalHeadline}
+              </h2>
+
+              <p
+                className="text-sm sm:text-base max-w-md mx-auto"
+                style={{ color: "hsl(44 30% 80%)" }}
+              >
+                {copy.finalSub}
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => openAuth("signup", "final_cta")}
+                  className="inline-flex items-center gap-2.5 rounded-xl px-8 py-4 text-base font-bold shadow-lg transition-all hover:brightness-110 active:scale-[0.98]"
+                  style={{
+                    background: "hsl(28 71% 57%)",
+                    color: "#fff",
+                    boxShadow: "0 4px 24px hsl(28 71% 45% / 0.5)",
+                  }}
+                >
+                  {copy.finalCta}
+                  <ArrowIcon size={17} strokeWidth={2.5} />
+                </button>
+              </div>
+
+              {/* Trust micro-copy */}
+              <p className="text-xs" style={{ color: "hsl(44 30% 65%)" }}>
+                {isHe
+                  ? "חינמי לתמיד · ללא כרטיס אשראי · הרשמה ב-30 שניות"
+                  : "Free forever · No credit card · Sign up in 30 seconds"}
+              </p>
+            </div>
+          </motion.div>
         </motion.section>
       </main>
 
-      <footer className="border-t py-6 text-center">
-        <p className="text-xs text-muted-foreground">{t.landing.footer}</p>
+      {/* ── FOOTER ────────────────────────────────────────────────────────────── */}
+      <footer
+        className="border-t py-8 text-center"
+        style={{ borderColor: "hsl(44 12% 74%)" }}
+      >
+        <p
+          className="text-xs"
+          style={{ color: "hsl(210 8% 55%)" }}
+        >
+          {t.landing.footer}
+        </p>
       </footer>
     </div>
   );
