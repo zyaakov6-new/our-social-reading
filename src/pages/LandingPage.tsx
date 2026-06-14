@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Check,
   Flame,
+  Quote,
   Target,
   Trophy,
   Users,
@@ -12,6 +13,12 @@ import {
 import { motion } from "framer-motion";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { trackEvent } from "@/lib/analytics";
 import { buildAuthPath, storeAuthIntent } from "@/lib/auth-flow";
 import {
@@ -28,7 +35,7 @@ const fadeUp = {
   }),
 };
 
-// ── Inline phone mockup ───────────────────────────────────────────────────────
+// ── Inline phone mockup (illustrative, adapts to language) ────────────────────
 const AppMockup = ({ lang }: { lang: string }) => {
   const isHe = lang === "he";
   const days = isHe
@@ -128,7 +135,7 @@ const AppMockup = ({ lang }: { lang: string }) => {
                   className="text-[10px] font-bold font-serif leading-tight truncate"
                   style={{ color: "hsl(210 11% 14%)" }}
                 >
-                  {isHe ? "הרוקחת מקהיר" : "The Alchemist"}
+                  {isHe ? "אלף שמשות זוהרות" : "The Alchemist"}
                 </p>
                 <div className="flex gap-1 mt-1 flex-wrap">
                   <span
@@ -252,6 +259,29 @@ const AppMockup = ({ lang }: { lang: string }) => {
   );
 };
 
+// ── Real app screenshot in a phone frame ──────────────────────────────────────
+const ScreenshotFrame = ({ src, alt }: { src: string; alt: string }) => (
+  <div className="relative mx-auto w-[200px] sm:w-[230px] select-none">
+    <div
+      className="rounded-[2.2rem] p-[5px]"
+      style={{
+        background: "hsl(210 11% 18%)",
+        boxShadow: "0 24px 60px hsl(126 15% 10% / 0.32), 0 0 0 1px hsl(0 0% 100% / 0.06)",
+      }}
+    >
+      <img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        className="rounded-[1.9rem] w-full block"
+        onError={(e) => {
+          (e.currentTarget as HTMLImageElement).style.display = "none";
+        }}
+      />
+    </div>
+  </div>
+);
+
 // ── Main landing page ─────────────────────────────────────────────────────────
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -266,11 +296,12 @@ export default function LandingPage() {
   const copy = useMemo(() => {
     if (isHe) {
       return {
-        eyebrow: "אפליקציית קריאה חברתית · freemium",
-        headline: "תתחיל. תתמיד. תגמור.",
+        eyebrow: "מעקב קריאה חברתי · בעברית",
+        headline: "סוף סוף תסיים את הספרים שהתחלת.",
         subheadline:
-          "AMUD עוזר לך לבנות הרגל קריאה אמיתי — עם מעקב יומי קל, חברים שמניעים אותך, ורצף שאתה לא רוצה לשבור.",
-        primaryCta: "להצטרף בחינם",
+          "AMUD הופך קריאה להרגל יומי שנשאר — תיעוד קל של 20 שניות, רצף שלא בא לך לשבור, וחברים שקוראים לצידך.",
+        primaryCta: "להתחיל בחינם",
+        secondaryCta: "להציץ בלי הרשמה",
         loginLink: "יש לי כבר חשבון",
         trust: ["התחלה חינמית", "הרשמה ב-30 שניות", "ללא כרטיס אשראי"],
         proofItems: [
@@ -278,12 +309,27 @@ export default function LandingPage() {
           { icon: Users, label: "חברים שמניעים" },
           { icon: Trophy, label: "אתגרים ודירוג" },
         ],
+        showcaseTitle: "ככה זה נראה",
+        showcaseSub:
+          "אפליקציה אחת לכל מה שאתה קורא — פשוטה, יפה, ובעברית.",
+        shots: [
+          {
+            src: "/screenshot-mobile-1.png",
+            alt: "מסך הבית של AMUD",
+            caption: "הבית שלך: ספרים, רצף ויעדים במקום אחד",
+          },
+          {
+            src: "/screenshot-mobile-2.png",
+            alt: "מסך האתגרים של AMUD",
+            caption: "אתגרים: תתחרה, תוביל, תקרא יותר",
+          },
+        ],
         stepsTitle: "שלושה צעדים ואתה בפנים",
         steps: [
           {
             num: "01",
             title: "מחפשים ספר",
-            desc: "מקלידים שם ורואים תוצאות מיידיות מ-Google Books",
+            desc: "מקלידים שם ורואים תוצאות מיידיות ממיליוני ספרים",
           },
           {
             num: "02",
@@ -314,17 +360,45 @@ export default function LandingPage() {
             desc: "הרגל קריאה נבנה על עקביות, לא על מרתון. כל יום — דקה אחת מספיקה.",
           },
         ],
+        founderTitle: "למה בנינו את AMUD",
+        founderBody:
+          "התחלתי עשרות ספרים ונטשתי אותם בעמוד 40 — לא כי הם היו רעים, פשוט לא היה לי הרגל. בניתי את AMUD כדי לפתור בדיוק את זה: תיעוד קטן כל יום, רצף שמושך אותך קדימה, וחברים שהופכים את זה לכיף. אם גם אתה אוהב את הרעיון של קריאה אבל מתקשה להתמיד — AMUD נבנה בשבילך.",
+        founderSign: "— מייסד AMUD",
+        faqTitle: "שאלות נפוצות",
+        faqs: [
+          {
+            q: "כמה זה עולה?",
+            a: "ההתחלה חינמית לחלוטין — מעקב ספרים, רצף יומי, יעדים וחברים. יש גם תוכנית PRO עם תכונות מתקדמות, אבל כל מה שצריך כדי לבנות הרגל קריאה זמין בחינם, בלי כרטיס אשראי.",
+          },
+          {
+            q: "החברים שלי חייבים להצטרף?",
+            a: "ממש לא. AMUD עובד מצוין גם לבד — הרצף, היעדים והסטטיסטיקות הם שלך. אבל כשחברים מצטרפים, האתגרים והדירוג הופכים את הקריאה להרבה יותר כיף.",
+          },
+          {
+            q: "מה עם הפרטיות שלי?",
+            a: "אתה שולט במה שגלוי. אפשר להפוך את הפרופיל לפרטי בכל רגע מההגדרות. האימייל, הסיסמה וההתחברות תמיד נשארים פרטיים.",
+          },
+          {
+            q: "אילו ספרים יש? גם בעברית?",
+            a: "מיליוני ספרים דרך Google Books — עברית, אנגלית וכל שפה. לא מצאת ספר? אפשר להוסיף אותו ידנית בכמה שניות.",
+          },
+          {
+            q: "צריך להתקין משהו?",
+            a: "לא. AMUD עובד ישר בדפדפן. אפשר גם להוסיף אותו למסך הבית כאפליקציה, או להוריד מ-Google Play.",
+          },
+        ],
         finalHeadline: "ספר אחד. יום אחד. הרגל שנשאר.",
-        finalSub: "הצטרפו לקוראים שהחליטו לסיים יותר ספרים השנה.",
-        finalCta: "להצטרף עכשיו — ללא עלות",
+        finalSub: "כל מסע קריאה מתחיל בעמוד אחד. תתחיל את שלך היום.",
+        finalCta: "להתחיל עכשיו — בחינם",
       };
     }
     return {
-      eyebrow: "Social reading app · Freemium",
-      headline: "Start. Stay. Finish.",
+      eyebrow: "Social reading tracker",
+      headline: "Finally finish the books you start.",
       subheadline:
-        "AMUD helps you build a real reading habit — with easy daily tracking, friends who keep you going, and a streak you don't want to break.",
-      primaryCta: "Join free",
+        "AMUD turns reading into a daily habit that sticks — 20-second tracking, a streak you won't want to break, and friends reading right beside you.",
+      primaryCta: "Start free",
+      secondaryCta: "Look around first",
       loginLink: "I already have an account",
       trust: ["Free to start", "Sign up in 30 seconds", "No credit card"],
       proofItems: [
@@ -332,12 +406,26 @@ export default function LandingPage() {
         { icon: Users, label: "Friends who motivate" },
         { icon: Trophy, label: "Challenges & rankings" },
       ],
+      showcaseTitle: "Here's what it looks like",
+      showcaseSub: "One app for everything you read — simple and beautiful.",
+      shots: [
+        {
+          src: "/screenshot-mobile-1.png",
+          alt: "AMUD home screen",
+          caption: "Your home: books, streak, and goals in one place",
+        },
+        {
+          src: "/screenshot-mobile-2.png",
+          alt: "AMUD challenges screen",
+          caption: "Challenges: compete, lead, read more",
+        },
+      ],
       stepsTitle: "Three steps and you're in",
       steps: [
         {
           num: "01",
           title: "Search a book",
-          desc: "Type a title and see results instantly from Google Books",
+          desc: "Type a title and see instant results from millions of books",
         },
         {
           num: "02",
@@ -368,9 +456,36 @@ export default function LandingPage() {
           desc: "Reading habits are built on consistency, not marathons. One minute a day counts.",
         },
       ],
+      founderTitle: "Why we built AMUD",
+      founderBody:
+        "I started dozens of books and abandoned them at page 40 — not because they were bad, I just didn't have the habit. I built AMUD to fix exactly that: a tiny log every day, a streak that pulls you forward, and friends who make it fun. If you love the idea of reading but struggle to keep at it — AMUD was built for you.",
+      founderSign: "— The founder, AMUD",
+      faqTitle: "Frequently asked",
+      faqs: [
+        {
+          q: "How much does it cost?",
+          a: "Getting started is completely free — book tracking, daily streaks, goals, and friends. There's a PRO plan with advanced features, but everything you need to build a reading habit is free, no credit card required.",
+        },
+        {
+          q: "Do my friends have to join?",
+          a: "Not at all. AMUD works great solo — your streak, goals, and stats are yours. But when friends join, challenges and rankings make reading a lot more fun.",
+        },
+        {
+          q: "Is my data private?",
+          a: "You control what's visible. You can make your profile private anytime from settings. Your email, password, and login always stay private.",
+        },
+        {
+          q: "Which books are available?",
+          a: "Millions of books via Google Books — in any language. Can't find one? Add it manually in seconds.",
+        },
+        {
+          q: "Do I need to install anything?",
+          a: "No. AMUD runs right in your browser. You can also add it to your home screen as an app, or download it from Google Play.",
+        },
+      ],
       finalHeadline: "One book. One day. A habit that sticks.",
-      finalSub: "Join readers who decided to finish more books this year.",
-      finalCta: "Join now — no cost to start",
+      finalSub: "Every reading journey starts with one page. Start yours today.",
+      finalCta: "Start now — it's free",
     };
   }, [isHe]);
 
@@ -382,6 +497,11 @@ export default function LandingPage() {
     storeAuthIntent({ source: "landing", variant, mode, next: "/", action: cta });
     trackEvent("landing_cta_clicked", { variant, cta, mode });
     navigate(buildAuthPath(mode, { next: "/", source: "landing", variant, action: cta }));
+  };
+
+  const openGuest = (cta: string) => {
+    trackEvent("landing_cta_clicked", { variant, cta, mode: "guest" });
+    navigate("/feed");
   };
 
   return (
@@ -416,6 +536,13 @@ export default function LandingPage() {
             >
               {copy.loginLink}
             </button>
+            <button
+              onClick={() => openAuth("signup", "header_signup")}
+              className="hidden sm:inline-flex items-center rounded-lg px-4 py-1.5 text-sm font-bold transition-all hover:brightness-105"
+              style={{ background: "hsl(28 71% 57%)", color: "#fff" }}
+            >
+              {copy.primaryCta}
+            </button>
           </div>
         </div>
       </header>
@@ -423,12 +550,12 @@ export default function LandingPage() {
       <main className="mx-auto max-w-5xl px-4 pb-24">
         {/* ── HERO ──────────────────────────────────────────────────────────── */}
         <motion.section
-          className="grid gap-10 pt-12 pb-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16"
+          className="grid gap-8 pt-10 pb-14 sm:pt-12 sm:pb-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16"
           initial="hidden"
           animate="visible"
         >
           {/* Left: copy */}
-          <motion.div variants={fadeUp} custom={0} className="space-y-6">
+          <motion.div variants={fadeUp} custom={0} className="space-y-5 sm:space-y-6">
             {/* Eyebrow */}
             <span
               className="inline-block text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1 rounded-full"
@@ -442,8 +569,8 @@ export default function LandingPage() {
 
             {/* Headline */}
             <h1
-              className="font-display leading-[1.08] tracking-[0.02em]"
-              style={{ fontSize: "clamp(2.6rem, 6.5vw, 4.8rem)" }}
+              className="font-display leading-[1.1] tracking-[0.01em]"
+              style={{ fontSize: "clamp(2.2rem, 6vw, 4rem)" }}
             >
               {copy.headline}
             </h1>
@@ -456,29 +583,39 @@ export default function LandingPage() {
               {copy.subheadline}
             </p>
 
-            {/* Primary CTA */}
+            {/* CTAs */}
             <div className="space-y-3">
-              <button
-                onClick={() => {
-                  trackEvent("landing_cta_clicked", { variant, cta: "hero_primary", mode: "signup" });
-                  openAuth("signup", "hero_primary");
-                }}
-                className="inline-flex items-center gap-2.5 rounded-xl px-7 py-4 text-base font-bold shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
-                style={{
-                  background: "hsl(28 71% 57%)",
-                  color: "#fff",
-                  boxShadow: "0 4px 20px hsl(28 71% 57% / 0.40)",
-                }}
-              >
-                {copy.primaryCta}
-                <ArrowIcon size={17} strokeWidth={2.5} />
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => openAuth("signup", "hero_primary")}
+                  className="inline-flex items-center justify-center gap-2.5 rounded-xl px-7 py-4 text-base font-bold shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
+                  style={{
+                    background: "hsl(28 71% 57%)",
+                    color: "#fff",
+                    boxShadow: "0 4px 20px hsl(28 71% 57% / 0.40)",
+                  }}
+                >
+                  {copy.primaryCta}
+                  <ArrowIcon size={17} strokeWidth={2.5} />
+                </button>
+
+                <button
+                  onClick={() => openGuest("hero_guest")}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-4 text-base font-semibold transition-all hover:bg-black/[0.03]"
+                  style={{
+                    border: "1.5px solid hsl(126 15% 28% / 0.30)",
+                    color: "hsl(126 15% 28%)",
+                  }}
+                >
+                  {copy.secondaryCta}
+                </button>
+              </div>
 
               {/* Trust signals */}
               <div className="flex flex-wrap gap-x-4 gap-y-1">
-                {copy.trust.map((t) => (
+                {copy.trust.map((item) => (
                   <span
-                    key={t}
+                    key={item}
                     className="flex items-center gap-1.5 text-xs"
                     style={{ color: "hsl(210 8% 45%)" }}
                   >
@@ -487,23 +624,11 @@ export default function LandingPage() {
                       strokeWidth={2.5}
                       style={{ color: "hsl(126 15% 35%)" }}
                     />
-                    {t}
+                    {item}
                   </span>
                 ))}
               </div>
             </div>
-
-            {/* Secondary: already have account */}
-            <p className="text-sm" style={{ color: "hsl(210 8% 50%)" }}>
-              {isHe ? "כבר קורא ב-AMUD? " : "Already on AMUD? "}
-              <button
-                onClick={() => openAuth("login", "hero_login")}
-                className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
-                style={{ color: "hsl(126 15% 28%)" }}
-              >
-                {isHe ? "להתחבר" : "Sign in"}
-              </button>
-            </p>
           </motion.div>
 
           {/* Right: app mockup */}
@@ -542,9 +667,45 @@ export default function LandingPage() {
           ))}
         </motion.div>
 
-        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+        {/* ── SCREENSHOT SHOWCASE (real product) ────────────────────────────── */}
         <motion.section
           className="py-16 space-y-10"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.div variants={fadeUp} custom={0} className="text-center space-y-2">
+            <h2 className="font-display text-2xl sm:text-3xl tracking-wide">
+              {copy.showcaseTitle}
+            </h2>
+            <p className="text-sm max-w-md mx-auto" style={{ color: "hsl(210 8% 44%)" }}>
+              {copy.showcaseSub}
+            </p>
+          </motion.div>
+
+          <div className="grid gap-10 sm:gap-6 sm:grid-cols-2 max-w-2xl mx-auto">
+            {copy.shots.map((shot, i) => (
+              <motion.div
+                key={shot.src}
+                variants={fadeUp}
+                custom={i + 1}
+                className="flex flex-col items-center gap-4"
+              >
+                <ScreenshotFrame src={shot.src} alt={shot.alt} />
+                <p
+                  className="text-sm text-center max-w-[230px]"
+                  style={{ color: "hsl(210 8% 40%)" }}
+                >
+                  {shot.caption}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+        <motion.section
+          className="py-12 space-y-10"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
@@ -616,7 +777,7 @@ export default function LandingPage() {
 
         {/* ── BENEFITS ──────────────────────────────────────────────────────── */}
         <motion.section
-          className="py-4 pb-16 space-y-8"
+          className="py-4 pb-14 space-y-8"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
@@ -664,6 +825,83 @@ export default function LandingPage() {
               );
             })}
           </div>
+        </motion.section>
+
+        {/* ── FOUNDER NOTE ──────────────────────────────────────────────────── */}
+        <motion.section
+          className="py-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.div
+            variants={fadeUp}
+            custom={0}
+            className="relative mx-auto max-w-2xl rounded-3xl p-8 sm:p-10"
+            style={{
+              background: "hsl(44 22% 90%)",
+              border: "1px solid hsl(44 12% 74%)",
+            }}
+          >
+            <Quote
+              size={32}
+              className="mb-3"
+              style={{ color: "hsl(126 15% 28% / 0.30)" }}
+            />
+            <h2 className="font-display text-xl sm:text-2xl tracking-wide mb-3">
+              {copy.founderTitle}
+            </h2>
+            <p
+              className="text-base leading-7"
+              style={{ color: "hsl(210 8% 35%)" }}
+            >
+              {copy.founderBody}
+            </p>
+            <p
+              className="mt-4 text-sm font-semibold"
+              style={{ color: "hsl(126 15% 28%)" }}
+            >
+              {copy.founderSign}
+            </p>
+          </motion.div>
+        </motion.section>
+
+        {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+        <motion.section
+          className="py-12 space-y-8"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+        >
+          <motion.h2
+            variants={fadeUp}
+            custom={0}
+            className="font-display text-center text-2xl sm:text-3xl tracking-wide"
+          >
+            {copy.faqTitle}
+          </motion.h2>
+
+          <motion.div variants={fadeUp} custom={1} className="max-w-2xl mx-auto">
+            <Accordion type="single" collapsible className="w-full">
+              {copy.faqs.map((faq, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`faq-${i}`}
+                  style={{ borderColor: "hsl(44 12% 74%)" }}
+                >
+                  <AccordionTrigger className="text-start text-base font-semibold hover:no-underline">
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className="text-sm leading-6"
+                    style={{ color: "hsl(210 8% 42%)" }}
+                  >
+                    {faq.a}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
         </motion.section>
 
         {/* ── FINAL CTA ─────────────────────────────────────────────────────── */}
@@ -717,6 +955,17 @@ export default function LandingPage() {
                 >
                   {copy.finalCta}
                   <ArrowIcon size={17} strokeWidth={2.5} />
+                </button>
+
+                <button
+                  onClick={() => openGuest("final_guest")}
+                  className="inline-flex items-center gap-2 rounded-xl px-6 py-4 text-base font-semibold transition-all hover:bg-white/10"
+                  style={{
+                    border: "1.5px solid hsl(44 30% 93% / 0.35)",
+                    color: "hsl(44 30% 93%)",
+                  }}
+                >
+                  {copy.secondaryCta}
                 </button>
               </div>
 
