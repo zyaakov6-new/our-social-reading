@@ -23,7 +23,7 @@ const Onboarding = () => {
   const ArrowIcon = dir === "rtl" ? ArrowLeft : ArrowRight;
   const [step, setStep] = useState(0);
 
-  // Step 0 — book
+  // Step 0: book
   const [bookQuery, setBookQuery] = useState('');
   const [bookResults, setBookResults] = useState<BookSearchResult[]>([]);
   const [searchingBooks, setSearchingBooks] = useState(false);
@@ -31,16 +31,16 @@ const Onboarding = () => {
   const [addedBookId, setAddedBookId] = useState<string | null>(null);
   const bookDebounce = useRef<ReturnType<typeof setTimeout>>();
 
-  // Step 1 — name
+  // Step 1: name
   const [name, setName] = useState('');
 
-  // Step 2 — first session
+  // Step 2: first session
   const [minutes, setMinutes] = useState<number | null>(null);
   const [customMinutes, setCustomMinutes] = useState('');
   const [savingSession, setSavingSession] = useState(false);
   const [sessionSaved, setSessionSaved] = useState(false);
 
-  // Step 3 — push notifications
+  // Step 3: push notifications
   const [pushStep, setPushStep] = useState(false);
   const [pushLoading, setPushLoading] = useState(false);
 
@@ -326,7 +326,7 @@ const Onboarding = () => {
                       {r.name}{r.isYou && ` ${t.leaderboard.you}`}
                     </span>
                     <span className="text-xs font-bold" style={{ color: r.mins > 0 ? C.teal : C.muted }}>
-                      {r.mins > 0 ? `${r.mins} דק׳` : '—'}
+                      {r.mins > 0 ? `${r.mins} דק׳` : '·'}
                     </span>
                   </div>
                 ))}
@@ -385,7 +385,7 @@ const Onboarding = () => {
                   </div>
                 </>
               ) : (
-                /* Session saved — streak + leaderboard celebration */
+                /* Session saved: streak + leaderboard celebration */
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                   className="text-center space-y-4">
                   <motion.div
@@ -429,8 +429,8 @@ const Onboarding = () => {
                     ))}
                     <div className="px-3 py-2 text-center text-[11px] font-semibold" style={{ color: C.orange }}>
                       {lang === 'he'
-                        ? `קרא עוד ${147 - (selectedMinutes ?? 0)} דקות השבוע - תנצח את יעל! 🏆`
-                        : `Read ${147 - (selectedMinutes ?? 0)} more min this week — beat Sarah! 🏆`
+                        ? `קרא עוד ${147 - (selectedMinutes ?? 0)} דקות השבוע כדי לעלות לראש! 🏆`
+                        : `Read ${147 - (selectedMinutes ?? 0)} more min this week to reach #1! 🏆`
                       }
                     </div>
                   </motion.div>

@@ -407,7 +407,7 @@ const Profile = () => {
             </div>
           </>
         ) : !subLoading ? (
-          // Slim teaser for free users — unobtrusive, at the bottom
+          // Slim teaser for free users, unobtrusive, at the bottom
           <button
             onClick={() => setUpgradeOpen(true)}
             className="w-full flex items-center gap-2.5 rounded-xl px-4 py-3 text-right transition-colors hover:bg-muted/60"

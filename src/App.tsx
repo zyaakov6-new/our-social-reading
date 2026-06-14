@@ -1,5 +1,5 @@
 import { Analytics } from "@vercel/analytics/react";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,21 +8,23 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
-import Home from "./pages/Home";
-import Profile from "./pages/Profile";
-import UserProfilePage from "./pages/UserProfilePage";
-import PostsFeed from "./pages/PostsFeed";
-import PostThread from "./pages/PostThread";
-import ChallengeDetail from "./pages/ChallengeDetail";
-import NotFound from "./pages/NotFound";
+// Guest-facing entry points stay eager for instant first paint
 import Auth from "./pages/Auth";
 import LandingPage from "./pages/LandingPage";
-import Onboarding from "./pages/Onboarding";
-import Friends from "./pages/Friends";
-import BookDetailPage from "./pages/BookDetailPage";
-import BookSearchPage from "./pages/BookSearchPage";
-import NotificationsPage from "./pages/NotificationsPage";
-import LeaderboardShare from "./pages/LeaderboardShare";
+// Everything else is code-split into its own chunk (loaded on demand)
+const Home = lazy(() => import("./pages/Home"));
+const Profile = lazy(() => import("./pages/Profile"));
+const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
+const PostsFeed = lazy(() => import("./pages/PostsFeed"));
+const PostThread = lazy(() => import("./pages/PostThread"));
+const ChallengeDetail = lazy(() => import("./pages/ChallengeDetail"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
+const Friends = lazy(() => import("./pages/Friends"));
+const BookDetailPage = lazy(() => import("./pages/BookDetailPage"));
+const BookSearchPage = lazy(() => import("./pages/BookSearchPage"));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const LeaderboardShare = lazy(() => import("./pages/LeaderboardShare"));
 import BottomNav from "./components/BottomNav";
 import ReadingFAB from "./components/ReadingFAB";
 import HamburgerMenu from "./components/HamburgerMenu";
@@ -113,15 +115,18 @@ const AuthRoute = () => {
   return <Navigate to={nextPath} replace />;
 };
 
+// Lightweight fallback while a lazy route chunk loads
+const RouteFallback = () => (
+  <div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="w-10 h-10 rounded-full reading-gradient animate-pulse" />
+  </div>
+);
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full reading-gradient animate-pulse" />
-      </div>
-    );
+    return <RouteFallback />;
   }
 
   // Google OAuth populates user_metadata.full_name from Google, so we can't rely on it
@@ -133,31 +138,33 @@ const AppRoutes = () => {
     !user.user_metadata?.onboarding_complete;
 
   return (
-    <Routes>
-      {/* Public share page - no auth required */}
-      <Route path="/share/leaderboard/:userId" element={<LeaderboardShare />} />
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        {/* Public share page - no auth required */}
+        <Route path="/share/leaderboard/:userId" element={<LeaderboardShare />} />
 
-      <Route
-        path="/auth"
-        element={<AuthRoute />}
-      />
-      <Route
-        path="/onboarding"
-        element={user ? <Onboarding /> : <Navigate to="/auth" replace />}
-      />
-      <Route
-        path="/*"
-        element={
-          !user ? (
-            <GuestRoutes />
-          ) : needsOnboarding ? (
-            <Navigate to="/onboarding" replace />
-          ) : (
-            <AppLayout />
-          )
-        }
-      />
-    </Routes>
+        <Route
+          path="/auth"
+          element={<AuthRoute />}
+        />
+        <Route
+          path="/onboarding"
+          element={user ? <Onboarding /> : <Navigate to="/auth" replace />}
+        />
+        <Route
+          path="/*"
+          element={
+            !user ? (
+              <GuestRoutes />
+            ) : needsOnboarding ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <AppLayout />
+            )
+          }
+        />
+      </Routes>
+    </Suspense>
   );
 };
 

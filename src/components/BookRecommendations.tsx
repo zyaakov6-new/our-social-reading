@@ -209,7 +209,7 @@ const BookRecommendations = ({ books }: BookRecommendationsProps) => {
 
   if (books.length < 1) return null;
 
-  // Non-Pro: show a subtle single-row teaser — not a blurred overlay
+  // Non-Pro: show a subtle single-row teaser, not a blurred overlay
   if (!isPro) {
     return (
       <>

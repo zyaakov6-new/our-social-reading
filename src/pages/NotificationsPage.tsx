@@ -86,7 +86,7 @@ const NotificationsPage = () => {
   };
 
   const fetchCommentNotifs = async (userId: string): Promise<Notification[]> => {
-    // Get comments on MY posts, by other users — filter at DB level via inner join
+    // Get comments on MY posts, by other users, filtered at DB level via inner join
     const { data, error } = await supabase
       .from("post_comments")
       .select("id, display_name, content, created_at, post_id, user_id, posts!inner(id, title, user_id)")

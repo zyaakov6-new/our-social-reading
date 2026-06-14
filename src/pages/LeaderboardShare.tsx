@@ -40,7 +40,7 @@ const LeaderboardShare = () => {
           displayName: profileRes.data?.display_name || "קורא",
           weekMinutes,
           books: (booksRes.data || []).map((b: any) => b.title),
-          rank: null, // Rank calculated server-side only — not exposed via client query
+          rank: null, // Rank calculated server-side only, not exposed via client query
         });
       } catch (e) {
         console.error("LeaderboardShare error:", e);

@@ -118,7 +118,7 @@ const BookDetailPage = () => {
         });
         setIsOwner(b.user_id === user.id);
 
-        // Fetch other readers — case-insensitive title match
+        // Fetch other readers: case-insensitive title match
         const { data: otherBooks } = await supabase
           .from("books")
           .select("user_id")

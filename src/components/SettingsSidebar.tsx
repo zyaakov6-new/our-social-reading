@@ -309,7 +309,7 @@ const AboutPage = ({ onBack, onClose }: { onBack: () => void; onClose: () => voi
 };
 
 // ── Shared subpage header ─────────────────────────────────────────────────────
-// Back button on the right (RTL start), X close on the left (RTL end) — never stacked
+// Back button on the right (RTL start), X close on the left (RTL end), never stacked
 const SubpageHeader = ({ title, onBack, onClose }: { title: string; onBack: () => void; onClose: () => void }) => (
   <div className="flex items-center justify-between pb-2">
     <button

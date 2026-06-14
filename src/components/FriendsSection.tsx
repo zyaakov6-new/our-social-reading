@@ -18,7 +18,7 @@ const FriendsSection = () => {
   const [loadingAll, setLoadingAll] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Load all users when panel opens — only for authenticated users
+  // Load all users when panel opens, only for authenticated users
   useEffect(() => {
     if (!showSearch || allUsers.length > 0 || !user) return;
     setLoadingAll(true);

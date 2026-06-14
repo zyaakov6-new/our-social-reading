@@ -112,7 +112,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             )}
           </div>
 
-          {/* Log reading button — only for active books */}
+          {/* Log reading button: only for active books */}
           {(book.status === 'reading' || book.status === 'want') && (
             <button
               onClick={() => setLogOpen(true)}
@@ -209,7 +209,7 @@ const BookCard = ({ book, compact, onDelete, onLogSaved, onStatusChange }: BookC
             </span>
           )}
 
-          {/* Log reading overlay button — only for active books */}
+          {/* Log reading overlay button: only for active books */}
           {(book.status === 'reading' || book.status === 'want') && (
             <button
               onClick={() => setLogOpen(true)}

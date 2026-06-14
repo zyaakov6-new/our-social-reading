@@ -29,10 +29,10 @@ const ProGate = ({ children, title, desc }: ProGateProps) => {
   const { t } = useLanguage();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  // Still loading — render nothing to avoid layout flash
+  // Still loading: render nothing to avoid layout flash
   if (isLoading) return null;
 
-  // User has Pro — render children as-is
+  // User has Pro: render children as-is
   if (isPro) return <>{children}</>;
 
   return (

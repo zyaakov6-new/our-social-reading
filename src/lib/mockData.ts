@@ -1,2 +1,2 @@
-// This file is intentionally empty — dead code removed.
+// This file is intentionally empty. Dead code removed.
 export {};

@@ -41,7 +41,7 @@ export function usePWAInstall() {
     if (isStandalone) { setIsInstalled(true); return; }
     if (isPermanentlyDismissed() || isSnoozed()) return;
 
-    // iOS Safari: no beforeinstallprompt — show manual guide after a short delay
+    // iOS Safari: no beforeinstallprompt, show manual guide after a short delay
     if (isIOS && isSafari) {
       const t = setTimeout(() => setShowIOS(true), 8000);
       return () => clearTimeout(t);
@@ -67,7 +67,7 @@ export function usePWAInstall() {
     return outcome === 'accepted';
   };
 
-  /** "Not now" — hide for SNOOZE_DAYS days, then show again */
+  /** "Not now": hide for SNOOZE_DAYS days, then show again */
   const snooze = () => {
     const until = Date.now() + SNOOZE_DAYS * 24 * 60 * 60 * 1000;
     localStorage.setItem(SNOOZE_KEY, String(until));

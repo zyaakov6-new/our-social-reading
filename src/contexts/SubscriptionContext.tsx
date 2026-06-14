@@ -28,7 +28,7 @@ interface SubscriptionContextType {
 // ── Env vars ──────────────────────────────────────────────────────────────────
 const PADDLE_CLIENT_TOKEN = import.meta.env.VITE_PADDLE_CLIENT_TOKEN as string | undefined;
 const PADDLE_PRICE_ID = import.meta.env.VITE_PADDLE_PRICE_ID as string | undefined;
-// Optional ILS price for Israeli users — create a separate price in Paddle Dashboard
+// Optional ILS price for Israeli users: create a separate price in Paddle Dashboard
 const PADDLE_PRICE_ID_ILS = import.meta.env.VITE_PADDLE_PRICE_ID_ILS as string | undefined;
 // Yearly price IDs
 const PADDLE_YEARLY_PRICE_ID = import.meta.env.VITE_PADDLE_YEARLY_PRICE_ID as string | undefined;
@@ -167,10 +167,10 @@ export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [user?.id]);
 
-  // ── Open Paddle checkout overlay — returns true if checkout opened ───────────
+  // Open Paddle checkout overlay; returns true if checkout opened
   const openCheckout = useCallback((billing: 'monthly' | 'yearly' = 'monthly'): boolean => {
     if (!PADDLE_CLIENT_TOKEN || !PADDLE_PRICE_ID) {
-      toast.error("Checkout not configured — add Paddle env vars in Vercel");
+      toast.error("Checkout not configured. Add Paddle env vars in Vercel");
       return false;
     }
     if (!paddleReady) {

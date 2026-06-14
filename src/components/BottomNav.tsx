@@ -64,7 +64,7 @@ const BottomNav = () => {
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
         }}
       >
-        {/* PRO upgrade strip — visible for free logged-in users */}
+        {/* PRO upgrade strip: visible for free logged-in users */}
         {!isLoading && !isPro && (
           <button
             onClick={() => setUpgradeOpen(true)}

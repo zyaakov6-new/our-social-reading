@@ -19,7 +19,7 @@ export interface ReadingSession {
   pagesRead: number;
   /** ISO date string (YYYY-MM-DD) used for streaks/heatmap */
   sessionDate: string;
-  /** ISO timestamp of the session (created_at) — format in components via formatTimeAgo */
+  /** ISO timestamp of the session (created_at); format in components via formatTimeAgo */
   timestamp: string;
   likes: number;
   comments: number;
@@ -89,7 +89,7 @@ export const useReadingSessions = () => {
         profileMap[user.id] = { displayName: myFallbackName };
       }
 
-      // Fetch all reading sessions globally — include likes/comments counts to avoid N×2 per-card requests
+      // Fetch all reading sessions globally; include likes/comments counts to avoid N×2 per-card requests
       const { data, error } = await supabase
         .from("reading_sessions")
         .select(`
