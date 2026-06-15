@@ -152,7 +152,7 @@ const AppMockup = ({ lang }: { lang: string }) => {
           boxShadow: "0 36px 90px hsl(126 15% 10% / 0.5), 0 0 0 1px hsl(0 0% 100% / 0.08)",
         }}
       >
-        <div className="rounded-[2.25rem] overflow-hidden" style={{ background: "hsl(44 27% 84%)" }}>
+        <div className="rounded-[2.25rem] overflow-hidden flex flex-col" style={{ background: "hsl(44 27% 84%)", aspectRatio: "9 / 19.5" }}>
           <div className="flex justify-center pt-2 pb-1">
             <div className="h-[5px] w-[72px] rounded-full" style={{ background: "hsl(210 11% 16%)" }} />
           </div>
@@ -172,8 +172,10 @@ const AppMockup = ({ lang }: { lang: string }) => {
 
           <div className="mx-3 h-px" style={{ background: "hsl(44 12% 74%)" }} />
 
+          {/* Content fills the screen; slack distributes evenly */}
+          <div className="flex-1 flex flex-col justify-evenly py-1.5">
           {/* Stats strip */}
-          <div className="mx-3 mt-2 grid grid-cols-3 gap-1.5">
+          <div className="mx-3 grid grid-cols-3 gap-1.5">
             {[
               { v: "3", l: isHe ? "ספרים" : "books", c: "hsl(126 15% 28%)" },
               { v: "50", l: isHe ? "דק׳ השבוע" : "min / wk", c: "hsl(188 60% 30%)" },
@@ -191,7 +193,7 @@ const AppMockup = ({ lang }: { lang: string }) => {
           </div>
 
           {/* Feed card 1 (current user) */}
-          <div className="mx-3 mt-2.5 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(44 15% 78%)", background: "hsl(44 22% 90%)" }}>
+          <div className="mx-3 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(44 15% 78%)", background: "hsl(44 22% 90%)" }}>
             <div className="flex items-center justify-between px-3 py-1.5" style={{ background: "hsl(44 18% 86%)" }}>
               <span style={{ fontSize: 8, color: "hsl(210 8% 55%)" }}>{isHe ? "לפני שעה" : "1 hour ago"}</span>
               <span className="text-[9px] font-bold" style={{ color: "hsl(28 71% 57%)" }}>{isHe ? "אני" : "me"}</span>
@@ -211,7 +213,7 @@ const AppMockup = ({ lang }: { lang: string }) => {
           </div>
 
           {/* Feed card 2 (friend) */}
-          <div className="mx-3 mt-1.5 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(44 15% 78%)", background: "hsl(44 22% 90%)" }}>
+          <div className="mx-3 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(44 15% 78%)", background: "hsl(44 22% 90%)" }}>
             <div className="flex items-center justify-between px-3 py-1.5" style={{ background: "hsl(44 18% 86%)" }}>
               <span style={{ fontSize: 8, color: "hsl(210 8% 55%)" }}>{isHe ? "לפני 3 ש׳" : "3 hrs ago"}</span>
               <span className="text-[9px] font-semibold" style={{ color: "hsl(210 11% 14%)" }}>{isHe ? "נועה" : "Noa"}</span>
@@ -229,7 +231,7 @@ const AppMockup = ({ lang }: { lang: string }) => {
           </div>
 
           {/* Weekly heatmap */}
-          <div className="mx-3 my-2 rounded-xl p-2.5" style={{ background: "hsl(44 22% 90%)", border: "1px solid hsl(44 15% 78%)" }}>
+          <div className="mx-3 rounded-xl p-2.5" style={{ background: "hsl(44 22% 90%)", border: "1px solid hsl(44 15% 78%)" }}>
             <p className="text-[8px] font-semibold mb-1.5" style={{ color: "hsl(210 8% 48%)" }}>{isHe ? "רצף הקריאה שלי" : "My reading streak"}</p>
             <div className="flex justify-between gap-0.5">
               {days.map((d, i) => (
@@ -240,10 +242,11 @@ const AppMockup = ({ lang }: { lang: string }) => {
               ))}
             </div>
           </div>
+          </div>
 
           {/* Bottom nav (anchors the phone) */}
           <div
-            className="mt-2 flex items-center justify-around px-4 py-2.5"
+            className="flex items-center justify-around px-4 py-2.5"
             style={{ borderTop: "1px solid hsl(44 12% 74%)", background: "hsl(44 24% 87%)" }}
           >
             {[
