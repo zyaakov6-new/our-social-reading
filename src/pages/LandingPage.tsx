@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
   Check,
   Flame,
+  Home,
   Quote,
   Target,
   Trophy,
@@ -170,6 +172,24 @@ const AppMockup = ({ lang }: { lang: string }) => {
 
           <div className="mx-3 h-px" style={{ background: "hsl(44 12% 74%)" }} />
 
+          {/* Stats strip */}
+          <div className="mx-3 mt-2 grid grid-cols-3 gap-1.5">
+            {[
+              { v: "3", l: isHe ? "ספרים" : "books", c: "hsl(126 15% 28%)" },
+              { v: "50", l: isHe ? "דק׳ השבוע" : "min / wk", c: "hsl(188 60% 30%)" },
+              { v: "7", l: isHe ? "רצף" : "streak", c: "hsl(28 71% 57%)" },
+            ].map((s) => (
+              <div
+                key={s.l}
+                className="rounded-xl py-2 flex flex-col items-center"
+                style={{ background: "hsl(44 22% 90%)", border: "1px solid hsl(44 15% 78%)" }}
+              >
+                <span className="font-display text-base font-bold leading-none" style={{ color: s.c }}>{s.v}</span>
+                <span className="mt-1" style={{ fontSize: 7, color: "hsl(210 8% 48%)" }}>{s.l}</span>
+              </div>
+            ))}
+          </div>
+
           {/* Feed card 1 (current user) */}
           <div className="mx-3 mt-2.5 rounded-2xl overflow-hidden" style={{ border: "1px solid hsl(44 15% 78%)", background: "hsl(44 22% 90%)" }}>
             <div className="flex items-center justify-between px-3 py-1.5" style={{ background: "hsl(44 18% 86%)" }}>
@@ -219,6 +239,31 @@ const AppMockup = ({ lang }: { lang: string }) => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Bottom nav (anchors the phone) */}
+          <div
+            className="mt-2 flex items-center justify-around px-4 py-2.5"
+            style={{ borderTop: "1px solid hsl(44 12% 74%)", background: "hsl(44 24% 87%)" }}
+          >
+            {[
+              { Icon: Home, active: true },
+              { Icon: BookOpen, active: false },
+              { Icon: Users, active: false },
+              { Icon: Trophy, active: false },
+            ].map((n, i) => (
+              <span
+                key={i}
+                className="flex items-center justify-center rounded-lg"
+                style={
+                  n.active
+                    ? { background: "hsl(126 15% 28%)", color: "hsl(44 30% 93%)", padding: "5px 10px" }
+                    : { color: "hsl(210 8% 52%)", padding: "5px 6px" }
+                }
+              >
+                <n.Icon size={13} strokeWidth={n.active ? 2.2 : 1.6} aria-hidden />
+              </span>
+            ))}
           </div>
         </div>
       </div>
